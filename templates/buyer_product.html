@@ -1,0 +1,465 @@
+{% extends "buyer_homepage.html" %}
+
+{% block title %}{{ products[0]['product_name'] }}{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_categories.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product_show.css') }}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<!-- MESSAGE BOX -->
+{% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        <div class="alert-container header-text px-5">
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+<!-- END - MESSAGE BOX -->
+
+<!-- Breadcrumb -->
+<div class="container-fluid mt-2 px-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('buyer_homepage.show_buyer_homepage') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('buyer_categories.category_page', category=products[0]['product_category'].lower().replace(' ', '_')) }}">{{ products[0]['product_category'] }}</a></li>
+            <li class="breadcrumb-item active header-text" aria-current="page">{{ products[0]['product_name'] }}</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="product-container ">
+    
+    <div class="row">
+        <!-- Product Image Section (Left) -->
+        <div class="col-md-4 mb-3 product-images-container w-100">
+            <!-- Main Product Image -->
+            <div id="main-image" class="product-images w-100" style="position: relative;">
+                {% if products[0]['product_main_pic'] %}
+                    <img src="{{ url_for('seller_inventory.serve_product_main_pic', filename=products[0]['product_main_pic']) }}" 
+                         alt="Product Image {{ products[0]['product_name'] }}" 
+                         class="img-fluid">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/placeholder/product_placeholder.png') }}" 
+                         alt="No Product Image" 
+                         class="img-fluid">
+                {% endif %}
+
+                {% if like_status %}
+                <form action="{{ url_for('buyer_product.unlike_product', product_info_id=products[0]['product_info_id']) }}" method="POST" style="position: absolute; top: 10px; right: 10px;">
+                    <button class="btn" style="border: none; background: none;" type="submit">
+                        <i class="bi bi-heart-fill text-primary fs-3"></i>
+                    </button>
+                </form>
+                {% else %}
+                <form action="{{ url_for('buyer_product.like_product', product_info_id=products[0]['product_info_id']) }}" method="POST" style="position: absolute; top: 10px; right: 10px;">
+                    <button class="btn" style="border: none; background: none;" type="submit">
+                        <i class="bi bi-heart text-primary fs-3"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+            <!-- Carousel for additional images with 3 images per slide -->
+            <div id="imageCarousel" class="carousel slide">
+                <div class="carousel-inner">
+                    <!-- First slide with the main product image -->
+                    <div class="carousel-item active">
+                        <div class="row">
+                            <div class="col-4">
+                                {% if products[0]['product_main_pic'] %}
+                                    <img src="{{ url_for('seller_inventory.serve_product_main_pic', filename=products[0]['product_main_pic']) }}" 
+                                         class="img-fluid mb-3 thumbnail"
+                                         alt="Main image"
+                                         style="cursor: pointer;">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='img/placeholder/product_placeholder.png') }}" 
+                                         class="img-fluid mb-3 thumbnail"
+                                         alt="No image"
+                                         style="cursor: pointer;">
+                                {% endif %}
+                            </div>
+                            {% for image in images[:2] %}
+                            <div class="col-4">
+                                <img src="{{ url_for('seller_inventory.serve_product_image', filename=image['product_image']) }}" 
+                                     class="img-fluid mb-3 thumbnail"
+                                     alt="Additional image"
+                                     style="cursor: pointer;">
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {% for i in range(2, images|length, 3) %}
+                    <div class="carousel-item">
+                        <div class="row">
+                            {% for j in range(i, i+3) %}
+                                {% if j < images|length %}
+                                <div class="col-4">
+                                    <img src="{{ url_for('seller_inventory.serve_product_image', filename=images[j]['product_image']) }}" 
+                                         class="img-fluid mb-3 thumbnail"
+                                         alt="Additional image"
+                                         style="cursor: pointer;">
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Product Details Section -->
+        <div class="col-md-8 product-details-container">
+            <div class="product-details">
+                
+                <!-- Product Rating -->
+                <div class="product-rating d-flex align-items-center">
+                    <div class="stars text-primary fs-5">
+                        {% set rounded_rating = average_rating|default(0)|round(0, 'floor') %}
+                        {% for i in range(5) %}
+                            <i class="fa{{ 's' if i < rounded_rating else 'r' }} fa-star"></i>
+                        {% endfor %}
+                    </div>
+                    <span class="ms-2 fs-5">{{ average_rating|default(0) }}</span>
+                    <span class="text-secondary ms-1 fs-5">({{ total_ratings|default(0) }} reviews)</span>
+                </div>
+
+                <!-- Product title -->
+                <h6 class="text-left fw-bold d-none">{{ products[0]['product_id'] }}</h6>
+                <h6 class="text-left fw-bold d-none">{{ products[0]['shop_id'] }}</h6>
+                <h6 class="text-left fw-bold d-none">{{ products[0]['seller_id'] }}</h6>
+                <h1 class="text-left fw-bold txt-product-name">{{ products[0]['product_name'] }}</h1>
+                <p class="txt-price d-none">₱ {{ "{:,.2f}".format(products[0]['price']) }}</p>
+
+                <!-- Add to Cart Form -->
+                <form action="{{ url_for('buyer_product.add_to_cart') }}" method="POST" id="addToCartForm">
+                    <input type="hidden" name="product_info_id" value="{{ products[0]['product_info_id'] }}">
+                                   
+                    <!-- Price Display -->
+                    <div class="mb-5">
+                        <span id="selected-price" class="txt-price body-text">₱ {{ "{:,.2f}".format(products[0]['price']) }}</span>
+                        <br>
+                        <small class="text-muted d-none">Shipping Fee: ₱ {{ "{:,.2f}".format(products[0]['shipping_fee']) }}</small>
+                    </div>
+
+                    <!-- Variants -->
+                    <div class="product-variants mb-4">
+                        <strong class="text-muted header-text">Variant:</strong>
+                        <div class="variant-options d-flex flex-wrap gap-2 mt-2">
+                            {% set variants = products|groupby('variant') %}
+                            {% for variant, variant_products in variants %}
+                            <div class="variant-container">
+                                <input class="form-check-input d-none" type="radio" name="variant" value="{{ variant }}" id="variant-{{ loop.index }}" required>
+                                <label class="form-check-label btn btn-outline-primary" for="variant-{{ loop.index }}">
+                                    {{ variant }}
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Colors (from variants) -->
+                    <div class="product-colors mb-3">
+                        <strong class="text-muted header-text">Color:</strong>
+                        <div class="color-options d-flex flex-wrap gap-2 mt-2">
+                            {% for product in products %}
+                            <div class="color-container"  data-variant="{{ product['variant'] }}" data-stock="{{ product['stock'] }}" data-price="{{ product['price'] }}">
+                                <input class="form-check-input d-none" type="radio" name="color" value="{{ product['color'] }}" id="color-{{ loop.index }}" required>
+                                <label class="form-check-label btn btn-outline-primary" for="color-{{ loop.index }}">
+                                    {{ product['color'] }} (Stock: {{ product['stock'] }})
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Stock Display -->
+                    <div class="stock-display mb-5">
+                        <strong class="text-muted">Available Stock: </strong>
+                        <span id="selected-stock" class="fw-bold text-primary">Select variant and color</span>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="product-quantity mb-4">
+                        <strong class="text-muted">Quantity:</strong>
+                        <div class="d-flex align-items-center mt-2">
+                            <div class="input-group" style="max-width: 150px;">
+                                <button class="btn btn-primary" type="button" id="decrease-quantity">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" id="product-quantity" name="quantity" class="form-control text-center" min="1" value="1" max="1" readonly>
+                                <button class="btn btn-primary" type="button" id="increase-quantity">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Add to cart -->
+                    <div class="product-actions d-flex align-items-center">
+                        <button type="submit" class="btn btn-primary btn-lg" style="width: 200px;" id="addToCartBtn" disabled>
+                            <i class="fas fa-cart-plus me-2" style="font-size: 1.2rem;"></i> Add to Cart
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Description and Specs -->
+<div class="product-description-specs-container">
+    <div class="product-description-container">
+        <h4 class="description-title">Description of {{ products[0]['product_name'] }}</h4>
+        <div class="description-content">
+            <p class="fs-5" style="text-align: justify;">
+                {{ products[0]['product_description'] | replace('\n', '<br>') | safe }}
+            </p>
+        </div>
+    </div>    
+
+    <div class="product-specs-container">
+        <h4 class="specs-title">Specifications of {{ products[0]['product_name'] }}</h4>
+        <div class="specs-content">
+            {% for spec in specs %}
+            <div class="d-flex flex-column gap-1">
+                <span class="text-muted">{{ spec['specs_type'] }}</span>
+                <span class="fs-5">{{ spec['specs_content'] }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Shop Info -->
+<div class="seller-shop-container">
+    <div class="shop-container d-flex flex-row justify-content-between w-100 align-items-center">
+        <div class="shop-profile">
+            {% if products[0]['shop_pic'] %}
+                <img src="{{ url_for('seller_shop_profile.serve_shop_pic', filename=products[0]['shop_pic']) }}" class="img-fluid" alt="Shop Image">
+            {% else %}
+                <img src="{{ url_for('static', filename='img/placeholder/shop_placeholder.png') }}" class="img-fluid" alt="No Shop Image">
+            {% endif %}
+            <div class="d-flex flex-column align-items-start justify-content-center mt-3">
+                <h3 class="text-black">{{ products[0]['shop_name'] }}</h3>
+                <p class="text-black">Seller: {{ products[0]['seller_name'] }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- More Products from Same Shop -->
+    {% if shop_products %}
+    <div class="shop-products-container mt-5 mx-3 border-0">
+        <div class="container-fluid">
+            <h4 class="mb-4">More Products from {{ products[0]['shop_name'] }}</h4>
+            <div class="row row-cols-2 row-cols-md-4 g-3">
+                {% for product in shop_products %}
+                <div class="col">
+                    <div class="product-item">
+                        <div class="product-image-container position-relative">
+                            <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}">
+                                {% if product['product_main_pic'] %}
+                                    <img src="{{ url_for('seller_inventory.serve_product_main_pic', filename=product['product_main_pic']) }}" 
+                                        alt="{{ product['product_name'] }}" 
+                                        class="product-image img-fluid w-100" style="height: 200px; object-fit: cover;">
+                                {% else %}
+                                    <div class="product-image img-fluid w-100 d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                        <span class="text-muted">No Image</span>
+                                    </div>
+                                {% endif %}
+                                <div class="hover-overlay position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50">
+                                    <span class="fs-5 text-white">See Product</span>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="product-details mt-3">
+                            <a href="#" class="text-dark">
+                                <h6 class="fw-bold product-name">{{ product['product_name'] }}</h6>
+                                <p>
+                                    {% if product['min_price'] == product['max_price'] %}
+                                        ₱{{ "{:,.2f}".format(product['min_price']) }}
+                                    {% else %}
+                                        ₱{{ "{:,.2f}".format(product['min_price']) }} - ₱{{ "{:,.2f}".format(product['max_price']) }}
+                                    {% endif %}
+                                </p>
+                                <small class="text-muted">{{ product['variant_count'] }} Variants | {{ product['color_count'] }} Colors</small>
+                            </a>
+
+                            <!-- Product Rating -->
+                            <div class="product-rating d-flex align-items-center flex-row mb-2">
+                                {% set rating = product.get('Average_Rating', 0) %}
+                                <div class="stars text-primary">
+                                    {% for i in range(5) %}
+                                        <i class="fa{{ 's' if i < rating|round(0) else 'r' }} fa-star"></i>
+                                    {% endfor %}
+                                </div>
+                                <span class="ms-2">{{ "{:.1f}".format(rating) }}</span>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="product-actions d-flex align-items-center flex-row w-100 gap-2">
+                                <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}" 
+                                class="btn btn-primary text-white w-100 d-flex align-items-center justify-content-center gap-2">
+                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                </a>
+
+                                <!-- Like Button -->
+                                <form method="POST" action="{{ url_for('buyer_categories.toggle_like_product', product_info_id=product['product_info_id']) }}">
+                                    <button type="submit" class="btn-outline-primary border-0" style="background-color: transparent;">
+                                        {% if product.liked %}
+                                            <i class="bi bi-heart-fill" style="font-size: 1.5rem;"></i>
+                                        {% else %}
+                                            <i class="bi bi-heart" style="font-size: 1.5rem;"></i>
+                                        {% endif %}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+
+
+<script>
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    const mainImage = document.querySelector('#main-image img');
+    thumbnails.forEach(thumbnail => {
+        thumbnail.addEventListener('click', function () {
+            mainImage.src = thumbnail.src;
+        });
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const variantContainers = document.querySelectorAll('.variant-container');
+        const colorContainers = document.querySelectorAll('.color-container');
+        const stockDisplay = document.getElementById('selected-stock');
+        const priceDisplay = document.getElementById('selected-price');
+        const quantityInput = document.getElementById('product-quantity');
+        const addToCartBtn = document.getElementById('addToCartBtn');
+        
+        let selectedVariant = null;
+        let selectedColor = null;
+        let maxStock = 0;
+
+        // Variant selection
+        variantContainers.forEach(function (container) {
+            container.addEventListener('click', function () {
+                variantContainers.forEach(function (c) {
+                    c.classList.remove('selected');
+                    c.querySelector('label').classList.remove('btn-primary');
+                    c.querySelector('label').classList.add('btn-outline-primary');
+                });
+                container.classList.add('selected');
+                container.querySelector('label').classList.remove('btn-outline-primary');
+                container.querySelector('label').classList.add('btn-primary');
+                
+                selectedVariant = container.querySelector('input').value;
+                updateColorOptions();
+                checkFormValidity();
+            });
+        });
+
+        // Color selection
+        colorContainers.forEach(function (container) {
+            container.addEventListener('click', function () {
+                if (container.style.display === 'none') return;
+                
+                colorContainers.forEach(function (c) {
+                    c.classList.remove('selected');
+                    c.querySelector('label').classList.remove('btn-primary');
+                    c.querySelector('label').classList.add('btn-outline-primary');
+                });
+                container.classList.add('selected');
+                container.querySelector('label').classList.remove('btn-outline-primary');
+                container.querySelector('label').classList.add('btn-primary');
+                
+                selectedColor = container.querySelector('input').value;
+                maxStock = parseInt(container.dataset.stock);
+                const price = parseFloat(container.dataset.price);
+                
+                stockDisplay.textContent = maxStock + ' items available';
+                priceDisplay.textContent = '₱ ' + price.toLocaleString('en-US', {minimumFractionDigits: 2});
+                
+                quantityInput.max = maxStock;
+                if (parseInt(quantityInput.value) > maxStock) {
+                    quantityInput.value = maxStock;
+                }
+                
+                checkFormValidity();
+            });
+        });
+
+        function updateColorOptions() {
+            colorContainers.forEach(function (container) {
+                if (container.dataset.variant === selectedVariant) {
+                    container.style.display = 'block';
+                } else {
+                    container.style.display = 'none';
+                    container.classList.remove('selected');
+                    container.querySelector('label').classList.remove('btn-primary');
+                    container.querySelector('label').classList.add('btn-outline-primary');
+                }
+            });
+            
+            // Reset color selection
+            selectedColor = null;
+            stockDisplay.textContent = 'Select variant and color';
+            checkFormValidity();
+        }
+
+        function checkFormValidity() {
+            if (selectedVariant && selectedColor && parseInt(quantityInput.value) > 0) {
+                addToCartBtn.disabled = false;
+            } else {
+                addToCartBtn.disabled = true;
+            }
+        }
+
+        // Quantity controls
+        document.getElementById("increase-quantity").addEventListener("click", function () {
+            let currentValue = parseInt(quantityInput.value, 10);
+            if (currentValue < maxStock) {
+                quantityInput.value = currentValue + 1;
+                checkFormValidity();
+            }
+        });
+
+        document.getElementById("decrease-quantity").addEventListener("click", function () {
+            let currentValue = parseInt(quantityInput.value, 10);
+            if (currentValue > 1) {
+                quantityInput.value = currentValue - 1;
+                checkFormValidity();
+            }
+        });
+
+        quantityInput.addEventListener('input', function() {
+            checkFormValidity();
+        });
+    });
+</script>
+
+{% endblock %}

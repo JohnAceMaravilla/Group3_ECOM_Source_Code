@@ -1,0 +1,364 @@
+{% extends "buyer_homepage.html" %}
+
+{% block title %}Shopping Cart - Fenamaz{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product_show.css') }}">
+
+<div class="container-fluid cart-container">
+
+    <!-- MESSAGE BOX -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        <div class="alert-container header-text">
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+    <!-- END - MESSAGE BOX -->
+    
+    <!-- Breadcrumb -->
+    <nav class="p-0 m-0 mt-3" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('buyer_homepage.show_buyer_homepage')}}">Home</a></li>
+            <li class="breadcrumb-item active header-text" aria-current="page">Your Cart</li>
+        </ol>
+    </nav>
+
+
+    <div class="row">
+
+        <!-- Cart Items Section -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white border-bottom">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 d-flex align-items-center gap-2">
+                            <img src=" {{ url_for('static', filename='img/buyer_navs/cart.png') }}" alt="Cart Icon" height="24">
+                            Shopping Cart ({{ total_items }} items)
+                        </h5>
+                        {% if total_items > 0 %}
+                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                data-bs-toggle="modal" data-bs-target="#clearCartModal">
+                            <i class="bi bi-trash me-1"></i>Clear Cart
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="card-body p-0">
+                    {% if shops %}
+                        {% for shop in shops %}
+                        <div class="shop-section border-bottom">
+                            <!-- Shop Header -->
+                            <div class="shop-header bg-light p-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src=" {{ url_for('static', filename='img/icons/store.png') }}" alt="Shop Icon" height="20">
+                                    <h6 class="mb-0 header-text fs-6">{{ shop['shop_name'] }}</h6>
+                                </div>
+                            </div>
+
+                            <!-- Shop Items -->
+                            <div class="shop-items">
+                                {% for item in shop['items'] %}
+                                <div class="cart-item p-3 border-bottom">
+                                    <div class="row align-items-center">
+                                        <!-- Product Image -->
+                                        <div class="col-auto">
+                                            {% if item.product_main_pic %}
+                                                <img src="{{ url_for('seller_inventory.serve_product_main_pic', filename=item.product_main_pic) }}" 
+                                                     alt="{{ item.product_name }}" 
+                                                     class="rounded border" 
+                                                     style="width: 120px; height: 120px; object-fit: cover;">
+                                            {% else %}
+                                                <img src="{{ url_for('static', filename='img/placeholder/product_placeholder.png') }}" 
+                                                     alt="No Image" 
+                                                     class="rounded border" 
+                                                     style="width: 120px; height: 120px; object-fit: cover;">
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Product Details -->
+                                        <div class="col">
+                                            <h6 class="mb-2 fw-semibold header-text fs-4">{{ item.product_name }}</h6>
+                                            <p class="text-muted mb-2 body-text">
+                                                {{ item.variant }}, {{ item.color }}
+                                            </p>
+                                            {% if item.stock_status == 'Out of Stock' %}
+                                                <span class="badge bg-danger">Out of Stock</span>
+                                            {% elif item.stock_status == 'Nearly Out of Stock' %}
+                                                <span class="badge bg-warning">Low Stock ({{ item.stock }} left)</span>
+                                            {% else %}
+                                                <span class="badge bg-success">In Stock</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <!-- Quantity Controls -->
+                                        <div class="col-auto">
+                                            <div class="d-flex align-items-center ">
+                                                <form method="POST" action="{{ url_for('buyer_cart.update_quantity') }}" class="d-inline">
+                                                    <input type="hidden" name="cart_id" value="{{ item.cart_id }}">
+                                                    <input type="hidden" name="quantity" value="{{ item.quantity - 1 }}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary" 
+                                                            {% if item.quantity <= 1 or item.stock_status == 'Out of Stock' %}disabled{% endif %}>
+                                                        <i class="bi bi-dash"></i>
+                                                    </button>
+                                                </form>
+                                                
+                                                <span class="px-3 py-1 border-start border-end body-text">{{ item.quantity }}</span>
+                                                
+                                                <form method="POST" action="{{ url_for('buyer_cart.update_quantity') }}" class="d-inline">
+                                                    <input type="hidden" name="cart_id" value="{{ item.cart_id }}">
+                                                    <input type="hidden" name="quantity" value="{{ item.quantity + 1 }}">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary" 
+                                                            {% if item.quantity >= item.stock or item.stock_status == 'Out of Stock' %}disabled{% endif %}>
+                                                        <i class="bi bi-plus"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                        <!-- Total Price -->
+                                        <div class="col-auto text-center">
+                                            <div class="fw-semibold text-muted fs-5 body-text">
+                                                ₱{{ "{:,.2f}".format(item.item_total) }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Actions -->
+                                        <div class="col-auto">
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" data-bs-target="#removeItemModal"
+                                                    data-cart-id="{{ item.cart_id }}"
+                                                    data-product-name="{{ item.product_name }}"
+                                                    title="Remove item">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-cart-x display-1 text-muted"></i>
+                            <h4 class="mt-3 text-muted">Your cart is empty</h4>
+                            <p class="text-muted">Add some products to your cart to get started!</p>
+                            <a href="{{ url_for('buyer_homepage.show_buyer_homepage') }}" class="btn btn-primary">
+                                Continue Shopping
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary Section -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm position-sticky" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0 fw-semibold d-flex align-items-center gap-2 header-text">
+                        <img src=" {{ url_for('static', filename='img/icons/shopping-list.png') }}" alt="Order Summary Icon" height="20">
+                        Order Summary
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal ({{ total_items }} items)</span>
+                        <span class="body-text">₱{{ "{:,.2f}".format(subtotal) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping Fee</span>
+                        <span class="body-text">₱{{ "{:,.2f}".format(total_shipping) }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold text-dark fs-5">
+                        <span>Total</span>
+                        <span class="body-text">₱{{ "{:,.2f}".format(grand_total) }}</span>
+                    </div>
+                </div>
+                {% if shops %}
+                <div class="card-footer bg-white border-top-0">
+                    <button type="button" class="btn p-2 btn-primary text-white w-100 fw-semibold d-flex align-items-center gap-2 justify-content-center"
+                            data-bs-toggle="modal" data-bs-target="#checkoutModal">
+                        <img src=" {{ url_for('static', filename='img/icons/shopping-bag.png') }}" alt="Checkout Icon" height="20">
+                        PROCEED TO CHECKOUT
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Delivery Location -->
+            {% if shops and buyer_address %}
+            <div class="card shadow-sm mt-3 header-text">
+                <div class="card-body">
+                    <span class="fw-semibold mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt"></i>
+                        Delivery Location
+                    </span>
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-geo-alt-fill text-danger"></i>
+                        <div class="">
+                            <span>{{ buyer_address.house_no }} {{ buyer_address.street }} Brgy. {{ buyer_address.barangay }}, {{ buyer_address.city }}, {{ buyer_address.province }}</span>
+                            {% if buyer_address.phone %}
+                            <div class="text-muted mt-1">{{ buyer_address.phone }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Clear Cart Confirmation Modal -->
+<div class="modal fade" id="clearCartModal" tabindex="-1" aria-labelledby="clearCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content header-text">
+            <div class="modal-header bg-primary">
+                <h6 class="modal-title text-white" id="clearCartModalLabel">Clear Cart</h6>
+                <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body d-flex align-items-center">
+                Are you sure you want to clear your entire cart? This action cannot be undone.
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{{ url_for('buyer_cart.clear_cart') }}" class="btn btn-primary">
+                    Clear Cart
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Remove Item Confirmation Modal -->
+<div class="modal fade" id="removeItemModal" tabindex="-1" aria-labelledby="removeItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content header-text">
+            <div class="modal-header bg-primary">
+                <h6 class="modal-title text-white" id="removeItemModalLabel">Remove Item</h6>
+                <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Are you sure you want to remove <strong id="removeItemName"></strong> from your cart?</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('buyer_cart.remove_item') }}" class="d-inline">
+                    <input type="hidden" name="cart_id" id="removeItemCartId">
+                    <button type="submit" class="btn btn-primary">
+                        Remove Item
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Checkout Confirmation Modal -->
+<div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content header-text">
+            <div class="modal-header bg-primary">
+                <h6 class="modal-title text-white" id="checkoutModalLabel">Confirm Checkout</h6>
+                <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">You are about to checkout all items in your cart:</p>
+                <div class="bg-light p-3 rounded">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Total Items:</span>
+                        <span class="fw-bold body-text">{{ total_items }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span>
+                        <span class="body-text">₱{{ "{:,.2f}".format(subtotal) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Shipping Fee:</span>
+                        <span class="body-text">₱{{ "{:,.2f}".format(total_shipping) }}</span>
+                    </div>
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between fw-bold text-dark">
+                        <span class="body-text">Total Amount:</span>
+                        <span class="body-text">₱{{ "{:,.2f}".format(grand_total) }}</span>
+                    </div>
+                </div>
+                <p class="mt-3 mb-0 text-muted small">Payment Method: Cash on Delivery</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('buyer_cart.checkout') }}" class="d-inline">
+                    <button type="submit" class="btn btn-primary">
+                        Checkout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle remove item modal data
+document.addEventListener('DOMContentLoaded', function() {
+    const removeItemModal = document.getElementById('removeItemModal');
+    if (removeItemModal) {
+        removeItemModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const cartId = button.getAttribute('data-cart-id');
+            const productName = button.getAttribute('data-product-name');
+            
+            const modalCartId = removeItemModal.querySelector('#removeItemCartId');
+            const modalProductName = removeItemModal.querySelector('#removeItemName');
+            
+            modalCartId.value = cartId;
+            modalProductName.textContent = productName;
+        });
+    }
+});
+</script>
+
+<style>
+.cart-item:hover {
+    background-color: #f8f9fa;
+}
+
+.shop-section {
+    border-left: 4px solid #0d6efd;
+}
+
+.shop-header {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.position-sticky {
+    position: -webkit-sticky;
+    position: sticky;
+}
+
+@media (max-width: 768px) {
+    .cart-item .row {
+        flex-wrap: wrap;
+    }
+    
+    .cart-item .col-auto {
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+{% endblock %}

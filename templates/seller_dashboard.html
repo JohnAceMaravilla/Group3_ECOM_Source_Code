@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>{% block title %}Seller Dashboard{% endblock %}</title>
+
+   <!-- FAVICON -->
+   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo/favicon.png') }}">
+
+   <!-- BOOTSTRAP LINKS -->
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+   <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet" />
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+      integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+   
+   <!-- CHART.JS -->
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   
+   <!-- OUTFIT FONT -->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+
+   <!-- INTER FONT -->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+   
+   <!-- CUSTOM CSS -->
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/general.css') }}">
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/seller.css') }}">
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/notification.css') }}">
+
+</head>
+
+<body>
+  
+   <div class="d-flex">
+
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar-toggle">
+         <!-- Sidebar Logo -->
+         <div class="sidebar-logo d-flex flex-row align-items-center">
+            {% if session.get('profile_pic') %}
+               <img src="{{ url_for('seller_settings.serve_profile_pic', filename=session['profile_pic']) }}" alt="User Logo" class="img-fluid" style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px;">
+            {% else %}
+               <img src="{{ url_for('static', filename='img/profile/default_profile.png') }}" alt="Default Logo" class="img-fluid border" style="width: 40px; height: 40px; object-fit: cover; border-radius: 5px;">
+            {% endif %}
+            <div class="d-flex flex-column align-items-start text-white ms-3 w-100">
+               {% if session.get('personal_info') %}
+                  <span class="fw-semibold text-truncate text-dark">{{ session['personal_data']['firstname'] }} {{ session['personal_data']['lastname'] }}</span>
+                  <span class="text-truncate text-dark" style="font-size: 0.9rem;">{{ session['contact_data']['email'] }}</span>
+               {% else %}
+                  <span class="fw-semibold text-truncate text-dark">Guest</span>
+                  <span class="text-truncate text-dark" style="font-size: 0.9rem;">Please log in</span>
+               {% endif %}
+            </div>
+         </div>
+
+         <!-- Sidebar Navs -->
+         <ul class="sidebar-nav p-0 d-flex flex-column gap-3">
+            <li class="sidebar-header text-secondary fw-semibold">
+               GENERAL
+            </li>
+
+            <!-- Dashboard -->        
+            <li class="sidebar-item ">
+                <a href="{{ url_for('seller_dashboard.dashboard')}}" class="sidebar-link {% if request.path == url_for('seller_dashboard.dashboard') %}active{% endif %}">
+                  <img src="{{ url_for('static', filename='img/sidebar_navs/dashboard_outline.png') }}">
+                    <span class="nav-text ms-3 text-dark">Dashboard</span>
+                </a>    
+            </li>
+
+            <!-- Shop Profile -->
+            <li class="sidebar-item">
+                <a href="{{ url_for('seller_shop_profile.shop_profile')}}" class="sidebar-link {% if request.path == url_for('seller_shop_profile.shop_profile') %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='img/sidebar_navs/shop_outline.png') }}">
+                    <span class="nav-text ms-3 text-dark">Shop Profile</span>
+                </a>    
+            </li>
+            
+            <!-- Inventory --> 
+            <li class="sidebar-item">
+                <a href="{{ url_for('seller_inventory.inventory')}}" class="sidebar-link {% if request.path == url_for('seller_inventory.inventory') %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='img/sidebar_navs/inventory_outline.png') }}">
+                    <span class="nav-text ms-3 text-dark">Inventory</span>
+                </a>
+            </li>
+
+            <!-- Vouchers 
+            <li class="sidebar-item">
+                <a href="{{ url_for('seller_vouchers.vouchers')}}" class="sidebar-link {% if request.path == url_for('seller_vouchers.vouchers') %}active{% endif %}">
+                    <img src="{{ url_for('static', filename='img/sidebar_navs/voucher_outline.png') }}">
+                    <span class="nav-text ms-3 text-dark">Vouchers</span>
+                </a>
+            </li> -->
+
+            <!-- Orders --> 
+            <li class="sidebar-item">
+               <a href="{{ url_for('seller_orders.orders')}}" class="sidebar-link {% if request.path == url_for('seller_orders.orders') %}active{% endif %}">
+                  <img src="{{ url_for('static', filename='img/sidebar_navs/order_outline.png') }}">
+                  <span class="nav-text ms-3 text-dark">Orders</span>
+               </a>
+            </li>
+
+            <!-- Finance --> 
+            <li class="sidebar-item">
+                <a href="{{ url_for('seller_finance.finance')}}" class="sidebar-link {% if request.path == url_for('seller_finance.finance') %}active{% endif %}">
+                  <img src="{{ url_for('static', filename='img/sidebar_navs/commission_outline.png') }}">
+                  <span class="nav-text ms-3 text-dark">Finance</span>                  
+                </a>
+            </li>
+
+            <!-- Messages  
+            <li class="sidebar-item">
+                <a href="{{ url_for('seller_messages.messages')}}" class="sidebar-link d-flex justify-content-between {% if request.path == url_for('seller_messages.messages') %}active{% endif %}">
+                   <div class="d-flex justify-content-start">
+                     <img src="{{ url_for('static', filename='img/sidebar_navs/message_outline.png') }}">
+                     <span class="nav-text ms-3 text-dark">Messages</span>
+                   </div>
+                   <span class="badge bg-primary text-white d-flex justify-content-end">+ 2</span>
+                </a>
+            </li> -->
+
+            <!-- Notifications --> 
+            <li class="sidebar-item">
+               <a href="{{ url_for('seller_notifications.notifications')}}" class="sidebar-link d-flex justify-content-between {% if request.path == url_for('seller_notifications.notifications') %}active{% endif %}">
+                  <div class="d-flex justify-content-start">
+                     <img src="{{ url_for('static', filename='img/sidebar_navs/notification_outline.png') }}">
+                     <span class="nav-text ms-3 text-dark">Notifications</span>
+                  </div>
+                  <span id="notificationBadge" class="badge bg-primary text-white d-flex justify-content-end">
+                     0
+                  </span>
+               </a>
+            </li>
+
+            <li class="sidebar-header mt-3 text-secondary fw-semibold">ACCOUNT</li>
+
+            <!-- Sidebar Settings --> 
+            <li class="sidebar-item ">
+               <a href="{{ url_for('seller_settings.settings')}}" class="sidebar-link {% if request.path == url_for('seller_settings.settings') %}active{% endif %}">
+                  <img src="{{ url_for('static', filename='img/sidebar_navs/settings_outline.png') }}">
+                  <span class="nav-text ms-3 text-dark">Settings</span>
+               </a>
+            </li>
+            
+            <!-- Sidebar Log Out -->           
+            <li class="sidebar-item">
+               <a href="{{ url_for('login.logout')}}" class="sidebar-link {% if request.path == url_for('login.logout') %}active{% endif %}">
+                  <img src="{{ url_for('static', filename='img/sidebar_navs/logout_outline.png') }}">
+                  <span class="nav-text ms-3 text-dark">Log Out</span>
+               </a>
+            </li>
+         </ul>
+
+         <!-- Sidebar Footer -->
+         <div class="sidebar-footer">
+            <hr class="text-dark">
+            <a href="#" class="sidebar-link footer-link">
+                <span class="text-dark">&copy; 2024 Fenamaz Ecommerce</span>
+            </a>
+        </div>
+
+      </aside>
+      <!-- Sidebar Ends -->
+
+      <!-- Main -->
+      {% block seller_content %}
+         <div class="main">
+            <nav class="navbar navbar-expand d-flex align-items-center justify-content-between w-100">
+               <div class="d-flex align-items-center">
+                  <button class="toggler-btn" type="button">
+                     <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/menu.png') }}" style="width: 25px; height: 20px;">
+                  </button>
+                  <a class="navbar-brand ms-3" href="#">
+                     <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+                 </a>
+               </div>
+      
+               <!-- Search Bar for Desktop -->
+               <form class="d-flex justify-content-end d-none d-md-flex" role="search">
+                  <input class="form-control me-2" type="search" placeholder="Search products" aria-label="Search">
+                  <button class="btn btn-primary" type="submit">
+                     <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+                  </button>
+               </form>
+      
+               <!-- Mobile Search Button (Trigger for Offcanvas) -->
+               <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+                  <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+               </button>
+            </nav>
+      
+            <!-- Offcanvas Search for Mobile -->
+            <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+               <div class="offcanvas-header">
+                  <h5 id="offcanvasTopLabel" class="text-center mt-2">Search</h5>
+                  <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+               </div>
+               <div class="offcanvas-body">
+                  <form class="d-flex justify-content-between" role="search">
+                     <input class="form-control me-2" type="search" placeholder="Search products" aria-label="Search">
+                     <button class="btn btn-primary" type="submit">
+                        <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+                     </button>
+                  </form>
+               </div>
+            </div>
+      
+            <main class="content">
+               <div class="container-fluid title-container d-flex flex-lg-row flex-column align-items-center justify-content-between">
+                  <div class="title align-self-start">
+                     <h4>{{ page_title if page_title else 'Dashboard' }}</h4>
+                     <p class="text-muted">{{ page_description if page_description else 'Access an overview of your shop performance and sales.' }}</p>
+                  </div>
+                  <!-- Global Filters -->
+                  <div class="d-flex align-items-center gap-2">
+                     <!-- Date Filter Dropdown -->
+                     <div class="dropdown d-none d-md-block">
+                        <button class="btn btn-outline-secondary border-secondary dropdown-toggle" type="button" id="dateFilterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                           Date Filter
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dateFilterDropdown">
+                           <li>
+                              <a class="dropdown-item {% if date_filter == 'today' %}active{% endif %}" 
+                                 href="{{ url_for('seller_dashboard.dashboard', date_filter='today', sort_by=sort_by, order=order) }}">
+                                 Today
+                              </a>
+                           </li>
+                           <li>
+                              <a class="dropdown-item {% if date_filter == 'last_7_days' %}active{% endif %}" 
+                                 href="{{ url_for('seller_dashboard.dashboard', date_filter='last_7_days', sort_by=sort_by, order=order) }}">
+                                 Last 7 Days
+                              </a>
+                           </li>
+                           <li>
+                              <a class="dropdown-item {% if date_filter == 'last_30_days' %}active{% endif %}" 
+                                 href="{{ url_for('seller_dashboard.dashboard', date_filter='last_30_days', sort_by=sort_by, order=order) }}">
+                                 Last 30 Days
+                              </a>
+                           </li>
+                           <li>
+                              <a class="dropdown-item {% if date_filter == 'this_month' %}active{% endif %}" 
+                                 href="{{ url_for('seller_dashboard.dashboard', date_filter='this_month', sort_by=sort_by, order=order) }}">
+                                 This Month
+                              </a>
+                           </li>
+                        </ul>
+                     </div>
+
+                     <!-- Custom Date Picker Form -->
+                     <form method="GET" action="{{ url_for('seller_dashboard.dashboard') }}" class="d-flex align-items-center gap-2 d-none d-md-flex">
+                        <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                        <input type="hidden" name="order" value="{{ order }}">
+                        <input type="date" name="custom_date" class="form-control border-secondary" value="{{ custom_date }}" style="width: 150px;">
+                        <button type="submit" class="btn btn-primary">
+                           <i class="bi bi-calendar-check"></i>
+                        </button>
+                     </form>
+
+                     <!-- Reset Button -->
+                     <a href="{{ url_for('seller_dashboard.dashboard')}}" class="btn btn-secondary d-none d-md-block">
+                        <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset" style="width: 1.2rem;">
+                     </a>
+
+                     <!-- Mobile Filter Button -->
+                     <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="modal" data-bs-target="#mobileFiltersModal">
+                        <i class="bi bi-funnel"></i>
+                     </button>
+                  </div>
+               </div>
+
+               <!-- Flash Messages -->
+               {% with messages = get_flashed_messages(with_categories=True) %}
+                  {% if messages %}
+                     <div class="alert-container px-3">
+                     {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                     {% endfor %}
+                     </div>
+                  {% endif %}
+               {% endwith %}
+
+               <!-- Statistics Cards -->
+               <div class="row mt-3 px-3">
+                  <!-- Total Orders -->
+                  <div class="col-md-3 col-6 mb-3">
+                     <div class="card bg-primary text-white border-0 h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
+                           <div>
+                              <span class="fw-semibold small d-block">No. of Sales</span>
+                              <span class="fw-bold fs-4 body-text">{{ stats.sales_stats.total_orders or 0 }}</span>
+                           </div>
+                           <i class="bi bi-bag fs-2 opacity-75"></i>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Total Sales -->
+                  <div class="col-md-3 col-6 mb-3">
+                     <div class="card bg-primary text-white border-0 h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
+                           <div>
+                              <span class="fw-semibold small d-block">Total Earnings</span>
+                              <span class="fw-bold fs-4 body-text">₱{{ "{:,.0f}".format(stats.sales_stats.total_sales or 0) }}</span>
+                           </div>
+                           <i class="bi bi-currency-dollar fs-2 opacity-75"></i>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Average Sale -->
+                  <div class="col-md-3 col-6 mb-3">
+                     <div class="card bg-primary text-white border-0 h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
+                           <div>
+                              <span class="fw-semibold small d-block">Average Sale</span>
+                              <span class="fw-bold fs-4 body-text">₱{{ "{:,.0f}".format(stats.sales_stats.average_sale or 0) }}</span>
+                           </div>
+                           <i class="bi bi-bar-chart fs-2 opacity-75"></i>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Highest Sale -->
+                  <div class="col-md-3 col-6 mb-3">
+                     <div class="card bg-primary text-white border-0 h-100">
+                        <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
+                           <div>
+                              <span class="fw-semibold small d-block">Highest Sale</span>
+                              <span class="fw-bold fs-4 body-text">₱{{ "{:,.0f}".format(stats.sales_stats.highest_sale or 0) }}</span>
+                           </div>
+                           <i class="bi bi-trophy fs-2 opacity-75"></i>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+           
+               <!-- Sales Chart and Order Status Row -->
+               <div class="row mt-4 px-3">
+                  <!-- Sales Visualization Chart -->
+                  <div class="col-lg-8 mb-4">
+                     <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                           <h6 class="mb-0">Sales Overview</h6>
+                           <div class="d-flex gap-2">
+                              <!-- Chart Period Filter -->
+                              <div class="dropdown">
+                                 <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="chartPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.8rem;">
+                                    Period
+                                 </button>
+                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chartPeriodDropdown">
+                                    <li>
+                                       <a class="dropdown-item {% if chart_period == 'last_7_days' %}active{% endif %}" 
+                                          href="{{ url_for('seller_dashboard.dashboard', chart_period='last_7_days', date_filter=date_filter, sort_by=sort_by, order=order, custom_date=custom_date) }}">
+                                          Last 7 Days
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a class="dropdown-item {% if chart_period == 'last_14_days' %}active{% endif %}" 
+                                          href="{{ url_for('seller_dashboard.dashboard', chart_period='last_14_days', date_filter=date_filter, sort_by=sort_by, order=order, custom_date=custom_date) }}">
+                                          Last 14 Days
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a class="dropdown-item {% if chart_period == 'last_30_days' %}active{% endif %}" 
+                                          href="{{ url_for('seller_dashboard.dashboard', chart_period='last_30_days', date_filter=date_filter, sort_by=sort_by, order=order, custom_date=custom_date) }}">
+                                          Last 30 Days
+                                       </a>
+                                    </li>
+                                    <li>
+                                       <a class="dropdown-item {% if chart_period == 'this_month' %}active{% endif %}" 
+                                          href="{{ url_for('seller_dashboard.dashboard', chart_period='this_month', date_filter=date_filter, sort_by=sort_by, order=order, custom_date=custom_date) }}">
+                                          This Month
+                                       </a>
+                                    </li>
+                                 </ul>                             
+                              </div>
+                           
+                              <!-- Chart Custom Date -->
+                              <form method="GET" action="{{ url_for('seller_dashboard.dashboard') }}" class="d-flex align-items-center">
+                                 <input type="hidden" name="date_filter" value="{{ date_filter }}">
+                                 <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                                 <input type="hidden" name="order" value="{{ order }}">
+                                 <input type="hidden" name="custom_date" value="{{ custom_date }}">
+                                 <input type="hidden" name="chart_period" value="{{ chart_period }}">
+                                 <input type="date" name="chart_custom_date" class="form-control form-control-sm" value="{{ chart_custom_date }}" style="width: 130px; font-size: 0.8rem;">
+                                 <button type="submit" class="btn btn-primary btn-sm ms-1" style="font-size: 0.8rem;">
+                                    <i class="bi bi-calendar-check"></i>
+                                 </button>
+                              </form>
+                           </div>
+                        </div>
+                        <div class="card-body">
+                           <canvas id="salesChart" height="300"></canvas>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Order Status Overview -->
+                  <div class="col-lg-4 mb-4">
+                     <div class="row h-100">
+                        <!-- Pending Orders -->
+                        <div class="col-12 mb-3">
+                           <div class="card bg-warning text-white border-0 h-100">
+                              <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
+                                 <div>
+                                    <span class="fw-semibold small d-block">Pending Orders</span>
+                                    <span class="fw-bold fs-4 body-text">{{ stats.order_stats.pending_orders or 0 }}</span>
+                                 </div>
+                                 <i class="bi bi-clock fs-2 opacity-75"></i>
+                              </div>
+                           </div>
+                        </div>
+
+                        <!-- Processing Orders -->
+                        <div class="col-12 mb-3">
+                           <div class="card bg-primary text-white border-0 h-100">
+                              <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
+                                 <div>
+                                    <span class="fw-semibold small d-block">Processing Orders</span>
+                                    <span class="fw-bold fs-4 body-text">{{ stats.order_stats.processing_orders or 0 }}</span>
+                                 </div>
+                                 <i class="bi bi-box-seam fs-2 opacity-75"></i>
+                              </div>
+                           </div>
+                        </div>
+
+                        <!-- Shipping Orders -->
+                        <div class="col-12 mb-3">
+                           <div class="card bg-info text-white border-0 h-100">
+                              <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
+                                 <div>
+                                    <span class="fw-semibold small d-block">Shipping Orders</span>
+                                    <span class="fw-bold fs-4 body-text">{{ stats.order_stats.shipping_orders or 0 }}</span>
+                                 </div>
+                                 <i class="bi bi-truck fs-2 opacity-75"></i>
+                              </div>
+                           </div>
+                        </div>
+
+                        <!-- Completed Orders -->
+                        <div class="col-12">
+                           <div class="card bg-success text-white border-0 h-100">
+                              <div class="card-body d-flex justify-content-between align-items-center py-3 px-3">
+                                 <div>
+                                    <span class="fw-semibold small d-block">Completed Orders</span>
+                                    <span class="fw-bold fs-4 body-text">{{ stats.order_stats.completed_orders or 0 }}</span>
+                                 </div>
+                                 <i class="bi bi-check-circle fs-2 opacity-75"></i>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+               <!-- Most Sold Products and Recent Orders Row -->
+               <div class="row mt-4 px-3">
+                  <!-- Most Sold Products -->
+                  <div class="col-lg-6 mb-4">
+                     <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                           <h6 class="mb-0">Most Sold Products</h6>
+                        </div>
+                        <div class="card-body p-0">
+                           <div class="table-responsive">
+                              <table class="table table-hover mb-0">
+                                 <thead class="bg-light">
+                                    <tr>
+                                       <th scope="col">Product</th>
+                                       <th scope="col">Sold</th>
+                                       <th scope="col">Revenue</th>
+                                       <th scope="col">Stock</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    {% if most_sold_products %}
+                                       {% for product in most_sold_products %}
+                                       <tr>
+                                          <td>
+                                             <div class="d-flex align-items-center">
+                                                <img src="{{ url_for('seller_dashboard.serve_product_main_pic', filename=product.product_main_pic) }}" 
+                                                     alt="{{ product.product_name }}" 
+                                                     class="me-2 rounded" 
+                                                     style="width: 35px; height: 35px; object-fit: cover;">
+                                                <div>
+                                                   <div class="fw-semibold small">{{ product.product_name[:20] }}{% if product.product_name|length > 20 %}...{% endif %}</div>
+                                                   <small class="text-muted">{{ product.variant }} - {{ product.color }}</small>
+                                                </div>
+                                             </div>
+                                          </td>
+                                          <td class="fw-bold">{{ product.total_quantity_sold or 0 }}</td>
+                                          <td class="fw-bold text-success">₱{{ "{:,.0f}".format(product.total_revenue or 0) }}</td>
+                                          <td>
+                                             <span class="badge 
+                                             {% if product.stock_status == 'Active' %}bg-success
+                                             {% elif product.stock_status == 'Nearly Out of Stock' %}bg-warning
+                                             {% elif product.stock_status == 'Out of Stock' %}bg-danger
+                                             {% else %}bg-secondary{% endif %}">
+                                                {{ product.stock }}
+                                             </span>
+                                          </td>
+                                       </tr>
+                                       {% endfor %}
+                                    {% else %}
+                                       <tr>
+                                          <td colspan="4" class="text-center py-4 text-muted">
+                                             <i class="bi bi-graph-up display-6 d-block mb-2"></i>
+                                             No sales data found
+                                          </td>
+                                       </tr>
+                                    {% endif %}
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                        <div class="card-footer bg-light text-center">
+                           <a href="{{ url_for('seller_inventory.inventory') }}" class="btn btn-primary btn-sm">
+                              View Inventory <i class="bi bi-arrow-right"></i>
+                           </a>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Recent Orders -->
+                  <div class="col-lg-6 mb-4">
+                     <div class="card border-0 shadow-sm h-100">
+                        <div class="card-header bg-primary text-white">
+                           <h6 class="mb-0">Recent Orders</h6>
+                        </div>
+                        <div class="card-body p-0">
+                           <div class="table-responsive">
+                              <table class="table table-hover mb-0">
+                                 <thead class="bg-light">
+                                    <tr>
+                                       <th scope="col">Order ID</th>
+                                       <th scope="col">Product</th>
+                                       <th scope="col">Buyer</th>
+                                       <th scope="col">Amount</th>
+                                       <th scope="col">Status</th>
+                                    </tr>
+                                 </thead>
+                                 <tbody>
+                                    {% if recent_orders %}
+                                       {% for order in recent_orders %}
+                                       <tr>
+                                          <td class="fw-bold">#{{ order.order_id }}</td>
+                                          <td>
+                                             <div class="d-flex align-items-center">
+                                                <img src="{{ url_for('seller_dashboard.serve_product_main_pic', filename=order.product_main_pic) }}" 
+                                                     alt="{{ order.product_name }}" 
+                                                     class="me-2 rounded" 
+                                                     style="width: 35px; height: 35px; object-fit: cover;">
+                                                <div>
+                                                   <div class="fw-semibold small">{{ order.product_name[:20] }}{% if order.product_name|length > 20 %}...{% endif %}</div>
+                                                   <small class="text-muted">{{ order.variant }} - {{ order.color }}</small>
+                                                </div>
+                                             </div>
+                                          </td>
+                                          <td>
+                                             <div>
+                                                <div class="fw-semibold small">{{ order.buyer_firstname }} {{ order.buyer_lastname }}</div>
+                                                <small class="text-muted">{{ order.buyer_phone }}</small>
+                                             </div>
+                                          </td>
+                                          <td class="fw-bold">₱{{ "{:,.2f}".format(order.total_amount) }}</td>
+                                          <td>
+                                             <span class="badge 
+                                             {% if order.status == 'Pending' %}bg-warning
+                                             {% elif order.status in ['To Pack', 'Packed'] %}bg-primary
+                                             {% elif order.status in ['Shipping', 'Shipped', 'For Delivery', 'Out for Delivery'] %}bg-info
+                                             {% elif order.status in ['Delivered', 'Received'] %}bg-success
+                                             {% else %}bg-secondary{% endif %}">
+                                                {{ order.status }}
+                                             </span>
+                                          </td>
+                                       </tr>
+                                       {% endfor %}
+                                    {% else %}
+                                       <tr>
+                                          <td colspan="5" class="text-center py-4 text-muted">
+                                             <i class="bi bi-bag display-6 d-block mb-2"></i>
+                                             No recent orders found
+                                          </td>
+                                       </tr>
+                                    {% endif %}
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                        <div class="card-footer bg-light text-center">
+                           <a href="{{ url_for('seller_orders.orders') }}" class="btn btn-primary btn-sm">
+                              View All Orders <i class="bi bi-arrow-right"></i>
+                           </a>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+
+           </main>          
+         </div>
+     
+        {% endblock %}
+        <!-- Main End-->
+    </div>
+
+    <!-- Mobile Filters Modal -->
+    <div class="modal fade" id="mobileFiltersModal" tabindex="-1" aria-labelledby="mobileFiltersModalLabel" aria-hidden="true">
+       <div class="modal-dialog">
+          <div class="modal-content">
+             <div class="modal-header bg-primary text-white">
+                <h6 class="modal-title" id="mobileFiltersModalLabel">Filter Dashboard</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+             </div>
+             <div class="modal-body">
+                <form method="GET" action="{{ url_for('seller_dashboard.dashboard') }}">
+                   <!-- Dashboard Filters -->
+                   <h6 class="text-primary mb-3">Dashboard Filters</h6>
+                   
+                   <div class="mb-3">
+                      <label for="mobileDateFilter" class="form-label">Date Filter</label>
+                      <select name="date_filter" id="mobileDateFilter" class="form-select">
+                         <option value="today" {% if date_filter == 'today' %}selected{% endif %}>Today</option>
+                         <option value="last_7_days" {% if date_filter == 'last_7_days' %}selected{% endif %}>Last 7 Days</option>
+                         <option value="last_30_days" {% if date_filter == 'last_30_days' %}selected{% endif %}>Last 30 Days</option>
+                         <option value="this_month" {% if date_filter == 'this_month' %}selected{% endif %}>This Month</option>
+                      </select>
+                   </div>
+                   
+                   <div class="mb-3">
+                      <label for="mobileCustomDate" class="form-label">Custom Date</label>
+                      <input type="date" name="custom_date" id="mobileCustomDate" class="form-control" value="{{ custom_date }}">
+                   </div>
+
+                   <hr>
+
+                   <!-- Chart Filters -->
+                   <h6 class="text-success mb-3">Chart Filters</h6>
+                   
+                   <div class="mb-3">
+                      <label for="mobileChartPeriod" class="form-label">Chart Period</label>
+                      <select name="chart_period" id="mobileChartPeriod" class="form-select">
+                         <option value="last_7_days" {% if chart_period == 'last_7_days' %}selected{% endif %}>Last 7 Days</option>
+                         <option value="last_14_days" {% if chart_period == 'last_14_days' %}selected{% endif %}>Last 14 Days</option>
+                         <option value="last_30_days" {% if chart_period == 'last_30_days' %}selected{% endif %}>Last 30 Days</option>
+                         <option value="this_month" {% if chart_period == 'this_month' %}selected{% endif %}>This Month</option>
+                      </select>
+                   </div>
+
+                   <div class="mb-3">
+                      <label for="mobileChartCustomDate" class="form-label">Chart Custom Date</label>
+                      <input type="date" name="chart_custom_date" id="mobileChartCustomDate" class="form-control" value="{{ chart_custom_date }}">
+                   </div>
+                   
+                   <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-primary flex-fill">Apply Filters</button>
+                      <a href="{{ url_for('seller_dashboard.dashboard') }}" class="btn btn-secondary">Reset</a>
+                   </div>
+                </form>
+             </div>
+          </div>
+       </div>
+    </div>
+
+    <!-- Modal for Logout Confirmation -->
+    <div class="modal fade" id="logoutConfirmationModal" tabindex="-1" aria-labelledby="logoutConfirmationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div  div class="modal-content">
+                <div class="modal-header bg-primary">
+                     <h6 class="modal-title text-white" id="logoutConfirmationModalLabel">Logout Confirmation</h6>
+                     <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                     </button>
+                </div>
+                <div class="modal-body d-flex align-items-center">
+                    Are you sure you want to log out?
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <a href="{{ url_for('login.logout') }}" class="btn btn-primary">Yes, Log me Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script >
+        // Toggler Button 
+        const toggler = document.querySelector(".toggler-btn");
+        toggler.addEventListener("click", function () {
+        document.querySelector("#sidebar").classList.toggle("collapsed");
+        });
+
+        // Show Logout Confirmation 
+        document.addEventListener("DOMContentLoaded", function() {
+            const logoutButton = document.querySelector('a[href="{{ url_for('login.logout') }}"]');
+            logoutButton.addEventListener('click', function(event) {
+                event.preventDefault();
+                var logoutModal = new bootstrap.Modal(document.getElementById('logoutConfirmationModal'));
+                logoutModal.show();
+            });
+         });
+
+         // Hover Effect
+         document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".sidebar-link").forEach(link => {
+               let img = link.querySelector("img");
+               if (img) {
+                  let defaultSrc = img.src;
+                  let hoverSrc = defaultSrc.replace("_outline.png", "_solid.png");
+      
+                  if (link.classList.contains("active")) {
+                        img.src = hoverSrc;
+                  }
+      
+                  link.addEventListener("mouseover", function () {
+                        img.src = hoverSrc;
+                  });
+      
+                  link.addEventListener("mouseout", function () {
+                        if (!link.classList.contains("active")) {
+                           img.src = defaultSrc;
+                        }
+                  });
+               }
+            });
+         });
+
+         // Update Notification Badge
+         function updateNotificationBadge() {
+            fetch('/seller/notifications/count')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notificationBadge');
+                    if (data.count > 0) {
+                        badge.textContent = `+ ${data.count}`;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error fetching notification count:', error));
+        }
+
+        // Update badge on page load
+        document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+
+        // Update badge every 30 seconds
+        setInterval(updateNotificationBadge, 30000);
+
+        // Mark notifications as read when clicking the notifications link
+        document.addEventListener('DOMContentLoaded', function() {
+            const notificationsLink = document.querySelector('a[href="{{ url_for("seller_notifications.notifications") }}"]');
+            if (notificationsLink) {
+                notificationsLink.addEventListener('click', function() {
+                    fetch('/seller/notifications/read', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const badge = document.getElementById('notificationBadge');
+                            badge.style.display = 'none';
+                        }
+                    })
+                    .catch(error => console.error('Error marking notifications as read:', error));
+                });
+            }
+                 });
+    </script>
+
+    <!-- Separate Chart Script - Using window.onload to avoid conflicts -->
+    <script>
+       window.addEventListener('load', function() {
+          const chartData = {{ chart_data|safe }};
+          
+          // Single Sales Chart with Enhanced UI
+          const salesCtx = document.getElementById('salesChart').getContext('2d');
+          new Chart(salesCtx, {
+             type: 'line',
+             data: {
+                labels: chartData.daily_labels,
+                datasets: [{
+                   label: 'Sales',
+                   data: chartData.daily_sales,
+                   fill: true,
+                   borderColor: '#4e73df',
+                   backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                   borderWidth: 3,
+                   tension: 0.4,
+                   pointBackgroundColor: '#4e73df',
+                   pointBorderColor: '#ffffff',
+                   pointBorderWidth: 3,
+                   pointRadius: 5,
+                   pointHoverRadius: 8,
+                   pointHoverBackgroundColor: '#4e73df',
+                   pointHoverBorderColor: '#ffffff',
+                   pointHoverBorderWidth: 3
+                }]
+             },
+             options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                   legend: {
+                      display: false
+                   },
+                   tooltip: {
+                      enabled: true,
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      titleColor: '#333333',
+                      bodyColor: '#333333',
+                      borderColor: '#4e73df',
+                      borderWidth: 2,
+                      cornerRadius: 10,
+                      displayColors: false,
+                      titleFont: {
+                         size: 14,
+                         weight: 'bold'
+                      },
+                      bodyFont: {
+                         size: 13
+                      },
+                      padding: 12,
+                      caretSize: 8,
+                      callbacks: {
+                         title: function(context) {
+                            return context[0].label;
+                         },
+                         label: function(context) {
+                            return 'Sales: ₱' + context.parsed.y.toLocaleString();
+                         }
+                      }
+                   }
+                },
+                scales: {
+                   x: {
+                      display: true,
+                      grid: {
+                         display: true,
+                         color: 'rgba(0, 0, 0, 0.05)',
+                         borderColor: 'rgba(0, 0, 0, 0.1)',
+                         borderWidth: 1
+                      },
+                      ticks: {
+                         color: '#858796',
+                         font: {
+                            size: 12,
+                            family: 'Outfit'
+                         },
+                         padding: 10
+                      },
+                      border: {
+                         color: 'rgba(0, 0, 0, 0.1)'
+                      }
+                   },
+                   y: {
+                      display: true,
+                      beginAtZero: true,
+                      grid: {
+                         display: true,
+                         color: 'rgba(0, 0, 0, 0.05)',
+                         borderColor: 'rgba(0, 0, 0, 0.1)',
+                         borderWidth: 1
+                      },
+                      ticks: {
+                         color: '#858796',
+                         font: {
+                            size: 12,
+                            family: 'Outfit'
+                         },
+                         padding: 10,
+                         callback: function(value) {
+                            return '₱' + value.toLocaleString();
+                         }
+                      },
+                      border: {
+                         color: 'rgba(0, 0, 0, 0.1)'
+                      }
+                   }
+                },
+                interaction: {
+                   intersect: false,
+                   mode: 'index'
+                },
+                elements: {
+                   line: {
+                      capBezierPoints: false
+                   },
+                   point: {
+                      hoverBackgroundColor: '#4e73df'
+                   }
+                },
+                layout: {
+                   padding: {
+                      top: 10,
+                      bottom: 10,
+                      left: 10,
+                      right: 10
+                   }
+                },
+                animation: {
+                   duration: 1000,
+                   easing: 'easeOutQuart'
+                }
+             }
+          });
+       });
+    </script>
+
+</body>
+</html>

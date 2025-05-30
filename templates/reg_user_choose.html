@@ -1,0 +1,27 @@
+{% extends "base_form.html" %}
+
+{% block title %}Register - Personal Information{% endblock %}
+
+{% block content %}
+
+    <div class="full-screen-container">
+        <div class="form-container choose-container">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="fs-3" style="font-weight: 600;">Register</h2>
+                <a href="{{ url_for('login.show_user_terms') }}" class="exit-icon text-dark">
+                    <i class="bi bi-arrow-left fs-4 px-2"></i>
+                </a>
+            </div>
+
+            <p>Please choose how you would like to register as:</p>
+
+            <!-- Registration options -->
+            <div class="registration-options mt-4 d-flex flex-row gap-2 align-items-center justify-content-between">
+                <a href="{{ url_for('buyer_registration.get_personal_info') }}" class="btn btn-primary w-100">Buyer</a>
+                <a href="{{ url_for('seller_registration.get_personal_info') }}" class="btn btn-primary w-100">Seller</a>
+                <a href="{{ url_for('courier_registration.get_personal_info') }}" class="btn btn-primary w-100">Courier</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

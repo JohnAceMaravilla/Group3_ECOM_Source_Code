@@ -1,0 +1,1056 @@
+{% extends "seller_dashboard.html" %}
+
+{% block title %}Orders{% endblock %}
+
+{% block seller_content %}
+
+<!-- MAIN -->
+<div class="main">
+
+   <!-- Top Bar -->
+   <nav class="navbar navbar-expand d-flex align-items-center justify-content-between w-100">
+      
+      <!-- Logo -->
+      <div class="d-flex align-items-center">
+         <button class="toggler-btn" type="button">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/menu.png') }}" style="width: 25px; height: 20px;">
+         </button>
+         <a class="navbar-brand ms-3" href="#">
+            <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+         </a>
+      </div>
+
+      <!-- Search Bar for Desktop -->
+      <form class="d-flex justify-content-end d-none d-md-flex" role="search" method="GET" action="{{ url_for('seller_orders.orders') }}">
+         <input class="form-control me-2" type="search" name="search" placeholder="Search orders.." aria-label="Search" value="{{ search_query }}">
+         <input type="hidden" name="status" value="{{ status_filter }}"> 
+         <input type="hidden" name="sort_by" value="{{ sort_by }}"> 
+         <input type="hidden" name="order" value="{{ order }}"> 
+         <button class="btn btn-primary" type="submit">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+         </button>
+      </form>
+
+      <!-- Mobile Search Button -->
+      <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+         <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+      </button>
+
+   </nav>
+   <!-- Top Bar End-->
+
+   <!-- Search for Mobile -->
+   <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+      <div class="offcanvas-header">
+         <h5 id="offcanvasTopLabel" class="text-center mt-2">Search</h5>
+         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+         <form class="d-flex justify-content-between" role="search" method="GET" action="{{ url_for('seller_orders.orders') }}">
+            <input class="form-control me-2" type="search" name="search" placeholder="Search orders.." aria-label="Search" value="{{ search_query }}">
+            <button class="btn btn-primary" type="submit">
+               <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+            </button>
+         </form>
+      </div>
+   </div>
+   <!-- Search for Mobile End -->
+
+   <!-- MAIN CONTENT -->
+   <main class="content">
+
+      <!-- Title Bar -->
+      <div class="container-fluid title-container d-flex flex-lg-row flex-column align-items-center justify-content-between">
+         <!-- Title -->
+         <div class="title align-self-start">
+            <h4>{{ page_title }}</h4>
+            <p class="text-muted">{{ page_description }}</p>
+         </div>
+      
+         <!-- Buttons -->
+         <div class="btn-container d-flex flex-wrap gap-2">     
+            <!-- Desktop Buttons -->
+            <div class="d-none d-md-flex gap-2">
+               <!-- Sort By Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-primary border-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+                     Sort By
+                  </button>
+                  <ul class="dropdown-menu">
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_ordered' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', sort_by='date_ordered', order='desc', status=status_filter, search=search_query) }}">
+                           Recent
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_ordered' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', sort_by='date_ordered', order='asc', status=status_filter, search=search_query) }}">
+                           Oldest
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'product_name' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', sort_by='product_name', order='asc', status=status_filter, search=search_query) }}">
+                           Product Name (A-Z)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'product_name' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', sort_by='product_name', order='desc', status=status_filter, search=search_query) }}">
+                           Product Name (Z-A)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'buyer_name' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', sort_by='buyer_name', order='asc', status=status_filter, search=search_query) }}">
+                           Buyer Name (A-Z)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'buyer_name' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', sort_by='buyer_name', order='desc', status=status_filter, search=search_query) }}">
+                           Buyer Name (Z-A)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'total_amount' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', sort_by='total_amount', order='asc', status=status_filter, search=search_query) }}">
+                           Amount (Low - High)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'total_amount' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', sort_by='total_amount', order='desc', status=status_filter, search=search_query) }}">
+                           Amount (High - Low)
+                        </a>
+                     </li>                
+                  </ul>
+               </div>
+      
+               <!-- Filter By Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-primary border-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                     Filter By Status
+                  </button>
+                  <ul class="dropdown-menu">
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'All' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='All', sort_by=sort_by, order=order, search=search_query) }}">
+                           All
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Pending' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='Pending', sort_by=sort_by, order=order, search=search_query) }}">
+                           Pending
+                        </a>
+                     </li>
+                     
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'To Pack' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='To Pack', sort_by=sort_by, order=order, search=search_query) }}">
+                           To Pack
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Packed' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='Packed', sort_by=sort_by, order=order, search=search_query) }}">
+                           Packed
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Shipping' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='Shipping', sort_by=sort_by, order=order, search=search_query) }}">
+                           Shipping
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Shipped' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='Shipped', sort_by=sort_by, order=order, search=search_query) }}">
+                           Shipped
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'For Delivery' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='For Delivery', sort_by=sort_by, order=order, search=search_query) }}">
+                           For Delivery
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Out for Delivery' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='Out for Delivery', sort_by=sort_by, order=order, search=search_query) }}">
+                           Out for Delivery
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Delivered' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='Delivered', sort_by=sort_by, order=order, search=search_query) }}">
+                           Delivered
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Received' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='Received', sort_by=sort_by, order=order, search=search_query) }}">
+                           Received
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Rejected' %}active{% endif %}" 
+                           href="{{ url_for('seller_orders.orders', status='Rejected', sort_by=sort_by, order=order, search=search_query) }}">
+                           Rejected
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+      
+               <!-- Reset Table Button -->
+               <a href="{{ url_for('seller_orders.orders')}}" type="button" class="btn btn-secondary d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" class="" style="width: 1.2rem;">
+               </a>
+            </div>
+      
+            <!-- Mobile Buttons -->
+            <div class="d-flex d-md-none flex-row gap-2">
+               <div class="d-flex flex-row gap-2">
+
+                  <!-- Sort By Dropdown -->
+                  <div class="dropdown">
+                     <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="sortDropdownMobile" data-bs-toggle="dropdown">
+                        <i class="bi bi-filter"></i> 
+                     </button>
+                     <ul class="dropdown-menu">
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'date_ordered' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', sort_by='date_ordered', order='desc', status=status_filter, search=search_query) }}">
+                              Recent
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'date_ordered' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', sort_by='date_ordered', order='asc', status=status_filter, search=search_query) }}">
+                              Oldest
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'product_name' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', sort_by='product_name', order='asc', status=status_filter, search=search_query) }}">
+                              Product Name (A-Z)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'product_name' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', sort_by='product_name', order='desc', status=status_filter, search=search_query) }}">
+                              Product Name (Z-A)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'buyer_name' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', sort_by='buyer_name', order='asc', status=status_filter, search=search_query) }}">
+                              Buyer Name (A-Z)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'buyer_name' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', sort_by='buyer_name', order='desc', status=status_filter, search=search_query) }}">
+                              Buyer Name (Z-A)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'total_amount' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', sort_by='total_amount', order='asc', status=status_filter, search=search_query) }}">
+                              Amount (Low - High)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'total_amount' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', sort_by='total_amount', order='desc', status=status_filter, search=search_query) }}">
+                              Amount (High - Low)
+                           </a>
+                        </li>                
+                     </ul>
+                  </div>
+         
+                  <!-- Filter By Dropdown -->
+                  <div class="dropdown">
+                     <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="filterDropdownMobile" data-bs-toggle="dropdown">
+                        <i class="bi bi-funnel"></i>
+                     </button>
+                     <ul class="dropdown-menu">
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'Pending' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', status='Pending', sort_by=sort_by, order=order, search=search_query) }}">
+                              Pending
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'All' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', status='All', sort_by=sort_by, order=order, search=search_query) }}">
+                              All
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'To Pack' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', status='To Pack', sort_by=sort_by, order=order, search=search_query) }}">
+                              To Pack
+                           </a>
+                        </li>
+                                                 <li>
+                            <a class="dropdown-item {% if status_filter == 'Packed' %}active{% endif %}" 
+                               href="{{ url_for('seller_orders.orders', status='Packed', sort_by=sort_by, order=order, search=search_query) }}">
+                               Packed
+                            </a>
+                         </li>
+                         <li>
+                            <a class="dropdown-item {% if status_filter == 'Shipping' %}active{% endif %}" 
+                               href="{{ url_for('seller_orders.orders', status='Shipping', sort_by=sort_by, order=order, search=search_query) }}">
+                               Shipping
+                            </a>
+                         </li>
+                                                  <li>
+                            <a class="dropdown-item {% if status_filter == 'Shipped' %}active{% endif %}" 
+                               href="{{ url_for('seller_orders.orders', status='Shipped', sort_by=sort_by, order=order, search=search_query) }}">
+                               Shipped
+                            </a>
+                         </li>
+                         <li>
+                            <a class="dropdown-item {% if status_filter == 'For Delivery' %}active{% endif %}" 
+                               href="{{ url_for('seller_orders.orders', status='For Delivery', sort_by=sort_by, order=order, search=search_query) }}">
+                               For Delivery
+                            </a>
+                         </li>
+                         <li>
+                            <a class="dropdown-item {% if status_filter == 'Out for Delivery' %}active{% endif %}" 
+                               href="{{ url_for('seller_orders.orders', status='Out for Delivery', sort_by=sort_by, order=order, search=search_query) }}">
+                               Out for Delivery
+                            </a>
+                         </li>
+                         <li>
+                            <a class="dropdown-item {% if status_filter == 'Delivered' %}active{% endif %}" 
+                               href="{{ url_for('seller_orders.orders', status='Delivered', sort_by=sort_by, order=order, search=search_query) }}">
+                               Delivered
+                            </a>
+                         </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'Received' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', status='Received', sort_by=sort_by, order=order, search=search_query) }}">
+                              Received
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'Rejected' %}active{% endif %}" 
+                              href="{{ url_for('seller_orders.orders', status='Rejected', sort_by=sort_by, order=order, search=search_query) }}">
+                              Rejected
+                           </a>
+                        </li>
+                     </ul>
+                  </div>
+         
+                  <!-- Reset Table Button -->
+                  <a href="{{ url_for('seller_orders.orders')}}" type="button" class="btn btn-secondary d-flex align-items-center justify-content-center">
+                     <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" style="width: 1.2rem;">
+                  </a>
+
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Title Bar End -->
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=True) %}
+         {% if messages %}
+            <div class="alert-container px-3">
+            {% for category, message in messages %}
+               <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+               {{ message }}
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+               </div>
+            {% endfor %}
+            </div>
+         {% endif %}
+      {% endwith %}
+
+             <!-- Order Statistics -->
+       <div class="row mt-3 d-none d-md-flex px-3">
+
+          <!-- Pending Orders -->
+          <div class="col-md">
+             <div class="card bg-warning text-white border-0">
+                <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                   <span class="fw-semibold small">Pending</span>
+                   <span class="bg-white text-warning px-3 py-1 rounded fw-bold shadow-sm">
+                      {{ stats.pending_orders or 0 }}
+                   </span>
+                </div>
+             </div>
+          </div>
+
+          <!-- To Pack Orders -->
+          <div class="col-md">
+             <div class="card bg-info text-white border-0">
+                <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                   <span class="fw-semibold small">To Pack</span>
+                   <span class="bg-white text-info px-3 py-1 rounded fw-bold shadow-sm">
+                      {{ stats.to_pack_orders or 0 }}
+                   </span>
+                </div>
+             </div>
+          </div>
+
+          <!-- Shipped Orders -->
+          <div class="col-md">
+             <div class="card bg-primary text-white border-0">
+                <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                   <span class="fw-semibold small">Shipped</span>
+                   <span class="bg-white text-primary px-3 py-1 rounded fw-bold shadow-sm">
+                      {{ stats.shipped_orders or 0 }}
+                   </span>
+                </div>
+             </div>
+          </div>
+
+          <!-- Delivered Orders -->
+          <div class="col-md">
+             <div class="card bg-success text-white border-0">
+                <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                   <span class="fw-semibold small">Delivered</span>
+                   <span class="bg-white text-success px-3 py-1 rounded fw-bold shadow-sm">
+                      {{ stats.delivered_orders or 0 }}
+                   </span>
+                </div>
+             </div>
+          </div>
+
+          <!-- Completed Orders -->
+          <div class="col-md">
+             <div class="card bg-dark text-white border-0">
+                <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                   <span class="fw-semibold small">Completed</span>
+                   <span class="bg-white text-dark px-3 py-1 rounded fw-bold shadow-sm">
+                      {{ stats.completed_orders or 0 }}
+                   </span>
+                </div>
+             </div>
+          </div>
+       </div>
+  
+
+      <!-- Table -->
+      <div class="table-container">
+         <div class="table-responsive">
+            <table class="table">
+
+               <!-- Table Head -->
+               <thead class="bg-primary table-head text-white">
+                  <tr>
+                     <th scope="col">Order ID</th>
+                     <th scope="col">Product</th>
+                     <th scope="col">Buyer</th>
+                     <th scope="col">Quantity</th>
+                     <th scope="col">Total Amount</th>
+                     <th scope="col">Payment</th>
+                     <th scope="col">Date Ordered</th>
+                     <th scope="col">Status</th>
+                     <th scope="col">Actions</th>
+                  </tr>
+               </thead>
+
+               <!-- Table Body -->
+               <tbody>
+                  {% if orders %}
+                     {% for order in orders %}
+                     <tr>
+                        <td class="fw-bold">#{{ order.order_id }}</td>
+                        <td>
+                           <div class="d-flex align-items-center">
+                              <img src="{{ url_for('seller_orders.serve_product_main_pic', filename=order.product_main_pic) }}" 
+                                   alt="{{ order.product_name }}" 
+                                   class="me-2 rounded" 
+                                   style="width: 40px; height: 40px; object-fit: cover;">
+                              <div>
+                                 <div class="fw-semibold">{{ order.product_name }}</div>
+                                 <small class="text-muted">{{ order.variant }} - {{ order.color }}</small>
+                              </div>
+                           </div>
+                        </td>
+                        <td>
+                           <div>
+                              <div class="fw-semibold">{{ order.buyer_firstname }} {{ order.buyer_lastname }}</div>
+                              <small class="text-muted">{{ order.buyer_email }}</small>
+                           </div>
+                        </td>
+                        <td>{{ order.quantity }}</td>
+                        <td>₱{{ "{:,.2f}".format(order.total_amount) }}</td>
+                        <td>
+                           <span class="badge {% if order.payment_status == 'Paid' %}bg-success{% else %}bg-warning{% endif %}">
+                              {{ order.payment_status }}
+                           </span>
+                        </td>
+                        <td>{{ order.date_ordered.strftime('%b %d, %Y') }}</td>
+                                                 <td>
+                            <span class="badge 
+                            {% if order.status == 'Pending' %}bg-warning
+                            {% elif order.status == 'To Pack' %}bg-info
+                            {% elif order.status == 'Packed' %}bg-info
+                            {% elif order.status == 'Shipping' %}bg-primary
+                            {% elif order.status == 'Shipped' %}bg-primary
+                            {% elif order.status == 'For Delivery' %}bg-success
+                            {% elif order.status == 'Out for Delivery' %}bg-success
+                            {% elif order.status == 'Delivered' %}bg-success
+                            {% elif order.status == 'Received' %}bg-dark
+                            {% elif order.status == 'Rejected' %}bg-danger
+                            {% else %}bg-dark{% endif %}">
+                               {{ order.status }}
+                            </span>
+                         </td>
+                        <td>
+                           <div class="d-flex flex-row align-items-center justify-content-start gap-1">
+                              {% if order.status == 'Pending' %}
+                                 <!-- Approve Button -->
+                                 <button type="button" class="btn btn-sm btn-primary"
+                                         data-bs-toggle="modal" data-bs-target="#approveModal{{ order.order_id }}">
+                                    Approve
+                                 </button>
+                                 <!-- Reject Button -->
+                                 <button type="button" class="btn btn-sm btn-danger"
+                                         data-bs-toggle="modal" data-bs-target="#rejectModal{{ order.order_id }}">
+                                    Reject
+                                 </button>
+                              {% elif order.status == 'To Pack' %}
+                                 <!-- Mark as Packed Button -->
+                                 <button type="button" class="btn btn-sm btn-primary"
+                                         data-bs-toggle="modal" data-bs-target="#packModal{{ order.order_id }}">
+                                    Mark as Packed
+                                 </button>
+                              {% elif order.status == 'Packed' %}
+                                  <!-- Hand-off to Logistics Button -->
+                                  <button type="button" class="btn btn-sm btn-primary text-white"
+                                          data-bs-toggle="modal" data-bs-target="#handoffModal{{ order.order_id }}">
+                                     Hand-off to Logistics
+                                  </button>
+                               {% elif order.status == 'Shipping' %}
+                                  <!-- Mark as Shipped Button -->
+                                  <button type="button" class="btn btn-sm btn-primary"
+                                          data-bs-toggle="modal" data-bs-target="#shipModal{{ order.order_id }}">
+                                     Mark as Shipped
+                                  </button>
+                               {% elif order.status == 'Shipped' %}
+                                  <!-- Assign Courier Button -->
+                                  <button type="button" class="btn btn-sm btn-primary text-white"
+                                          data-bs-toggle="modal" data-bs-target="#courierModal{{ order.order_id }}">
+                                     Assign Courier
+                                  </button>
+                               {% elif order.status == 'For Delivery' %}
+                                  <!-- Waiting for Courier Acceptance -->
+                                  <span class="text-muted">Awaiting Courier</span>
+                               {% else %}
+                                 <!-- View Details Button -->
+                                 <button type="button" class="btn btn-sm btn-outline-primary"
+                                         data-bs-toggle="modal" data-bs-target="#orderModal{{ order.order_id }}">
+                                    View Details
+                                 </button>
+                              {% endif %}
+                           </div>
+                        </td>                        
+                     </tr>
+                     {% endfor %}
+                  {% else %}
+                     <tr>
+                        <td colspan="9" class="text-center py-4">
+                           No orders found at the moment.
+                        </td>
+                     </tr>
+                  {% endif %}  
+               </tbody>
+            </table>
+         </div>
+      </div>
+      <!-- Table End -->
+
+             <!-- Seller Action Confirmation Modals -->
+       {% for order in orders %}
+          {% if order.status == 'Pending' %}
+          <!-- Approve Order Modal -->
+          <div class="modal fade" id="approveModal{{ order.order_id }}" tabindex="-1" aria-labelledby="approveModalLabel{{ order.order_id }}" aria-hidden="true">
+             <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                   <div class="modal-header bg-primary text-white">
+                      <h6 class="modal-title" id="approveModalLabel{{ order.order_id }}">Approve Order #{{ order.order_id }}</h6>
+                      <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                         <i class="bi bi-x-lg"></i>
+                      </button>
+                   </div>
+                   <div class="modal-body">
+                      <p><strong>Product:</strong> {{ order.product_name }}</p>
+                      <p><strong>Buyer:</strong> {{ order.buyer_firstname }} {{ order.buyer_lastname }}</p>
+                      <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                      <p><strong>Total Amount:</strong> ₱{{ "{:,.2f}".format(order.total_amount) }}</p>
+                      <div class="alert alert-info">
+                         <small>Approving this order will move it to "To Pack" status and notify the buyer.</small>
+                      </div>
+                   </div>
+                   <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <form method="POST" action="{{ url_for('seller_orders.approve_order', order_id=order.order_id) }}" class="d-inline">
+                         <button type="submit" class="btn btn-primary">Approve Order</button>
+                      </form>
+                   </div>
+                </div>
+             </div>
+          </div>
+
+          <!-- Reject Order Modal -->
+          <div class="modal fade" id="rejectModal{{ order.order_id }}" tabindex="-1" aria-labelledby="rejectModalLabel{{ order.order_id }}" aria-hidden="true">
+             <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                   <div class="modal-header bg-danger text-white">
+                      <h6 class="modal-title" id="rejectModalLabel{{ order.order_id }}">Reject Order #{{ order.order_id }}</h6>
+                      <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                         <i class="bi bi-x-lg"></i>
+                      </button>
+                   </div>
+                   <div class="modal-body">
+                      <p><strong>Product:</strong> {{ order.product_name }}</p>
+                      <p><strong>Buyer:</strong> {{ order.buyer_firstname }} {{ order.buyer_lastname }}</p>
+                      <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                      <p><strong>Total Amount:</strong> ₱{{ "{:,.2f}".format(order.total_amount) }}</p>
+                      <div class="alert alert-warning">
+                         <small>Are you sure you want to reject this order? The product stock will be restored and the buyer will be notified.</small>
+                      </div>
+                   </div>
+                   <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <form method="POST" action="{{ url_for('seller_orders.reject_order', order_id=order.order_id) }}" class="d-inline">
+                         <button type="submit" class="btn btn-danger">Reject Order</button>
+                      </form>
+                   </div>
+                </div>
+             </div>
+          </div>
+          {% endif %}
+
+          {% if order.status == 'To Pack' %}
+          <!-- Mark as Packed Modal -->
+          <div class="modal fade" id="packModal{{ order.order_id }}" tabindex="-1" aria-labelledby="packModalLabel{{ order.order_id }}" aria-hidden="true">
+             <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                   <div class="modal-header bg-primary text-white">
+                      <h6 class="modal-title" id="packModalLabel{{ order.order_id }}">Mark Order #{{ order.order_id }} as Packed</h6>
+                      <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                         <i class="bi bi-x-lg"></i>
+                      </button>
+                   </div>
+                   <div class="modal-body">
+                     <p><strong>Product:</strong> {{ order.product_name }}</p>
+                     <p><strong>Buyer:</strong> {{ order.buyer_firstname }} {{ order.buyer_lastname }}</p>
+                     <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                     <p><strong>Total Amount:</strong> ₱{{ "{:,.2f}".format(order.total_amount) }}</p>
+                      <div class="alert alert-info">
+                         <small>Confirm that this order has been packed and is ready for shipment.</small>
+                      </div>
+                   </div>
+                   <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <form method="POST" action="{{ url_for('seller_orders.mark_as_packed', order_id=order.order_id) }}" class="d-inline">
+                         <button type="submit" class="btn btn-primary">Mark as Packed</button>
+                      </form>
+                   </div>
+                </div>
+             </div>
+          </div>
+          {% endif %}
+
+          {% if order.status == 'Shipping' %}
+          <!-- Mark as Shipped Modal -->
+          <div class="modal fade" id="shipModal{{ order.order_id }}" tabindex="-1" aria-labelledby="shipModalLabel{{ order.order_id }}" aria-hidden="true">
+             <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                   <div class="modal-header bg-primary text-white">
+                      <h6 class="modal-title" id="shipModalLabel{{ order.order_id }}">Mark Order #{{ order.order_id }} as Shipped</h6>
+                      <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                         <i class="bi bi-x-lg"></i>
+                      </button>
+                   </div>
+                   <div class="modal-body">
+                     <p><strong>Product:</strong> {{ order.product_name }}</p>
+                     <p><strong>Buyer:</strong> {{ order.buyer_firstname }} {{ order.buyer_lastname }}</p>
+                     <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                     <p><strong>Total Amount:</strong> ₱{{ "{:,.2f}".format(order.total_amount) }}</p>
+                      <div class="alert alert-info">
+                         <small>Confirm that this order has been shipped by the logistics partner and is ready for courier assignment.</small>
+                      </div>
+                   </div>
+                   <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                      <form method="POST" action="{{ url_for('seller_orders.mark_as_shipped', order_id=order.order_id) }}" class="d-inline">
+                         <button type="submit" class="btn btn-primary">Mark as Shipped</button>
+                      </form>
+                   </div>
+                </div>
+             </div>
+          </div>
+          {% endif %}
+       {% endfor %}
+
+       <!-- Hand-off to Logistics Modals -->
+       {% for order in orders %}
+          {% if order.status == 'Packed' %}
+          <div class="modal fade" id="handoffModal{{ order.order_id }}" tabindex="-1" aria-labelledby="handoffModalLabel{{ order.order_id }}" aria-hidden="true">
+             <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                   <div class="modal-header bg-primary text-white">
+                      <h6 class="modal-title" id="handoffModalLabel{{ order.order_id }}">Hand-off Order #{{ order.order_id }}</h6>
+                      <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                         <i class="bi bi-x-lg"></i>
+                      </button>
+                   </div>
+                   <form method="POST" action="{{ url_for('seller_orders.handoff_to_logistics', order_id=order.order_id) }}">
+                      <div class="modal-body">
+                        <p><strong>Product:</strong> {{ order.product_name }}</p>
+                        <p><strong>Buyer:</strong> {{ order.buyer_firstname }} {{ order.buyer_lastname }}</p>
+                        <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                        <p><strong>Total Amount:</strong> ₱{{ "{:,.2f}".format(order.total_amount) }}</p>
+                         <div class="mb-3">
+                            <label class="form-label"><strong>Logistics Partner</strong></label>
+                            <select class="form-select" name="logistic_name" required>
+                              <option value="Standard Shipping" selected>Standard Shipping</option>
+                               <option value="LBC Express">LBC Express</option>
+                               <option value="J&T Express">J&T Express</option>
+                               <option value="2GO Express">2GO Express</option>
+                               <option value="Ninja Van">Ninja Van</option>
+                               <option value="GoGo Express">GoGo Express</option>
+                            </select>
+                         </div>
+                         <div class="alert alert-info">
+                            <small>The order will be handed off to the logistics partner and status will change to "Shipping".</small>
+                         </div>
+                      </div>
+                      <div class="modal-footer">
+                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                         <button type="submit" class="btn btn-primary">Hand-off Order</button>
+                      </div>
+                   </form>
+                </div>
+             </div>
+          </div>
+          {% endif %}
+       {% endfor %}
+
+       <!-- Assign Courier Modals -->
+       {% for order in orders %}
+          {% if order.status == 'Shipped' %}
+          <div class="modal fade" id="courierModal{{ order.order_id }}" tabindex="-1" aria-labelledby="courierModalLabel{{ order.order_id }}" aria-hidden="true">
+             <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                   <div class="modal-header bg-primary text-white">
+                      <h6 class="modal-title" id="courierModalLabel{{ order.order_id }}">Assign Courier for Order #{{ order.order_id }}</h6>
+                      <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                         <i class="bi bi-x-lg"></i>
+                      </button>
+                   </div>
+                   <form method="POST" action="{{ url_for('seller_orders.assign_courier', order_id=order.order_id) }}">
+                      <div class="modal-body">
+                        <p><strong>Product:</strong> {{ order.product_name }}</p>
+                        <p><strong>Buyer:</strong> {{ order.buyer_firstname }} {{ order.buyer_lastname }}</p>
+                        <p><strong>Quantity:</strong> {{ order.quantity }}</p>
+                        <p><strong>Total Amount:</strong> ₱{{ "{:,.2f}".format(order.total_amount) }}</p>
+                         <div class="mb-3">
+                            <label class="form-label"><strong>Available Couriers</strong></label>
+                            <select class="form-select" name="courier_id" required>
+                               <option value="" disabled selected>Select a courier...</option>
+                               <!-- Couriers will be loaded dynamically based on buyer's location -->
+                            </select>
+                            <small class="text-muted">Only couriers in the same city, province, and region as the buyer are shown.</small>
+                         </div>
+                         <div class="alert alert-info">
+                            <small>The selected courier will be assigned for delivery to: {{ order.city }}, {{ order.province }}, {{ order.region }}</small>
+                         </div>
+                      </div>
+                      <div class="modal-footer">
+                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                         <button type="submit" class="btn btn-primary">Assign Courier</button>
+                      </div>
+                   </form>
+                </div>
+             </div>
+          </div>
+          {% endif %}
+       {% endfor %}
+
+             <!-- Order Details Modals -->
+       {% for order in orders %}
+       <div class="modal fade" id="orderModal{{ order.order_id }}" tabindex="-1" aria-labelledby="orderModalLabel{{ order.order_id }}" aria-hidden="true">
+          <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+             <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                   <h6 class="modal-title fw-normal" id="orderModalLabel{{ order.order_id }}">
+                      Order Details - <strong class="fw-semibold">#{{ order.order_id }} ({{ order.product_name }})</strong>
+                   </h6>
+                   <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                      <i class="bi bi-x-lg"></i>
+                   </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body product-modal">
+
+                   <!-- Row 1: Product Image & Basic Info -->
+                   <div class="row mb-4">
+                      <!-- Left Side: Product Image -->
+                      <div class="col-md-6">
+                         <div class="product-img-container w-100 h-100 d-flex align-items-center justify-content-center">
+                            <img src="{{ url_for('seller_orders.serve_product_main_pic', filename=order.product_main_pic) }}" 
+                                 alt="{{ order.product_name }}" 
+                                 class="img-fluid rounded border w-100" 
+                                 style="height: 300px; object-fit: cover;">
+                         </div>
+                      </div>
+                      
+                      <!-- Right Side: Order Information -->
+                      <div class="col-md-6 mt-3">
+                         <span class="badge 
+                         {% if order.status == 'Pending' %}bg-warning
+                         {% elif order.status == 'To Pack' %}bg-info
+                         {% elif order.status == 'Packed' %}bg-info
+                         {% elif order.status == 'Shipping' %}bg-primary
+                         {% elif order.status == 'Shipped' %}bg-primary
+                         {% elif order.status == 'For Delivery' %}bg-success
+                         {% elif order.status == 'Out for Delivery' %}bg-success
+                         {% elif order.status == 'Delivered' %}bg-success
+                         {% elif order.status == 'Received' %}bg-dark
+                         {% elif order.status == 'Rejected' %}bg-danger
+                         {% else %}bg-dark{% endif %}">
+                            {{ order.status }}
+                         </span>
+                         <p class="mt-3 fw-semibold fs-3 header-text">{{ order.product_name }}</p>
+                         <p class="fs-4">₱{{ "{:,.2f}".format(order.price) }}</p>
+                         <p class="fs-6 text-muted">Shipping: ₱{{ "{:,.2f}".format(order.shipping_fee) }}</p>
+                         <p>
+                            <small class="text-muted d-block header-text">Variant</small>
+                            {{ order.variant }}
+                         </p>
+                         <span>
+                            <small class="text-muted d-block header-text">Color</small>
+                            {{ order.color }} - 
+                         </span>
+                         <span class="text-muted">Qty: {{ order.quantity }}</span>
+                      </div>
+                   </div>
+
+                   <!-- Row 2: Order Information -->
+                   <div class="card mb-3">
+                      <div class="card-header bg-primary text-white">Order Information</div>
+                      <div class="card-body">
+                         <div class="row">
+                            <div class="col-md-6">
+                               <p><span class="header-text">Order ID:</span> <span class="body-text">#{{ order.order_id }}</span></p>
+                               <p><span class="header-text">Quantity:</span> <span class="body-text">{{ order.quantity }}</span></p>
+                               <p><span class="header-text">Unit Price:</span> <span class="body-text">₱{{ "{:,.2f}".format(order.price) }}</span></p>
+                               <p><span class="header-text">Shipping Fee:</span> <span class="body-text">₱{{ "{:,.2f}".format(order.shipping_fee) }}</span></p>
+                               <p><span class="header-text">Total Amount:</span> <span class="body-text">₱{{ "{:,.2f}".format(order.total_amount) }}</span></p>
+                            </div>
+                            <div class="col-md-6">
+                              <p><span class="header-text">Order Status:</span> 
+                                 <span class="badge 
+                                 {% if order.status == 'Pending' %}bg-warning
+                                 {% elif order.status == 'To Pack' %}bg-info
+                                 {% elif order.status == 'Packed' %}bg-info
+                                 {% elif order.status == 'Shipping' %}bg-primary
+                                 {% elif order.status == 'Shipped' %}bg-primary
+                                 {% elif order.status == 'For Delivery' %}bg-success
+                                 {% elif order.status == 'Out for Delivery' %}bg-success
+                                 {% elif order.status == 'Delivered' %}bg-success
+                                 {% elif order.status == 'Received' %}bg-dark
+                                 {% elif order.status == 'Rejected' %}bg-danger
+                                 {% else %}bg-dark{% endif %}">
+                                    {{ order.status }}
+                                 </span>
+                              </p>
+                               <p><span class="header-text">Payment Status:</span> 
+                                  <span class="badge {% if order.payment_status == 'Paid' %}bg-success{% else %}bg-warning{% endif %}">
+                                     {{ order.payment_status }}
+                                  </span>
+                               </p>
+                               <p><span class="header-text">Payment Method:</span> <span class="body-text">{{ order.payment_method }}</span></p>
+                               <p><span class="header-text">Date Ordered:</span> <span class="body-text">{{ order.date_ordered.strftime('%B %d, %Y at %I:%M %p') }}</span></p>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+
+                   <!-- Row 3: Buyer Information -->
+                   <div class="card mb-3">
+                      <div class="card-header bg-primary text-white">Buyer Information</div>
+                      <div class="card-body">
+                         <div class="row">
+                            <div class="col-md-6">
+                               <p><span class="header-text">Name:</span> <span class="body-text">{{ order.buyer_firstname }} {{ order.buyer_lastname }}</span></p>
+                               <p><span class="header-text">Email:</span> <span class="body-text">{{ order.buyer_email }}</span></p>
+                               <p><span class="header-text">Phone:</span> <span class="body-text">{{ order.buyer_phone }}</span></p>
+                            </div>
+                            <div class="col-md-6">
+                               <p><span class="header-text">Delivery Address:</span></p>
+                               <p class="body-text">
+                                  {{ order.house_no }} {{ order.street }}<br>
+                                  {{ order.barangay }}, {{ order.city }}<br>
+                                  {{ order.province }}, {{ order.region }}
+                               </p>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                   <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+             </div>
+          </div>
+       </div>
+       {% endfor %}
+
+      <!-- Pagination -->
+      <div id="pagination-container" class="d-flex justify-content-center">
+         <ul class="pagination d-flex align-items-center flex-row gap-2">
+            <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+            <li class="page-item pagination-numbers-container d-flex flex-row"></li> 
+            <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+         </ul>
+      </div>
+
+   </main>
+   <!-- MAIN CONTENT END -->
+
+</div>
+<!-- MAIN END -->
+
+<!-- Custom CSS for purple badge -->
+<style>
+   .bg-purple {
+      background-color: #6f42c1 !important;
+   }
+   .text-purple {
+      color: #6f42c1 !important;
+   }
+</style>
+
+<!-- JS -->
+<script>
+   // Pagination
+   document.addEventListener("DOMContentLoaded", function () {
+      const rowsPerPage = 12; 
+      let tableRows = document.querySelectorAll("tbody tr"); 
+      let totalRows = tableRows.length;
+      let totalPages = Math.ceil(totalRows / rowsPerPage);
+      let currentPage = 1;
+
+      const paginationContainer = document.querySelector(".pagination-numbers-container");
+      const prevPageBtn = document.getElementById("prevPage");
+      const nextPageBtn = document.getElementById("nextPage");
+
+      function showPage(page) {
+         let start = (page - 1) * rowsPerPage;
+         let end = start + rowsPerPage;
+
+         tableRows.forEach((row, index) => {
+            row.style.display = index >= start && index < end ? "table-row" : "none";
+         });
+
+         currentPage = page;
+         updatePaginationButtons();
+      }
+
+      function updatePaginationButtons() {
+         paginationContainer.innerHTML = "";
+         
+         for (let i = 1; i <= totalPages; i++) {
+            let pageItem = document.createElement("li");
+            pageItem.classList.add("page-item");
+            if (i === currentPage) pageItem.classList.add("active");
+
+            let pageLink = document.createElement("a");
+            pageLink.classList.add("page-link");
+            pageLink.href = "#";
+            pageLink.textContent = i;
+            pageLink.addEventListener("click", function (event) {
+               event.preventDefault();
+               showPage(i);
+            });
+
+            pageItem.appendChild(pageLink);
+            paginationContainer.appendChild(pageItem);
+         }
+
+         prevPageBtn.parentElement.classList.toggle("disabled", currentPage === 1);
+         nextPageBtn.parentElement.classList.toggle("disabled", currentPage === totalPages);
+      }
+
+      prevPageBtn.addEventListener("click", function (event) {
+         event.preventDefault();
+         if (currentPage > 1) showPage(currentPage - 1);
+      });
+
+      nextPageBtn.addEventListener("click", function (event) {
+         event.preventDefault();
+         if (currentPage < totalPages) showPage(currentPage + 1);
+      });
+
+      if (totalRows > 0) showPage(1); 
+   });
+
+   // Load couriers when courier modal is opened
+   document.addEventListener('DOMContentLoaded', function() {
+      // Add event listeners to all courier modals
+      {% for order in orders %}
+         {% if order.status == 'Shipped' %}
+         document.getElementById('courierModal{{ order.order_id }}').addEventListener('shown.bs.modal', function() {
+            loadCouriers({{ order.order_id }});
+         });
+         {% endif %}
+      {% endfor %}
+   });
+
+   function loadCouriers(orderId) {
+      fetch(`/seller/orders/get_couriers/${orderId}`)
+         .then(response => response.json())
+         .then(data => {
+            const select = document.querySelector(`#courierModal${orderId} select[name="courier_id"]`);
+            
+            // Clear existing options except the first one
+            while (select.children.length > 1) {
+               select.removeChild(select.lastChild);
+            }
+            
+            // Add courier options
+            if (data.couriers && data.couriers.length > 0) {
+               data.couriers.forEach(courier => {
+                  const option = document.createElement('option');
+                  option.value = courier.user_id;
+                  option.textContent = `${courier.firstname} ${courier.lastname} - ${courier.phone}`;
+                  select.appendChild(option);
+               });
+            } else {
+               const option = document.createElement('option');
+               option.value = '';
+               option.textContent = 'No couriers available in this area';
+               option.disabled = true;
+               select.appendChild(option);
+            }
+         })
+         .catch(error => {
+            console.error('Error loading couriers:', error);
+            const select = document.querySelector(`#courierModal${orderId} select[name="courier_id"]`);
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Error loading couriers';
+            option.disabled = true;
+            select.appendChild(option);
+         });
+   }
+</script>
+
+{% endblock %}

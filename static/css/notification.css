@@ -1,0 +1,48 @@
+.mobile-notif {
+    display: none;
+}
+.desktop-notif {
+    display: flex;
+    gap: 8px;
+}
+
+/* MEDIA QUERY - LARGE */
+@media (max-width: 992px) {
+    .desktop-notif {
+        display: none;
+    }
+
+    .mobile-notif {
+        display: flex;
+        gap: 5px;
+    }
+}
+
+/* MEDIA QUERY - SMALL */
+@media (max-width: 500px) {
+    .notification-container .container-fluid {
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        border-radius: 0 !important;
+    }
+
+    .mark-as-read {
+        margin-top: 1rem;
+    }
+
+    .notif-date {
+        display: block;
+        margin: 0 !important;
+        padding-top: .5rem;
+    }
+
+    .notification-content {
+        white-space: nowrap;     
+        overflow: hidden;        
+        text-overflow: ellipsis;  
+        display: block;
+        max-width: 310px;        
+    }
+
+}

@@ -1,0 +1,119 @@
+{% extends "base_form.html" %}
+
+{% block title %}Fenamaz - Login{% endblock %}
+
+{% block search_keyword %}
+    <meta name="keywords" content="Fenamaz Login, Login, Ecommerce Login, Online Store Login">
+    <meta name="description" content="Login to Fenamaz Ecommerce and Enjoy seamlessly shopping in just one tap.">
+{% endblock %}
+
+{% block content %}
+    <div class="full-screen-container">
+        <div class="form-container login-container">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="fs-3 text-center" style="font-weight: 600;">Login</h2>
+                <a href="/" class="exit-icon text-dark">
+                    <i class="bi bi-x fs-2"></i>
+                </a>
+            </div>
+    
+            <!-- Message Box -->
+            {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                    <div class="alert-container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %} 
+    
+            <form action="" method="POST">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="email" class="form-control" id="username" name="username" placeholder="Enter Username" required>
+                </div>
+    
+                <div class="password-field mb-2">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter Password" required>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="showPassword">
+                        <label class="form-check-label" for="showPassword">Show Password</label>
+                    </div>
+        
+                    <div class="mb-3">
+                        <a href="{{ url_for('login.forgot_pass')}}" class="text-primary forgot-pass">Forgot Password?</a>
+                    </div>
+                </div>
+    
+                <button type="submit" class="btn btn-primary w-100 mt-3 header-text">Login</button>
+            </form>
+    
+            <div class="mt-4 text-center">
+                <p class="text-muted">Don't have an account?</p>
+                <a href="{{ url_for('login.show_user_terms')}}" class="text-primary fw-semibold">Register Now!</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Login Success -->
+    <div class="modal fade" id="loginSuccessModal" tabindex="-1" aria-labelledby="loginSuccessModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h6 class="modal-title text-white fw-semibold" id="loginSuccessModalLabel">Welcome Back!</h6>
+                <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+            <div class="modal-body d-flex align-items-center">
+                You have successfully logged in to your account.
+            </div>
+            <div class="modal-footer border-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                {% if user_role == 'Buyer' %}
+                    <a href="{{ url_for('buyer_homepage.show_buyer_homepage') }}" class="btn btn-primary">Okay</a>
+                {% elif user_role == 'Seller' %}
+                    <a href="{{ url_for('seller_dashboard.dashboard') }}" class="btn btn-primary">Okay</a>
+                {% elif user_role == 'Courier' %}
+                    <a href="{{ url_for('courier_dashboard.dashboard') }}" class="btn btn-primary">Okay</a>
+                {% elif user_role == 'Admin' %}
+                    <a href="{{ url_for('admin_dashboard.dashboard') }}" class="btn btn-primary">Okay</a>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+    </div>
+
+    {% if login_success %}
+        <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function() {
+                var myModal = new bootstrap.Modal(document.getElementById('loginSuccessModal'), {
+                    keyboard: false
+                });
+                myModal.show();
+            });
+        </script>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('password');
+            const showPasswordCheckbox = document.getElementById('showPassword');
+
+            if (showPasswordCheckbox && passwordInput) {
+                showPasswordCheckbox.addEventListener('change', function() {
+                    passwordInput.type = this.checked ? 'text' : 'password';
+                });
+            }
+        });
+    </script>
+
+{% endblock %}

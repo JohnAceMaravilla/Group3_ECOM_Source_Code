@@ -1,0 +1,428 @@
+{% extends "buyer_homepage.html" %}
+
+{% block title %}Mobile Phone{% endblock %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_categories.css') }}">
+
+<style>
+/* Minimal CSS to make cards same height */
+.product-item {
+    height: 100%;
+}
+
+/* Pagination styling */
+.pagination .page-link {
+    border-radius: 0.375rem;
+    margin: 0 2px;
+    border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+</style>
+
+<div class="container-fluid cat-container ">
+
+    <!-- MESSAGE BOX -->
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+        <div class="alert-container header-text">
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+    <!-- END - MESSAGE BOX -->
+    
+    <!-- Breadcrumb -->
+    <nav class="p-0 m-0 mt-3" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('buyer_homepage.show_buyer_homepage')}}">Home</a></li>
+            <li class="breadcrumb-item active header-text" aria-current="page">{{ category }}</li>
+        </ol>
+    </nav>
+
+    <!-- Mobile Filter Button with Icon -->
+    <button class="btn btn-primary d-lg-none d-flex align-items-center justify-content-center" type="button" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
+        <i class="bi bi-funnel me-2"></i>Filters
+    </button>
+    
+    <!-- Offcanvas Filter Panel (For Mobile) -->
+    <div class="offcanvas offcanvas-start d-lg-none" tabindex="-1" id="filterOffcanvas">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title fw-normal"><i class="bi bi-funnel me-2"></i>Filters</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form method="get" action="{{ url_for('buyer_categories.category_page', category=category) }}">
+                <div class="price-filter-panel mobile-filter d-flex flex-column gap-4">
+                    
+                    <!-- Price Range Filter -->
+                    <div class="position-relative">
+                        <div class="d-flex justify-content-between gap-2">
+                            <div class="w-100">
+                                <label for="minPrice" class="form-label text-muted">Min Price :</label>
+                                <select id="minPrice" name="min_price" class="form-select" onchange="updatePriceDisplay()">
+                                    <option value="0" {% if min_price == 0 %}selected{% endif %}>₱ 0</option>
+                                    <option value="100" {% if min_price == 100 %}selected{% endif %}>₱ 100</option>
+                                    <option value="200" {% if min_price == 200 %}selected{% endif %}>₱ 200</option>
+                                    <option value="500" {% if min_price == 500 %}selected{% endif %}>₱ 500</option>
+                                    <option value="1000" {% if min_price == 1000 %}selected{% endif %}>₱ 1,000</option>
+                                    <option value="5000" {% if min_price == 5000 %}selected{% endif %}>₱ 5,000</option>
+                                    <option value="10000" {% if min_price == 10000 %}selected{% endif %}>₱ 10,000</option>
+                                    <option value="20000" {% if min_price == 20000 %}selected{% endif %}>₱ 20,000</option>
+                                    <option value="30000" {% if min_price == 30000 %}selected{% endif %}>₱ 30,000</option>
+                                    <option value="40000" {% if min_price == 40000 %}selected{% endif %}>₱ 40,000</option>
+                                    <option value="50000" {% if min_price == 50000 %}selected{% endif %}>₱ 50,000</option>
+                                    <option value="60000" {% if min_price == 60000 %}selected{% endif %}>₱ 60,000</option>
+                                    <option value="70000" {% if min_price == 70000 %}selected{% endif %}>₱ 70,000</option>
+                                    <option value="80000" {% if min_price == 80000 %}selected{% endif %}>₱ 80,000</option>
+                                    <option value="90000" {% if min_price == 90000 %}selected{% endif %}>₱ 90,000</option>
+                                    <option value="100000" {% if min_price == 100000 %}selected{% endif %}>₱ 100,000+</option>
+                                </select>
+                            </div>
+                            
+                            <div class="w-100">
+                                <label for="maxPrice" class="form-label text-muted">Max Price :</label>
+                                <select id="maxPrice" name="max_price" class="form-select" onchange="updatePriceDisplay()">
+                                    <option value="0" {% if max_price == 0 %}selected{% endif %}>₱ 0</option>
+                                    <option value="100" {% if max_price == 100 %}selected{% endif %}>₱ 100</option>
+                                    <option value="200" {% if max_price == 200 %}selected{% endif %}>₱ 200</option>
+                                    <option value="500" {% if max_price == 500 %}selected{% endif %}>₱ 500</option>
+                                    <option value="1000" {% if max_price == 1000 %}selected{% endif %}>₱ 1,000</option>
+                                    <option value="5000" {% if max_price == 5000 %}selected{% endif %}>₱ 5,000</option>
+                                    <option value="10000" {% if max_price == 10000 %}selected{% endif %}>₱ 10,000</option>
+                                    <option value="20000" {% if max_price == 20000 %}selected{% endif %}>₱ 20,000</option>
+                                    <option value="30000" {% if max_price == 30000 %}selected{% endif %}>₱ 30,000</option>
+                                    <option value="40000" {% if max_price == 40000 %}selected{% endif %}>₱ 40,000</option>
+                                    <option value="50000" {% if max_price == 50000 %}selected{% endif %}>₱ 50,000</option>
+                                    <option value="60000" {% if max_price == 60000 %}selected{% endif %}>₱ 60,000</option>
+                                    <option value="70000" {% if max_price == 70000 %}selected{% endif %}>₱ 70,000</option>
+                                    <option value="80000" {% if max_price == 80000 %}selected{% endif %}>₱ 80,000</option>
+                                    <option value="90000" {% if max_price == 90000 %}selected{% endif %}>₱ 90,000</option>
+                                    <option value="100000" {% if max_price == 100000 %}selected{% endif %}>₱ 100,000+</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- By Date Added Filter -->
+                    <div class="position-relative">
+                        <label for="sort" class="form-label text-muted">By Date Added :</label>
+                        <select name="sort" id="sort" class="form-select">
+                            <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Most Recent</option>
+                            <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest</option>
+                        </select>
+                    </div>
+
+                    <!-- Popularity Filter -->
+                    <div class="position-relative">
+                        <label for="popularity" class="form-label text-muted"> By Popularity :</label>
+                        <select name="popularity" id="popularity" class="form-select">
+                            <option value="" {% if popularity == '' %}selected{% endif %}>Select</option>
+                            <option value="top_selling" {% if popularity == 'top_selling' %}selected{% endif %}>Best Sellers</option>
+                            <option value="most_reviewed" {% if popularity == 'most_reviewed' %}selected{% endif %}>Most Reviewed</option>
+                            <option value="highest_rated" {% if popularity == 'highest_rated' %}selected{% endif %}>Highest Rated</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter Buttons -->
+                    <div class="d-flex flex-row gap-2 mt-3">
+                        <button type="button" class="btn btn-outline-primary w-50" data-bs-dismiss="offcanvas">Cancel</button>
+                        <button type="submit" class="btn btn-primary w-50">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-flex flex-column flex-lg-row">
+
+        <!-- Desktop Filter (Always Visible on Large Screens) -->
+        <div class="d-none d-lg-block"> 
+            <form method="get" action="{{ url_for('buyer_categories.category_page', category=category) }}" id="filterForm">
+                <div class="price-filter-panel desktop-filter d-flex flex-column gap-4">
+                    <h5 class="fw-normal mb-2"><i class="bi bi-funnel me-2"></i>Filters</h5>
+                    
+                    <!-- Price Range Filter -->
+                    <div class="position-relative">
+                        <div class="d-flex justify-content-between gap-2">
+                            <div class="w-100">
+                                <label for="minPrice" class="form-label text-muted">Min Price :</label>
+                                <select id="minPrice" name="min_price" class="form-select">
+                                    <option value="0" {% if min_price == 0 %}selected{% endif %}>₱ 0</option>
+                                    <option value="100" {% if min_price == 100 %}selected{% endif %}>₱ 100</option>
+                                    <option value="200" {% if min_price == 200 %}selected{% endif %}>₱ 200</option>
+                                    <option value="500" {% if min_price == 500 %}selected{% endif %}>₱ 500</option>
+                                    <option value="1000" {% if min_price == 1000 %}selected{% endif %}>₱ 1,000</option>
+                                    <option value="5000" {% if min_price == 5000 %}selected{% endif %}>₱ 5,000</option>
+                                    <option value="10000" {% if min_price == 10000 %}selected{% endif %}>₱ 10,000</option>
+                                    <option value="20000" {% if min_price == 20000 %}selected{% endif %}>₱ 20,000</option>
+                                    <option value="30000" {% if min_price == 30000 %}selected{% endif %}>₱ 30,000</option>
+                                    <option value="40000" {% if min_price == 40000 %}selected{% endif %}>₱ 40,000</option>
+                                    <option value="50000" {% if min_price == 50000 %}selected{% endif %}>₱ 50,000</option>
+                                    <option value="60000" {% if min_price == 60000 %}selected{% endif %}>₱ 60,000</option>
+                                    <option value="70000" {% if min_price == 70000 %}selected{% endif %}>₱ 70,000</option>
+                                    <option value="80000" {% if min_price == 80000 %}selected{% endif %}>₱ 80,000</option>
+                                    <option value="90000" {% if min_price == 90000 %}selected{% endif %}>₱ 90,000</option>
+                                    <option value="100000" {% if min_price == 100000 %}selected{% endif %}>₱ 100,000+</option>
+                                </select>
+                            </div>
+                            
+                            <div class="w-100">
+                                <label for="maxPrice" class="form-label text-muted">Max Price :</label>
+                                <select id="maxPrice" name="max_price" class="form-select">
+                                    <option value="0" {% if max_price == 0 %}selected{% endif %}>₱ 0</option>
+                                    <option value="100" {% if max_price == 100 %}selected{% endif %}>₱ 100</option>
+                                    <option value="200" {% if max_price == 200 %}selected{% endif %}>₱ 200</option>
+                                    <option value="500" {% if max_price == 500 %}selected{% endif %}>₱ 500</option>
+                                    <option value="1000" {% if max_price == 1000 %}selected{% endif %}>₱ 1,000</option>
+                                    <option value="5000" {% if max_price == 5000 %}selected{% endif %}>₱ 5,000</option>
+                                    <option value="10000" {% if max_price == 10000 %}selected{% endif %}>₱ 10,000</option>
+                                    <option value="20000" {% if max_price == 20000 %}selected{% endif %}>₱ 20,000</option>
+                                    <option value="30000" {% if max_price == 30000 %}selected{% endif %}>₱ 30,000</option>
+                                    <option value="40000" {% if max_price == 40000 %}selected{% endif %}>₱ 40,000</option>
+                                    <option value="50000" {% if max_price == 50000 %}selected{% endif %}>₱ 50,000</option>
+                                    <option value="60000" {% if max_price == 60000 %}selected{% endif %}>₱ 60,000</option>
+                                    <option value="70000" {% if max_price == 70000 %}selected{% endif %}>₱ 70,000</option>
+                                    <option value="80000" {% if max_price == 80000 %}selected{% endif %}>₱ 80,000</option>
+                                    <option value="90000" {% if max_price == 90000 %}selected{% endif %}>₱ 90,000</option>
+                                    <option value="100000" {% if max_price == 100000 %}selected{% endif %} >₱ 100,000+</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- By Date Added Filter -->
+                    <div class="position-relative">
+                        <label for="sort" class="form-label text-muted">By Date Added :</label>
+                        <select name="sort" id="sort" class="form-select">
+                            <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Most Recent</option>
+                            <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest</option>
+                        </select>
+                    </div>
+
+                    <!-- Popularity Filter -->
+                    <div class="position-relative">
+                        <label for="popularity" class="form-label text-muted">By Popularity :</label>
+                        <select name="popularity" id="popularity" class="form-select">
+                            <option value="" {% if popularity == '' %}selected{% endif %}>Select</option>
+                            <option value="top_selling" {% if popularity == 'top_selling' %}selected{% endif %}>Best Sellers</option>
+                            <option value="most_reviewed" {% if popularity == 'most_reviewed' %}selected{% endif %}>Most Reviewed</option>
+                            <option value="highest_rated" {% if popularity == 'highest_rated' %}selected{% endif %}>Highest Rated</option>
+                        </select>
+                    </div>
+
+                    <!-- Filter Buttons -->
+                    <div class="d-flex flex-row gap-2 mt-3">
+                        <button type="submit" class="btn btn-outline-primary w-50" name="reset" value="1">Reset</button>
+                        <button type="submit" class="btn btn-primary w-50">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+
+        <!-- Cards -->
+        <div class="content flex-grow-1">
+            <div class="container-fluid mt-3">
+                <!-- Products Count and Current Page Info -->
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <p class="text-muted mb-0">
+                            Showing {{ ((page - 1) * 16) + 1 }} - {{ ((page - 1) * 16) + products|length }} of {{ total_products }} products
+                            {% if page > 1 %}(Page {{ page }} of {{ total_pages }}){% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="row row-cols-2 row-cols-md-4 g-3">
+                    {% if products %}
+                        {% for product in products %}
+                        <!-- Product Item -->
+                        <div class="col">
+                            <div class="product-item">
+                                <div class="product-image-container position-relative">
+                                    <!-- Product Image -->
+                                    <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}" >
+                                        {% if product['product_main_pic'] %}
+                                            <img src="{{ url_for('buyer_categories.serve_product_main_pic', filename=product['product_main_pic']) }}" 
+                                                alt="{{ product['product_name'] }}" 
+                                                class="product-image img-fluid w-100">
+                                        {% else %}
+                                            <div class="product-image img-fluid w-100 d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                                <span class="text-muted">No Image</span>
+                                            </div>
+                                        {% endif %}
+                                        <div class="hover-overlay position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50">
+                                            <span class="fs-5 text-white">See Product</span>
+                                        </div>
+                                    </a>
+                                </div>
+                    
+                                <!-- Product Info -->
+                                <div class="product-details mt-3">
+                                    <a href="#" class="text-dark">
+                                        <h6 class="fw-bold d-none">{{ product['product_info_id'] }}</h6>
+                                        <h6 class="fw-bold product-name text-truncate">{{ product['product_name'] }}</h6>
+                                        <p>₱{{ "{:,.2f}".format(product['min_price']) }} - ₱{{ "{:,.2f}".format(product['max_price']) }}</p>
+                                        <small class="text-muted">{{ product['variant_count'] }} Variants | {{ product['color_count'] }} Colors</small>
+                                    </a>
+
+                                    <div class="d-flex align-items-center justify-content-between w-100">
+                                        <!-- Product Rating -->
+                                        <div class="product-rating d-flex align-items-center flex-row mb-2">
+                                            {% set rating = product['Average_Rating'] %}
+                                            <div class="stars text-primary">
+                                                {% for i in range(5) %}
+                                                    <i class="fa{{ 's' if i < rating|round(0) else 'r' }} fa-star"></i>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="ms-2">{{ "{:.1f}".format(rating) }} </span>
+                                        </div>
+
+                                        <!-- Product Stats -->
+                                        <div class="product-stats mb-2">
+                                            <small class="text-muted d-block header-text">
+                                                {{ product.get('total_orders', 0) }} Sold
+                                                
+                                            </small>
+                                        </div>
+                                    </div>
+                         
+                                    <!-- Add to Cart Button -->
+                                    <div class="product-actions d-flex align-items-center flex-row w-100 gap-2">
+                                        <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}" 
+                                            class="btn btn-primary text-white w-100 d-flex align-items-center justify-content-center gap-2">
+                                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                                        </a>
+                                        
+                                        <!-- Like/Unlike Button -->
+                                        <form method="POST" action="{{ url_for('buyer_categories.toggle_like_product', product_info_id=product['product_info_id']) }}">
+                                            <button type="submit" class="btn-outline-primary border-0" style="background-color: transparent;">
+                                                {% if product.liked %}
+                                                    <!-- Heart Fill (Liked) -->
+                                                    <i class="bi bi-heart-fill text-primary " style="font-size: 1.5rem;"></i>
+                                                {% else %}
+                                                    <!-- Heart Outline (Unliked) -->
+                                                    <i class="bi bi-heart text-primary " style="font-size: 1.5rem;"></i>
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12 d-flex align-items-center justify-content-center">
+                            <div class="text-center py-5">
+                                <i class="fas fa-search fs-1 text-muted mb-3"></i>
+                                <h5 class="text-muted">No products found in this category.</h5>
+                                <p class="text-muted">Try adjusting your filters or search criteria.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Pagination -->
+                {% if total_pages > 1 %}
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <nav aria-label="Products pagination">
+                            <ul class="pagination justify-content-center">
+                                <!-- Previous Button -->
+                                <li class="page-item {% if not has_prev %}disabled{% endif %}">
+                                    {% if has_prev %}
+                                        <a class="page-link" href="{{ url_for('buyer_categories.category_page', 
+                                            category=category, 
+                                            page=prev_page, 
+                                            min_price=min_price, 
+                                            max_price=max_price, 
+                                            sort=sort, 
+                                            popularity=popularity, 
+                                            brand=brand) }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="page-link" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </span>
+                                    {% endif %}
+                                </li>
+
+                                <!-- Page Numbers -->
+                                {% for page_num in page_numbers %}
+                                    {% if page_num == '...' %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item {% if page_num == page %}active{% endif %}">
+                                            <a class="page-link" href="{{ url_for('buyer_categories.category_page', 
+                                                category=category, 
+                                                page=page_num, 
+                                                min_price=min_price, 
+                                                max_price=max_price, 
+                                                sort=sort, 
+                                                popularity=popularity, 
+                                                brand=brand) }}">{{ page_num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                <!-- Next Button -->
+                                <li class="page-item {% if not has_next %}disabled{% endif %}">
+                                    {% if has_next %}
+                                        <a class="page-link" href="{{ url_for('buyer_categories.category_page', 
+                                            category=category, 
+                                            page=next_page, 
+                                            min_price=min_price, 
+                                            max_price=max_price, 
+                                            sort=sort, 
+                                            popularity=popularity, 
+                                            brand=brand) }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    {% else %}
+                                        <span class="page-link" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </span>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </nav>
+
+                        <!-- Pagination Info -->
+                        <div class="text-center mt-2">
+                            <small class="text-muted">
+                                Page {{ page }} of {{ total_pages }} • {{ total_products }} total products
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+    
+</div>
+
+
+    
+
+{% endblock %}

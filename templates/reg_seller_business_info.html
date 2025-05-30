@@ -1,0 +1,99 @@
+{% extends "base_form.html" %}
+
+{% block title %}Register - Business Information{% endblock %}
+
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="{{ url_for('static', filename='js/ph-address-selector.js') }}"></script>
+
+<div class="full-screen-container">
+    <div class="form-container registration-container">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fs-3" style="font-weight: 600;">Register</h2>
+            <a href="{{ url_for('seller_registration.get_valid_info') }}" class="exit-icon text-dark">
+                <i class="bi bi-arrow-left fs-4 px-2"></i>
+            </a>
+        </div>
+
+        <p class="mb-4">
+            <strong class="text-primary">Step 5: </strong>
+            Please enter your business information.
+        </p>
+
+        <!-- Message Box -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %} 
+        
+        <form action="{{ url_for('seller_registration.get_business_info') }}" method="POST" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="business_name" class="form-label">Business Name *</label>
+                <input type="text" class="form-control" id="business_name" name="business_name" 
+                       placeholder="Enter your business name" required 
+                       value="{{ session.get('business_info', {}).get('business_name', '') }}">
+            </div>
+            
+            <div class="mb-3">
+                <label for="permit_no" class="form-label">Business Permit Number *</label>
+                <input type="text" class="form-control" id="permit_no" name="permit_no" 
+                       placeholder="Enter your business permit number" required 
+                       value="{{ session.get('business_info', {}).get('permit_no', '') }}">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="issue_date" class="form-label">Business Issue Date *</label>
+                    <input type="date" class="form-control" id="issue_date" name="issue_date" required 
+                           value="{{ session.get('business_info', {}).get('issue_date', '') }}">
+                </div>
+    
+                <div class="col-md-6 mb-3">
+                    <label for="expiry_date" class="form-label">Business Expiry Date *</label>
+                    <input type="date" class="form-control" id="expiry_date" name="expiry_date" required 
+                           value="{{ session.get('business_info', {}).get('expiry_date', '') }}">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="permit_pic" class="form-label">Upload Business Permit *</label>
+                <input type="file" class="form-control" id="permit_pic" name="permit_pic" accept="image/*" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">Submit</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function enforceFourDigitYear(event) {
+            let input = event.target;
+            let value = input.value;
+
+            if (value.length >= 10) {
+                let parts = value.split('-'); 
+                if (parts[0].length > 4) { 
+                    parts[0] = parts[0].slice(0, 4); 
+                    input.value = parts.join('-');
+                }
+            }
+        }
+
+        document.getElementById('issue_date').addEventListener('input', enforceFourDigitYear);
+        document.getElementById('expiry_date').addEventListener('input', enforceFourDigitYear);
+    });
+</script>
+
+
+{% endblock %}

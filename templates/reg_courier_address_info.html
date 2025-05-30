@@ -1,0 +1,88 @@
+{% extends "base_form.html" %}
+
+{% block title %}Register - Address Information{% endblock %}
+
+{% block content %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="{{ url_for('static', filename='js/address_selector.js') }}"></script>
+
+<div class="full-screen-container">
+    <div class="form-container registration-container">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fs-3" style="font-weight: 600;">Register</h2>
+            <a href="{{ url_for('courier_registration.get_personal_info') }}" class="exit-icon text-dark">
+                <i class="bi bi-arrow-left fs-4 px-2"></i>
+            </a>
+        </div>
+
+        <p class="mb-4">
+            <strong class="text-primary">Step 2: </strong>
+            Please enter your address information.
+        </p>
+
+        <!-- Message Box -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %} 
+        
+        <form action="{{ url_for('courier_registration.get_address_info') }}" method="POST">
+            <div class="mb-3">
+                <label class="form-label">Region *</label>
+                <select name="region" class="form-control form-control-md" id="region" 
+                        value="{{ session.get('address_info', {}).get('region', '') }}" required>
+                </select>
+                <input type="hidden" class="form-control form-control-md" name="region_text" id="region-text" 
+                       value="{{ session.get('address_info', {}).get('region', '') }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Province *</label>
+                <select name="province" class="form-control form-control-md" id="province" 
+                        value="{{ session.get('address_info', {}).get('province', '') }}" required>
+                </select>
+                <input type="hidden" class="form-control form-control-md" name="province_text" id="province-text" 
+                       value="{{ session.get('address_info', {}).get('province', '') }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">City / Municipality *</label>
+                <select name="city" class="form-control form-control-md" id="city" 
+                        value="{{ session.get('address_info', {}).get('city', '') }}" required>
+                </select>
+                <input type="hidden" class="form-control form-control-md" name="city_text" id="city-text" 
+                       value="{{ session.get('address_info', {}).get('city', '') }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Barangay *</label>
+                <select name="barangay" class="form-control form-control-md" id="barangay" 
+                        value="{{ session.get('address_info', {}).get('barangay', '') }}" required>
+                </select>
+                <input type="hidden" class="form-control form-control-md" name="barangay_text" id="barangay-text" 
+                       value="{{ session.get('address_info', {}).get('barangay', '') }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="street-text" class="form-label">Street (Optional)</label>
+                <input type="text" class="form-control form-control-md" name="street_text" placeholder="Enter your street" 
+                       id="street-text" value="{{ session.get('address_info', {}).get('street', '') }}">
+            </div>
+            <div class="mb-3">
+                <label for="house_no" class="form-label">House No. *</label>
+                <input type="text" class="form-control" id="house_no" name="house_no" placeholder="Enter your house number" 
+                       required value="{{ session.get('address_info', {}).get('house_no', '') }}">
+            </div>
+        
+            <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

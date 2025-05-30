@@ -1,0 +1,754 @@
+
+{% extends "courier_dashboard.html" %}
+
+{% block title %}Delivery{% endblock %}
+
+{% block courier_content %}
+
+<!-- MAIN -->
+<div class="main">
+
+   <!-- Top Bar -->
+   <nav class="navbar navbar-expand d-flex align-items-center justify-content-between w-100">
+      
+      <!-- Logo -->
+      <div class="d-flex align-items-center">
+         <button class="toggler-btn" type="button">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/menu.png') }}" style="width: 25px; height: 20px;">
+         </button>
+         <a class="navbar-brand ms-3" href="#">
+            <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+         </a>
+      </div>
+
+      <!-- Search Bar for Desktop -->
+      <form class="d-flex justify-content-end d-none d-md-flex" role="search" method="GET" action="{{ url_for('courier_delivery.delivery') }}">
+         <input class="form-control me-2" type="search" name="search" placeholder="Search deliveries.." aria-label="Search" value="{{ search_query }}">
+         <input type="hidden" name="status" value="{{ status_filter }}"> 
+         <input type="hidden" name="sort_by" value="{{ sort_by }}"> 
+         <input type="hidden" name="order" value="{{ order }}"> 
+         <button class="btn btn-primary" type="submit">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+         </button>
+      </form>
+
+      <!-- Mobile Search Button -->
+      <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+         <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+      </button>
+
+   </nav>
+   <!-- Top Bar End-->
+
+   <!-- Search for Mobile -->
+   <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+      <div class="offcanvas-header">
+         <h5 id="offcanvasTopLabel" class="text-center mt-2">Search</h5>
+         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+         <form class="d-flex justify-content-between" role="search" method="GET" action="{{ url_for('courier_delivery.delivery') }}">
+            <input class="form-control me-2" type="search" name="search" placeholder="Search deliveries.." aria-label="Search" value="{{ search_query }}">
+            <button class="btn btn-primary" type="submit">
+               <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+            </button>
+         </form>
+      </div>
+   </div>
+   <!-- Search for Mobile End -->
+
+   <!-- MAIN CONTENT -->
+   <main class="content">
+
+      <!-- Title Bar -->
+      <div class="container-fluid title-container d-flex flex-lg-row flex-column align-items-center justify-content-between">
+         <!-- Title -->
+         <div class="title align-self-start">
+            <h4>{{ page_title }}</h4>
+            <p class="text-muted">{{ page_description }}</p>
+         </div>
+      
+         <!-- Buttons -->
+         <div class="btn-container d-flex flex-wrap gap-2">     
+            <!-- Desktop Buttons -->
+            <div class="d-none d-md-flex gap-2">
+               <!-- Sort By Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-secondary border-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+                     Sort By
+                  </button>
+                  <ul class="dropdown-menu">
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_delivered' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('courier_delivery.delivery', sort_by='date_delivered', order='desc', status=status_filter, search=search_query) }}">
+                           Recent
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_delivered' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('courier_delivery.delivery', sort_by='date_delivered', order='asc', status=status_filter, search=search_query) }}">
+                           Oldest
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'product_name' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('courier_delivery.delivery', sort_by='product_name', order='asc', status=status_filter, search=search_query) }}">
+                           Product Name (A-Z)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'buyer_name' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('courier_delivery.delivery', sort_by='buyer_name', order='asc', status=status_filter, search=search_query) }}">
+                           Buyer Name (A-Z)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'total_amount' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('courier_delivery.delivery', sort_by='total_amount', order='desc', status=status_filter, search=search_query) }}">
+                           Amount (High - Low)
+                        </a>
+                     </li>                
+                  </ul>
+               </div>
+      
+               <!-- Filter By Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-secondary border-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                     Filter By Status
+                  </button>
+                  <ul class="dropdown-menu">
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'All' %}active{% endif %}" 
+                           href="{{ url_for('courier_delivery.delivery', status='All', sort_by=sort_by, order=order, search=search_query) }}">
+                           All
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'For Delivery' %}active{% endif %}" 
+                           href="{{ url_for('courier_delivery.delivery', status='For Delivery', sort_by=sort_by, order=order, search=search_query) }}">
+                           For Delivery
+                        </a>
+                     </li>
+                     
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Out for Delivery' %}active{% endif %}" 
+                           href="{{ url_for('courier_delivery.delivery', status='Out for Delivery', sort_by=sort_by, order=order, search=search_query) }}">
+                           Out for Delivery
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Delivered' %}active{% endif %}" 
+                           href="{{ url_for('courier_delivery.delivery', status='Delivered', sort_by=sort_by, order=order, search=search_query) }}">
+                           Delivered
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+      
+               <!-- Reset Table Button -->
+               <a href="{{ url_for('courier_delivery.delivery')}}" type="button" class="btn btn-dark d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" class="" style="width: 1.2rem;">
+               </a>
+            </div>
+      
+            <!-- Mobile Buttons -->
+            <div class="d-flex d-md-none flex-row gap-2">
+               <div class="d-flex flex-row gap-2">
+
+                  <!-- Sort By Dropdown -->
+                  <div class="dropdown">
+                     <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="sortDropdownMobile" data-bs-toggle="dropdown">
+                        <i class="bi bi-filter"></i> 
+                     </button>
+                     <ul class="dropdown-menu">
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'date_delivered' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('courier_delivery.delivery', sort_by='date_delivered', order='desc', status=status_filter, search=search_query) }}">
+                              Recent
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'date_delivered' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('courier_delivery.delivery', sort_by='date_delivered', order='asc', status=status_filter, search=search_query) }}">
+                              Oldest
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'product_name' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('courier_delivery.delivery', sort_by='product_name', order='asc', status=status_filter, search=search_query) }}">
+                              Product Name (A-Z)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'buyer_name' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('courier_delivery.delivery', sort_by='buyer_name', order='asc', status=status_filter, search=search_query) }}">
+                              Buyer Name (A-Z)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'total_amount' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('courier_delivery.delivery', sort_by='total_amount', order='desc', status=status_filter, search=search_query) }}">
+                              Amount (High - Low)
+                           </a>
+                        </li>                
+                     </ul>
+                  </div>
+         
+                  <!-- Filter By Dropdown -->
+                  <div class="dropdown">
+                     <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="filterDropdownMobile" data-bs-toggle="dropdown">
+                        <i class="bi bi-funnel"></i>
+                     </button>
+                     <ul class="dropdown-menu">
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'For Delivery' %}active{% endif %}" 
+                              href="{{ url_for('courier_delivery.delivery', status='For Delivery', sort_by=sort_by, order=order, search=search_query) }}">
+                              For Delivery
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'All' %}active{% endif %}" 
+                              href="{{ url_for('courier_delivery.delivery', status='All', sort_by=sort_by, order=order, search=search_query) }}">
+                              All
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'Out for Delivery' %}active{% endif %}" 
+                              href="{{ url_for('courier_delivery.delivery', status='Out for Delivery', sort_by=sort_by, order=order, search=search_query) }}">
+                              Out for Delivery
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'Delivered' %}active{% endif %}" 
+                              href="{{ url_for('courier_delivery.delivery', status='Delivered', sort_by=sort_by, order=order, search=search_query) }}">
+                              Delivered
+                           </a>
+                        </li>
+                     </ul>
+                  </div>
+         
+                  <!-- Reset Table Button -->
+                  <a href="{{ url_for('courier_delivery.delivery')}}" type="button" class="btn btn-dark d-flex align-items-center justify-content-center">
+                     <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" style="width: 1.2rem;">
+                  </a>
+
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Title Bar End -->
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=True) %}
+         {% if messages %}
+            <div class="alert-container px-3">
+            {% for category, message in messages %}
+               <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+               {{ message }}
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+               </div>
+            {% endfor %}
+            </div>
+         {% endif %}
+      {% endwith %}
+
+      <!-- Delivery Statistics -->
+      <div class="row mt-3 d-none d-md-flex px-3">
+
+         <!-- For Delivery -->
+         <div class="col-md-3">
+            <div class="card bg-warning text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">For Delivery</span>
+                  <span class="bg-white text-warning px-3 py-1 rounded fw-bold shadow-sm">
+                     {{ stats.for_delivery_count or 0 }}
+                  </span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Out for Delivery -->
+         <div class="col-md-3">
+            <div class="card bg-primary text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Out for Delivery</span>
+                  <span class="bg-white text-primary px-3 py-1 rounded fw-bold shadow-sm">
+                     {{ stats.out_delivery_count or 0 }}
+                  </span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Delivered -->
+         <div class="col-md-3">
+            <div class="card bg-success text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Delivered</span>
+                  <span class="bg-white text-success px-3 py-1 rounded fw-bold shadow-sm">
+                     {{ stats.delivered_count or 0 }}
+                  </span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Total Deliveries -->
+         <div class="col-md-3">
+            <div class="card bg-dark text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Total</span>
+                  <span class="bg-white text-dark px-3 py-1 rounded fw-bold shadow-sm">
+                     {{ stats.total_deliveries or 0 }}
+                  </span>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+         <div class="table-responsive">
+            <table class="table">
+
+               <!-- Table Head -->
+               <thead class="bg-primary table-head text-white">
+                  <tr>
+                     <th scope="col">Order ID</th>
+                     <th scope="col">Product</th>
+                     <th scope="col">Buyer</th>
+                     <th scope="col">Seller</th>
+                     <th scope="col">Amount</th>
+                     <th scope="col">Payment</th>
+                     <th scope="col">Date Assigned</th>
+                     <th scope="col">Status</th>
+                     <th scope="col">Actions</th>
+                  </tr>
+               </thead>
+
+               <!-- Table Body -->
+               <tbody>
+                  {% if deliveries %}
+                     {% for delivery in deliveries %}
+                     <tr>
+                        <td class="fw-bold">#{{ delivery.order_id }}</td>
+                        <td>
+                           <div class="d-flex align-items-center">
+                              <img src="{{ url_for('courier_delivery.serve_product_main_pic', filename=delivery.product_main_pic) }}" 
+                                   alt="{{ delivery.product_name }}" 
+                                   class="me-2 rounded" 
+                                   style="width: 40px; height: 40px; object-fit: cover;">
+                              <div>
+                                 <div class="fw-semibold">{{ delivery.product_name }}</div>
+                                 <small class="text-muted">{{ delivery.variant }} - {{ delivery.color }}</small>
+                              </div>
+                           </div>
+                        </td>
+                        <td>
+                           <div>
+                              <div class="fw-semibold">{{ delivery.buyer_firstname }} {{ delivery.buyer_lastname }}</div>
+                              <small class="text-muted">{{ delivery.buyer_phone }}</small>
+                           </div>
+                        </td>
+                        <td>
+                           <div>
+                              <div class="fw-semibold">{{ delivery.seller_firstname }} {{ delivery.seller_lastname }}</div>
+                              <small class="text-muted">{{ delivery.shop_name }}</small>
+                           </div>
+                        </td>
+                        <td>₱{{ "{:,.2f}".format(delivery.total_amount) }}</td>
+                        <td>
+                           <span class="badge {% if delivery.payment_status == 'Paid' %}bg-success{% else %}bg-warning{% endif %}">
+                              {{ delivery.payment_status }}
+                           </span>
+                        </td>
+                        <td>{{ delivery.date_delivered.strftime('%b %d, %Y') }}</td>
+                        <td>
+                           <span class="badge 
+                           {% if delivery.delivery_status == 'For Delivery' %}bg-success
+                           {% elif delivery.delivery_status == 'Out for Delivery' %}bg-success
+                           {% elif delivery.delivery_status == 'Delivered' %}bg-success
+                           {% else %}bg-dark{% endif %}">
+                              {{ delivery.delivery_status }}
+                           </span>
+                        </td>
+                        <td>
+                           <div class="d-flex flex-row align-items-center justify-content-start gap-1 header-text">
+                              {% if delivery.delivery_status == 'For Delivery' %}
+                                 <!-- Accept Button -->
+                                 <button type="button" class="btn btn-sm btn-primary header-text"
+                                         data-bs-toggle="modal" data-bs-target="#acceptModal{{ delivery.delivery_id }}">
+                                    Accept
+                                 </button>
+                                 <!-- Decline Button -->
+                                 <button type="button" class="btn btn-sm btn-danger header-text"
+                                         data-bs-toggle="modal" data-bs-target="#declineModal{{ delivery.delivery_id }}">
+                                    Decline
+                                 </button>
+                              {% elif delivery.delivery_status == 'Out for Delivery' %}
+                                 <!-- Mark as Delivered Button -->
+                                 <button type="button" class="btn btn-sm btn-primary header-text"
+                                         data-bs-toggle="modal" data-bs-target="#markDeliveredModal{{ delivery.delivery_id }}">
+                                    Mark Delivered
+                                 </button>
+                              {% elif delivery.delivery_status == 'Delivered' %}
+                                 <!-- Delivery Completed -->
+                                 <span class="text-success">Delivery Completed</span>
+                              {% else %}
+                                 <!-- View Details Button -->
+                                 <button type="button" class="btn btn-sm btn-outline-primary"
+                                         data-bs-toggle="modal" data-bs-target="#deliveryModal{{ delivery.delivery_id }}">
+                                    View Details
+                                 </button>
+                              {% endif %}
+                           </div>
+                        </td>                        
+                     </tr>
+                     {% endfor %}
+                  {% else %}
+                     <tr>
+                        <td colspan="9" class="text-center py-4">
+                           No deliveries found at the moment.
+                        </td>
+                     </tr>
+                  {% endif %}  
+               </tbody>
+            </table>
+         </div>
+      </div>
+      <!-- Table End -->
+
+      <!-- Delivery Details Modals -->
+      {% for delivery in deliveries %}
+      <div class="modal fade" id="deliveryModal{{ delivery.delivery_id }}" tabindex="-1" aria-labelledby="deliveryModalLabel{{ delivery.delivery_id }}" aria-hidden="true">
+         <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+               <!-- Modal Header -->
+               <div class="modal-header bg-primary text-white">
+                  <h6 class="modal-title fw-normal" id="deliveryModalLabel{{ delivery.delivery_id }}">
+                     Delivery Details - <strong class="fw-semibold">Order #{{ delivery.order_id }} ({{ delivery.product_name }})</strong>
+                  </h6>
+                  <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                     <i class="bi bi-x-lg"></i>
+                  </button>
+               </div>
+
+               <!-- Modal Body -->
+               <div class="modal-body product-modal">
+
+                  <!-- Row 1: Product Image & Basic Info -->
+                  <div class="row mb-4">
+                     <!-- Left Side: Product Image -->
+                     <div class="col-md-6">
+                        <div class="product-img-container w-100 h-100 d-flex align-items-center justify-content-center">
+                           <img src="{{ url_for('courier_delivery.serve_product_main_pic', filename=delivery.product_main_pic) }}" 
+                                alt="{{ delivery.product_name }}" 
+                                class="img-fluid rounded border w-100" 
+                                style="height: 300px; object-fit: cover;">
+                        </div>
+                     </div>
+                     
+                     <!-- Right Side: Delivery Information -->
+                     <div class="col-md-6 mt-3">
+                        <span class="badge 
+                        {% if delivery.delivery_status == 'For Delivery' %}bg-success
+                        {% elif delivery.delivery_status == 'Out for Delivery' %}bg-success
+                        {% elif delivery.delivery_status == 'Delivered' %}bg-success
+                        {% else %}bg-dark{% endif %}">
+                           {{ delivery.delivery_status }}
+                        </span>
+                        <p class="mt-3 fw-semibold fs-3 header-text">{{ delivery.product_name }}</p>
+                        <p class="fs-4">₱{{ "{:,.2f}".format(delivery.price) }}</p>
+                        <p class="fs-6 text-muted">Shipping: ₱{{ "{:,.2f}".format(delivery.shipping_fee) }}</p>
+                        <p>
+                           <small class="text-muted d-block header-text">Variant</small>
+                           {{ delivery.variant }}
+                        </p>
+                        <span>
+                           <small class="text-muted d-block header-text">Color</small>
+                           {{ delivery.color }} - 
+                        </span>
+                        <span class="text-muted">Qty: {{ delivery.quantity }}</span>
+                     </div>
+                  </div>
+
+                  <!-- Row 2: Delivery Information -->
+                  <div class="card mb-3">
+                     <div class="card-header bg-primary text-white">Delivery Information</div>
+                     <div class="card-body">
+                        <div class="row">
+                           <div class="col-md-6">
+                              <p><span class="header-text">Order ID:</span> <span class="body-text">#{{ delivery.order_id }}</span></p>
+                              <p><span class="header-text">Delivery Status:</span> 
+                                 <span class="badge 
+                                 {% if delivery.delivery_status == 'For Delivery' %}bg-success
+                                 {% elif delivery.delivery_status == 'Out for Delivery' %}bg-success
+                                 {% elif delivery.delivery_status == 'Delivered' %}bg-success
+                                 {% else %}bg-dark{% endif %}">
+                                    {{ delivery.delivery_status }}
+                                 </span>
+                              </p>
+                              <p><span class="header-text">Date Assigned:</span> <span class="body-text">{{ delivery.date_delivered.strftime('%B %d, %Y at %I:%M %p') }}</span></p>
+                              <p><span class="header-text">Total Amount:</span> <span class="body-text">₱{{ "{:,.2f}".format(delivery.total_amount) }}</span></p>
+                           </div>
+                           <div class="col-md-6">
+                              <p><span class="header-text">Payment Method:</span> <span class="body-text">{{ delivery.payment_method }}</span></p>
+                              <p><span class="header-text">Payment Status:</span> 
+                                 <span class="badge {% if delivery.payment_status == 'Paid' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ delivery.payment_status }}
+                                 </span>
+                              </p>
+                              <p><span class="header-text">Shop:</span> <span class="body-text">{{ delivery.shop_name }}</span></p>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Row 3: Buyer Information -->
+                  <div class="card mb-3">
+                     <div class="card-header bg-primary text-white">Buyer Information</div>
+                     <div class="card-body">
+                                                 <div class="row">
+                            <div class="col-md-6">
+                              <p><span class="header-text">Name:</span> <span class="body-text">{{ delivery.buyer_firstname }} {{ delivery.buyer_lastname }}</span></p>
+                              <p><span class="header-text">Email:</span> <span class="body-text">{{ delivery.buyer_email }}</span></p>
+                              <p><span class="header-text">Phone:</span> <span class="body-text">{{ delivery.buyer_phone }}</span></p>
+                           </div>
+                           <div class="col-md-6">
+                              <p><span class="header-text">Delivery Address:</span></p>
+                              <p class="body-text">
+                                 {{ delivery.house_no }} {{ delivery.street }}<br>
+                                 {{ delivery.barangay }}, {{ delivery.city }}<br>
+                                 {{ delivery.province }}, {{ delivery.region }}
+                              </p>
+                           </div>
+                         </div>
+                     </div>
+                  </div>
+
+                  <!-- Row 4: Seller Information -->
+                  <div class="card mb-3">
+                     <div class="card-header bg-primary text-white">Seller Information</div>
+                     <div class="card-body">
+                                                 <div class="row">
+                            <div class="col-md-6">
+                               <p><span class="header-text">Name:</span> <span class="body-text">{{ delivery.seller_firstname }} {{ delivery.seller_lastname }}</span></p>
+                               <p><span class="header-text">Email:</span> <span class="body-text">{{ delivery.seller_email }}</span></p>
+                               <p><span class="header-text">Phone:</span> <span class="body-text">{{ delivery.seller_phone }}</span></p>
+                            </div>
+                            <div class="col-md-6">
+                               <p><span class="header-text">Shop Name:</span> <span class="body-text">{{ delivery.shop_name }}</span></p>
+                            </div>
+                         </div>
+                     </div>
+                  </div>
+
+               </div>
+
+               <!-- Modal Footer -->
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+               </div>
+            </div>
+         </div>
+      </div>
+      {% endfor %}
+
+      <!-- Confirmation Modals -->
+      {% for delivery in deliveries %}
+         {% if delivery.delivery_status == 'For Delivery' %}
+         <!-- Accept Delivery Modal -->
+         <div class="modal fade" id="acceptModal{{ delivery.delivery_id }}" tabindex="-1" aria-labelledby="acceptModalLabel{{ delivery.delivery_id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+               <div class="modal-content">
+                  <div class="modal-header bg-primary text-white">
+                     <h6 class="modal-title" id="acceptModalLabel{{ delivery.delivery_id }}">Accept Delivery Assignment</h6>
+                     <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                     </button>
+                  </div>
+                  <div class="modal-body">
+                     <p><strong>Order #{{ delivery.order_id }}</strong></p>
+                     <p><strong>Product:</strong> {{ delivery.product_name }}</p>
+                     <p><strong>Buyer:</strong> {{ delivery.buyer_firstname }} {{ delivery.buyer_lastname }}</p>
+                     <p><strong>Delivery Address:</strong><br>
+                        {{ delivery.house_no }} {{ delivery.street }}<br>
+                        {{ delivery.barangay }}, {{ delivery.city }}<br>
+                        {{ delivery.province }}, {{ delivery.region }}
+                     </p>
+                     <p><strong>Amount:</strong> ₱{{ "{:,.2f}".format(delivery.total_amount) }}</p>
+                     <div class="alert alert-info">
+                        <small>By accepting this delivery, you commit to delivering the order to the customer.</small>
+                     </div>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                     <form method="POST" action="{{ url_for('courier_delivery.accept_delivery', delivery_id=delivery.delivery_id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-primary">Accept Delivery</button>
+                     </form>
+                  </div>
+               </div>
+            </div>
+         </div>
+
+         <!-- Decline Delivery Modal -->
+         <div class="modal fade" id="declineModal{{ delivery.delivery_id }}" tabindex="-1" aria-labelledby="declineModalLabel{{ delivery.delivery_id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+               <div class="modal-content">
+                  <div class="modal-header bg-danger text-white">
+                     <h6 class="modal-title" id="declineModalLabel{{ delivery.delivery_id }}">Decline Delivery Assignment</h6>
+                     <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                     </button>
+                  </div>
+                  <div class="modal-body">
+                     <p><strong>Order #{{ delivery.order_id }}</strong></p>
+                     <p><strong>Product:</strong> {{ delivery.product_name }}</p>
+                     <p><strong>Buyer:</strong> {{ delivery.buyer_firstname }} {{ delivery.buyer_lastname }}</p>
+                     <p><strong>Delivery Address:</strong><br>
+                        {{ delivery.house_no }} {{ delivery.street }}<br>
+                        {{ delivery.barangay }}, {{ delivery.city }}<br>
+                        {{ delivery.province }}, {{ delivery.region }}
+                     </p>
+                     <p><strong>Amount:</strong> ₱{{ "{:,.2f}".format(delivery.total_amount) }}</p>
+                     <div class="alert alert-warning">
+                        <small>Are you sure you want to decline this delivery assignment? The seller will be notified and will need to assign a new courier.</small>
+                     </div>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                     <form method="POST" action="{{ url_for('courier_delivery.decline_delivery', delivery_id=delivery.delivery_id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-danger">Decline Delivery</button>
+                     </form>
+                  </div>
+               </div>
+            </div>
+         </div>
+         {% endif %}
+
+         {% if delivery.delivery_status == 'Out for Delivery' %}
+         <!-- Mark as Delivered Modal -->
+         <div class="modal fade" id="markDeliveredModal{{ delivery.delivery_id }}" tabindex="-1" aria-labelledby="markDeliveredModalLabel{{ delivery.delivery_id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+               <div class="modal-content">
+                  <div class="modal-header bg-primary text-white">
+                     <h6 class="modal-title" id="markDeliveredModalLabel{{ delivery.delivery_id }}">Mark as Delivered</h6>
+                     <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                     </button>
+                  </div>
+                  <div class="modal-body">
+                     <p><strong>Order #{{ delivery.order_id }}</strong></p>
+                     <p><strong>Product:</strong> {{ delivery.product_name }}</p>
+                     <p><strong>Buyer:</strong> {{ delivery.buyer_firstname }} {{ delivery.buyer_lastname }}</p>
+                     <p><strong>Delivery Address:</strong><br>
+                        {{ delivery.house_no }} {{ delivery.street }}<br>
+                        {{ delivery.barangay }}, {{ delivery.city }}<br>
+                        {{ delivery.province }}, {{ delivery.region }}
+                     </p>
+                     <p><strong>Amount:</strong> ₱{{ "{:,.2f}".format(delivery.total_amount) }}</p>
+                     <div class="alert alert-info">
+                        <small>Confirm that you have successfully delivered this order to the customer. Payment will be automatically confirmed and the order will be completed.</small>
+                     </div>
+                  </div>
+                  <div class="modal-footer">
+                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                     <form method="POST" action="{{ url_for('courier_delivery.mark_delivered', delivery_id=delivery.delivery_id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-primary">Mark as Delivered</button>
+                     </form>
+                  </div>
+               </div>
+            </div>
+         </div>
+         {% endif %}
+      {% endfor %}
+
+      <!-- Pagination -->
+      <div id="pagination-container" class="d-flex justify-content-center">
+         <ul class="pagination d-flex align-items-center flex-row gap-2">
+            <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+            <li class="page-item pagination-numbers-container d-flex flex-row"></li> 
+            <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+         </ul>
+      </div>
+
+   </main>
+   <!-- MAIN CONTENT END -->
+
+</div>
+<!-- MAIN END -->
+
+<!-- Custom CSS for purple badge -->
+<style>
+   .bg-purple {
+      background-color: #6f42c1 !important;
+   }
+   .text-purple {
+      color: #6f42c1 !important;
+   }
+</style>
+
+<!-- JS -->
+<script>
+   // Pagination
+   document.addEventListener("DOMContentLoaded", function () {
+      const rowsPerPage = 12; 
+      let tableRows = document.querySelectorAll("tbody tr"); 
+      let totalRows = tableRows.length;
+      let totalPages = Math.ceil(totalRows / rowsPerPage);
+      let currentPage = 1;
+
+      const paginationContainer = document.querySelector(".pagination-numbers-container");
+      const prevPageBtn = document.getElementById("prevPage");
+      const nextPageBtn = document.getElementById("nextPage");
+
+      function showPage(page) {
+         let start = (page - 1) * rowsPerPage;
+         let end = start + rowsPerPage;
+
+         tableRows.forEach((row, index) => {
+            row.style.display = index >= start && index < end ? "table-row" : "none";
+         });
+
+         currentPage = page;
+         updatePaginationButtons();
+      }
+
+      function updatePaginationButtons() {
+         paginationContainer.innerHTML = "";
+         
+         for (let i = 1; i <= totalPages; i++) {
+            let pageItem = document.createElement("li");
+            pageItem.classList.add("page-item");
+            if (i === currentPage) pageItem.classList.add("active");
+
+            let pageLink = document.createElement("a");
+            pageLink.classList.add("page-link");
+            pageLink.href = "#";
+            pageLink.textContent = i;
+            pageLink.addEventListener("click", function (event) {
+               event.preventDefault();
+               showPage(i);
+            });
+
+            pageItem.appendChild(pageLink);
+            paginationContainer.appendChild(pageItem);
+         }
+
+         prevPageBtn.parentElement.classList.toggle("disabled", currentPage === 1);
+         nextPageBtn.parentElement.classList.toggle("disabled", currentPage === totalPages);
+      }
+
+      prevPageBtn.addEventListener("click", function (event) {
+         event.preventDefault();
+         if (currentPage > 1) showPage(currentPage - 1);
+      });
+
+      nextPageBtn.addEventListener("click", function (event) {
+         event.preventDefault();
+         if (currentPage < totalPages) showPage(currentPage + 1);
+      });
+
+      if (totalRows > 0) showPage(1); 
+   });
+</script>
+
+{% endblock %} 

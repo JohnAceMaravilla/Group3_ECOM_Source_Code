@@ -1,0 +1,91 @@
+{% extends "admin_dashboard.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block admin_content %}
+
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+
+<div class="main">
+   <nav class="navbar navbar-expand d-flex align-items-center justify-content-between w-100">
+      <div class="d-flex align-items-center">
+         <button class="toggler-btn" type="button">
+            <img src="{{ url_for('static', filename='img/icons/menu.png') }}" style="width: 25px; height: 20px;">
+         </button>
+         <a class="navbar-brand ms-3" href="#">
+            <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+         </a>
+      </div>
+   </nav>
+
+   <main class="notification-container mt-3">
+      <!-- Notifications Section -->
+      <div class="container-fluid">
+         <div class="card shadow-sm">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center mb-4">
+               <span class="fs-5 fw-medium">Recent Notifications</span>
+
+               <!-- Desktop Buttons -->
+               <div class="desktop-notif">
+                  <div class="dropdown">
+                     <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                         Sort By
+                     </button>
+                     <ul class="dropdown-menu">
+                         <li><a class="dropdown-item {% if sort_by == 'recent' %}active{% endif %}" href="{{ url_for('admin_notifications.notifications', sort_by='recent') }}">Most Recent</a></li>
+                         <li><a class="dropdown-item {% if sort_by == 'oldest' %}active{% endif %}" href="{{ url_for('admin_notifications.notifications', sort_by='oldest') }}">Oldest</a></li>
+                     </ul>
+                  </div>
+               </div>
+
+               <!-- Mobile Buttons -->
+               <div class="mobile-notif">
+                  <div class="dropdown">
+                     <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-filter"></i>
+                     </button>
+                     <ul class="dropdown-menu">
+                        <li><a class="dropdown-item {% if sort_by == 'recent' %}active{% endif %}" href="{{ url_for('admin_notifications.notifications', sort_by='recent') }}">Most Recent</a></li>
+                        <li><a class="dropdown-item {% if sort_by == 'oldest' %}active{% endif %}" href="{{ url_for('admin_notifications.notifications', sort_by='oldest') }}">Oldest</a></li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+
+            {% for notification in notifications %}
+               <div class="card-body" style="margin-top: -1.5rem;">
+                  <ul class="list-group" id="notificationList">
+                     <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center 
+                        {% if notification.status == 'Unread' %}bg-light{% endif %}">
+                        <div class="">
+                           {% if notification.notification_type == 'Account Registration' %}
+                              <img src="{{ url_for('static', filename='img/icons/user.png') }}" alt="User Icon" class="me-2" style="width: 1.5rem; opacity: 30%;">
+                           {% elif notification.notification_type == 'Courier Registration Approval' %}
+                              <img src="{{ url_for('static', filename='img/icons/user.png') }}" alt="User Icon" class="me-2" style="width: 1.5rem; opacity: 30%;">
+                           {% else %}
+                              <img src="{{ url_for('static', filename='img/icons/user.png') }}" alt="User Icon" class="me-2" style="width: 1.5rem; opacity: 30%;">                    
+                           {% endif %} 
+
+                           <span class="mb-1">{{ notification.notification_title }}</span>
+                           <small class="text-muted ms-2 notif-date">{{ notification.created_at.strftime('%d %b %Y, %H:%M') }}</small>
+                           <div class="mt-2 text-secondary notification-content">{{ notification.content | replace('\n', '<br>') | safe }}</div>
+                        </div>
+                     </li>               
+                  </ul>
+               </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            <div id="pagination-container" class="d-flex justify-content-center">
+               <ul class="pagination d-flex align-items-center flex-row gap-2">
+                  <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+                  <li class="page-item pagination-numbers-container d-flex flex-row"></li> 
+                  <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+               </ul>
+            </div>
+         </div>
+      </div>
+   </main>
+</div>
+
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base_form.html" %}
+
+{% block title %}Register - Valid Information{% endblock %}
+
+{% block content %}
+<div class="full-screen-container">
+    <div class="form-container registration-container">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fs-3" style="font-weight: 600;">Register</h2>
+            <a href="{{ url_for('courier_registration.get_contact_info') }}" class="exit-icon text-dark">
+                <i class="bi bi-arrow-left fs-4 px-2"></i>
+            </a>
+        </div>
+
+        <p class="mb-4">
+            <strong class="text-primary">Step 4: </strong>
+            Please enter your Driver's License ID information.
+        </p>
+
+        <!-- Message Box -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %} 
+        
+        <form action="{{ url_for('courier_registration.get_valid_info') }}" method="POST" enctype="multipart/form-data">
+
+            <!-- Text Input for Valid ID Number -->
+            <div class="mb-3">
+                <label for="id_no" class="form-label">Driver's License ID Number *</label>
+                <input type="text" class="form-control" id="id_no" name="id_no" placeholder="DLXXXXXXX" 
+                       required value="{{ session.get('valid_info', {}).get('id_no', '') }}" oninput="letters_numbers_hyphen(this)">
+            </div>
+
+            <!-- File Upload for Valid ID Picture -->
+            <div class="mb-3">
+                <label for="id_pic" class="form-label">Upload Driver's License ID Picture *</label>
+                <input type="file" class="form-control" id="id_pic" name="id_pic" accept="image/*" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">Submit</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

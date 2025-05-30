@@ -1,0 +1,89 @@
+{% extends "base_form.html" %}
+
+{% block title %}Register - Login Information{% endblock %}
+
+{% block content %}
+<div class="full-screen-container">
+    <div class="form-container registration-container">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fs-3" style="font-weight: 600;">Register</h2>
+            <a href="{{ url_for('courier_registration.get_valid_info') }}" class="exit-icon text-dark">
+                <i class="bi bi-arrow-left fs-4 px-2"></i>
+            </a>
+        </div>
+
+        <p class="mb-4">
+            <strong class="text-primary">Step 5: </strong>
+            Please enter your login information.
+        </p>
+
+        <!-- Message Box -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %} 
+        
+        <form action="{{ url_for('courier_registration.get_login_info') }}" method="POST">
+            <div id="alert"></div> 
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="email" class="form-control text-secondary" id="username" name="username" value="{{ session.get('contact_info', {}).get('email', '') }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password *</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirm Password *</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                </div>
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="showPassword">
+                <label class="form-check-label" for="showPassword">Show Password</label>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const showPasswordCheckbox = document.getElementById('showPassword');
+
+    // Checkbox event listener
+    showPasswordCheckbox.addEventListener('change', function() {
+        const type = this.checked ? 'text' : 'password';
+        passwordInput.type = type;
+        confirmPasswordInput.type = type;
+    });
+});
+</script>
+
+<style>
+.input-group-text {
+    cursor: pointer;
+    background-color: white;
+    border-left: none;
+}
+.input-group .form-control {
+    border-right: none;
+}
+.input-group-text:hover {
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base_form.html" %}
+
+{% block title %}Register - Set Up Shop Profile{% endblock %}
+
+{% block content %}
+<div class="full-screen-container">
+    <div class="form-container registration-container">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fs-3" style="font-weight: 600;">Register</h2>
+            <a href="{{ url_for('seller_registration.get_business_info') }}" class="exit-icon text-dark">
+                <i class="bi bi-arrow-left fs-4 px-2"></i>
+            </a>
+        </div>
+
+        <p class="mb-4">
+            <strong class="text-primary">Step 6: </strong>
+            Please enter your shop information.
+        </p>
+
+        <!-- Message Box -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %} 
+        
+        <form action="{{ url_for('seller_registration.setup_shop_profile') }}" method="POST" enctype="multipart/form-data">
+
+            <div class="mb-3">
+                <label for="shop_name" class="form-label">Shop Name *</label>
+                <input type="text" class="form-control" id="shop_name" name="shop_name" placeholder="Enter your shop name" required
+                       value="{{ session.get('shop_info', {}).get('shop_name', '') }}">
+            </div> 
+
+            <div class="mb-3">
+                <label for="shop_description" class="form-label">Shop Description *</label>
+                <textarea type="text" class="form-control" id="shop_description" name="shop_description" placeholder="Enter your shop description" required
+                       value="{{ session.get('shop_info', {}).get('shop_description', '') }}"></textarea>
+            </div> 
+
+            <div class="mb-3">
+                <label for="shop_profile" class="form-label">Upload Shop Profile Picture*</label>
+                <input type="file" class="form-control" id="shop_profile" name="shop_profile" accept="image/*" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">Submit</button>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

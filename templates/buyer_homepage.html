@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEARCH ENGINE KEYWORDS -->
+    {% block search_keyword %}
+    <meta name="keywords" content="Fenamaz Homepage, Homepage, Ecommerce Homepage, Online Store Homepage">
+    <meta name="description" content="Welcome to Fenamaz, your trusted e-commerce platform.">
+    {% endblock %}
+
+    <!-- WEB PAGE TITLE -->
+    <title>{% block title %}Fenamaz Homepage{% endblock %}</title>
+    
+    <!-- FAVICON -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo/favicon.svg') }}">
+
+    <!-- BOOTSTRAP LINKS-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+    <!-- OUTFIT FONT -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+
+    <!-- INTER FONT -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/general.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/buyer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/buyer_categories.css') }}">
+
+    <!-- JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ url_for('static', filename='js/dynamic_modal.js') }}"></script>
+
+    
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="nav-container">      
+        <!-- Navigation Menu -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <!-- Logo -->
+                <a class="navbar-brand" href="{{ url_for('buyer_homepage.show_buyer_homepage')}}">
+                    <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+                </a>
+
+                <!-- Navbar Toggler -->
+                <div class="navbar-toggler border-0 px-0 py-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                    <img src="{{ url_for('static', filename='img/icons/menu.png') }}" alt="Menu" width="25">
+                </div>
+
+                <!-- Hamburger Menu -->
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+                    
+                    <div class="offcanvas-header">
+                        <a class="navbar-brand" href="#">
+                            <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+                        </a>
+                        <span type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></span>
+                    </div>
+
+                    <div class="offcanvas-body">
+                        <!-- Search Bar -->
+                        <div class="offcanvas-search d-lg-flex justify-content-center w-100 ">
+                            <form class="d-flex" action="{{ url_for('buyer_search.search_page') }}" method="GET">
+                                <input class="form-control me-2 header-text rounded-pill" type="search" name="query" placeholder="Search keywords" aria-label="Search">
+                                <button class="btn btn-primary rounded-pill" type="submit">
+                                    <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Navlinks -->
+                        <ul class="navbar-nav justify-content-end flex-grow-1">
+                            <div class="offcanvas-links d-flex align-items-lg-center gap-lg-3">
+                                <!-- Wishlist -->
+                                <li class="nav-item">
+                                    <a href="{{ url_for('buyer_like.buyer_likes') }}" class="text-dark navlink">
+                                        <img src=" {{ url_for('static', filename='img/buyer_navs/heart.png') }}" alt="Wishlist Icon" height="24">
+                                        <span class="d-lg-none header-text">Likes</span>
+                                    </a>
+                                </li>
+
+                                <!-- Cart -->
+                                <li class="nav-item">
+                                    <a href="{{ url_for('buyer_cart.view_cart') }}" class="text-dark navlink">
+                                        <img src=" {{ url_for('static', filename='img/buyer_navs/cart.png') }}" alt="Cart Icon" height="24">
+                                        <span class="d-lg-none header-text">Cart</span>
+                                    </a> 
+                                </li>
+
+
+                                <!-- My Orders -->
+                                <li class="nav-item">
+                                    <a href="{{ url_for('buyer_orders.orders') }}" class="text-dark navlink">
+                                        <img src=" {{ url_for('static', filename='img/buyer_navs/shipping.png') }}" alt="My Orders Icon" height="24">
+                                        <span class="d-lg-none header-text">My Orders</span>
+                                    </a> 
+                                </li>
+
+                                <!-- Messages
+                                <li class="nav-item">
+                                    <a href="#" class="text-dark navlink">
+                                        <img src=" {{ url_for('static', filename='img/buyer_navs/message.png') }}" alt="Messages Icon" height="24">
+                                        <span class="d-lg-none header-text">Messages</span>
+                                    </a> 
+                                </li> -->
+
+                                <!-- Notifications -->                       
+                                <li class="nav-item">
+                                    <a href="{{ url_for('buyer_notifications.notifications') }}" class="text-dark navlink position-relative">
+                                        <img src=" {{ url_for('static', filename='img/buyer_navs/notification.png') }}" alt="Notifications Icon" height="24">
+                                        <span class="d-lg-none header-text">Notifications</span>
+                                        <span id="notificationBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                                            
+                                        </span>
+                                    </a> 
+                                </li>
+
+                                <!-- Settings -->
+                                <li class="nav-item">
+                                    <a href="{{ url_for('buyer_settings.settings') }}" class="text-dark navlink">
+                                        <img src="{{ url_for('static', filename='img/buyer_navs/setting.png ') }}" alt="Settings Icon" height="24">
+                                        <span class="d-lg-none header-text">Settings</span>
+                                    </a> 
+                                </li>  
+                                
+                                <!-- Profile -->
+                                <li class="nav-item dropdown">
+                                    <a href="#" class="btn-link navlink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {% if session.get('profile_pic') %}
+                                            <img id="currentProfilePic" src="{{ url_for('buyer_settings.serve_profile_pic', filename=session['profile_pic']) }}" alt="Profile Picture" class="rounded-circle border border-primary border-2" style="width: 40px; height: 40px; object-fit: cover;">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='img/buyer_navs/profile.svg') }}" alt="Profile Icon" height="40">
+                                        {% endif %}
+                                        <span class="d-lg-none header-text text-dark">Profile</span>
+                                    </a>                                 
+                                    <!-- Profile Dropdown -->
+                                    <ul class="dropdown-menu dropdown-menu-end px-3 py-3">
+                                        <li>
+                                            <div class="d-flex flex-row align-items-center w-100 gap-4">
+                                                {% if session.get('profile_pic') %}
+                                                    
+                                                    <img id="currentProfilePic" src="{{ url_for('buyer_settings.serve_profile_pic', filename=session['profile_pic']) }}" alt="Profile Picture" class="rounded-circle border border-primary border-2" style="width: 130px; height: 130px; object-fit: cover;">
+                                                {% else %}
+                                                    <img class="offcanvas-logo" src="{{ url_for('static', filename='img/buyer_navs/profile.svg') }}" alt="Profile Icon" style="width: 130px;">
+                                                {% endif %}
+                                                <div class="d-flex flex-column">
+                                                    {% if session.get('personal_info') %}
+                                                        <span class="header-text">{{ session['personal_data']['firstname'] }} {{ session['personal_data']['lastname'] }}</span>
+                                                        <span class="text-muted header-text">{{ session['contact_data']['email'] }}</span>
+                                                        <a href="{{ url_for('login.logout') }}" type="button" class="btn btn-sm btn-primary mt-3 primary-text w-50 header-text">
+                                                            Logout
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="header-text">Guest</span>
+                                                        <span class="text-muted body-text w-100">You've been logged in as guest!</span>
+                                                        <a href="{{ url_for('login.login') }}" type="button" class="btn btn-sm btn-primary mt-3 primary-text w-50 header-text">
+                                                            Login
+                                                        </a>
+                                                    {% endif %}
+                                                </div>                                 
+                                            </div>                                 
+                                        </li>
+                                    </ul>
+                                </li>
+                            </div>                    
+                        </ul>   
+
+                        <!-- Categories Menu -->
+                        <div class="category-menu nav-item d-lg-none w-100">
+                            <br>
+                            <ul class="d-flex align-items-start flex-column px-0 py-0 gap-4">
+                                <li>
+                                    <span class="nav-link text-dark fs-3 fw-medium mt-3">Categories</span>
+                                </li>
+
+                                {% for category in ['Mobile Phones', 'Laptop', 'Desktop', 'Audio Equipment', 'Video Equipment', 'Smart Home Devices', 'Photography', 'Wearable Tech', 'Digital Accessories', 'Others'] %}
+                                    <li class="nav-item">
+                                        <a class="nav-link text-dark" href="{{ url_for('buyer_categories.category_page', category=category.lower()|replace(' ', '_')) }}">
+                                            {{ category }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+
+                    </div>
+                </div>
+                <!-- Hamburger Menu End -->
+
+            </div>      
+        </nav> 
+        
+        <!-- Categories Menu -->
+        <div class="category-menu-pc container-fluid">
+            <ul class="d-flex align-items-center justify-content-between flex-md-nowrap flex-row px-0 py-0 gap-3">
+                {% for category in ['Mobile Phones', 'Laptop', 'Desktop', 'Audio Equipment', 'Video Equipment', 'Smart Home Devices', 'Photography', 'Wearable Tech', 'Digital Accessories', 'Others'] %}
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" href="{{ url_for('buyer_categories.category_page', category=category.lower()|replace(' ', '_')) }}">
+                            {{ category }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </header>
+    <!-- NAVBAR END -->
+
+    <!-- MAIN -->
+    <main class="" style="background-color: whitesmoke; padding-bottom: 150px;">
+        
+        {% block content %}
+            <!-- HERO SECTION -->
+            <div class="hero-section">
+                <div id="carouselExampleIndicators" class="carousel slide">
+                    <!-- Next/Prev Button (BOTTOM) -->
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    </div>
+
+                    <!-- Carousel Images -->
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="{{ url_for('static', filename='img/cover/fenamaz_cover1.jpg')}}" class="d-block w-100" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{{ url_for('static', filename='img/cover/fenamaz_cover2.png')}}" class="d-block w-100" alt="...">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="{{ url_for('static', filename='img/cover/fenamaz_cover3.png')}}" class="d-block w-100" alt="...">
+                        </div>
+                    </div>
+
+                    <!-- Next/Prev Button (SIDES) -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+            <!-- HERO SECTION END -->
+
+            <!-- PRODUCT SECTIONS -->
+            <div class="container-fluid px-5 " style="margin-top: 150px;">
+                
+                
+
+                <!-- BEST SELLERS SECTION -->
+                {% if best_sellers %}
+                <section class="" style="margin-bottom: 150px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold">Best Sellers</h3>
+                    </div>
+                    
+                    <div id="bestSellersCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for i in range(0, best_sellers|length, 4) %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <div class="row row-cols-2 row-cols-md-4 g-3">
+                                    {% for product in best_sellers[i:i+4] %}
+                                    <div class="col">
+                                        <div class="product-item h-100">
+                                            <div class="product-image-container position-relative">
+                                                <!-- Product Image -->
+                                                <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}">
+                                                    {% if product['product_main_pic'] %}
+                                                        <img src="{{ url_for('buyer_homepage.serve_product_main_pic', filename=product['product_main_pic']) }}" 
+                                                            alt="{{ product['product_name'] }}" 
+                                                            class="product-image img-fluid w-100" style="height: 200px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="product-image img-fluid w-100 d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                                            <span class="text-muted">No Image</span>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="hover-overlay position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50" style="opacity: 0; transition: opacity 0.3s;">
+                                                        <span class="fs-6 text-white">See Product</span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                
+                                            <!-- Product Info -->
+                                            <div class="product-details mt-3">
+                                                <a href="#" class="text-dark text-decoration-none">
+                                                    <h6 class="fw-bold product-name text-truncate">{{ product['product_name'] }}</h6>
+                                                    <p class="mb-1">₱{{ "{:,.2f}".format(product['min_price']) }} - ₱{{ "{:,.2f}".format(product['max_price']) }}</p>
+                                                    <small class="text-muted">{{ product['variant_count'] }} Variants | {{ product['color_count'] }} Colors</small>
+                                                </a>
+
+                                                <div class="d-flex align-items-center justify-content-between w-100 mt-2">
+                                                    <!-- Product Rating -->
+                                                    <div class="product-rating d-flex align-items-center flex-row">
+                                                        {% set rating = product['Average_Rating'] %}
+                                                        <div class="stars text-primary">
+                                                            {% for j in range(5) %}
+                                                                <i class="fa{{ 's' if j < rating|round(0) else 'r' }} fa-star"></i>
+                                                            {% endfor %}
+                                                        </div>
+                                                        <span class="ms-2 small">{{ "{:.1f}".format(rating) }}</span>
+                                                    </div>
+
+                                                    <!-- Product Stats -->
+                                                    <div class="product-stats">
+                                                        <small class="text-muted header-text">
+                                                            {{ product.get('total_orders', 0) }} Sold
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                     
+                                                <!-- Add to Cart Button -->
+                                                <div class="product-actions d-flex align-items-center flex-row w-100 gap-2 mt-3">
+                                                    <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}" 
+                                                        class="btn btn-primary py-2 text-white w-100 d-flex align-items-center justify-content-center gap-2 btn-md">
+                                                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                                                    </a>
+                                                    
+                                                    <!-- Like/Unlike Button -->
+                                                    <form method="POST" action="{{ url_for('buyer_categories.toggle_like_product', product_info_id=product['product_info_id']) }}">
+                                                        <button type="submit" class="btn-outline-primary border-0" style="background-color: transparent;">
+                                                            {% if product.liked %}
+                                                                <i class="bi bi-heart-fill text-primary" style="font-size: 1.5rem;"></i>
+                                                            {% else %}
+                                                                <i class="bi bi-heart text-primary" style="font-size: 1.5rem;"></i>
+                                                            {% endif %}
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if best_sellers|length > 4 %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#bestSellersCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#bestSellersCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- HIGHEST RATED SECTION -->
+                {% if highest_rated %}
+                <section class="" style="margin-bottom: 150px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold">Highest Rated</h3>
+                    </div>
+                    
+                    <div id="highestRatedCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for i in range(0, highest_rated|length, 4) %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <div class="row row-cols-2 row-cols-md-4 g-3">
+                                    {% for product in highest_rated[i:i+4] %}
+                                    <div class="col">
+                                        <div class="product-item h-100">
+                                            <div class="product-image-container position-relative">
+                                                <!-- Product Image -->
+                                                <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}">
+                                                    {% if product['product_main_pic'] %}
+                                                        <img src="{{ url_for('buyer_homepage.serve_product_main_pic', filename=product['product_main_pic']) }}" 
+                                                            alt="{{ product['product_name'] }}" 
+                                                            class="product-image img-fluid w-100" style="height: 200px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="product-image img-fluid w-100 d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                                            <span class="text-muted">No Image</span>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="hover-overlay position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50" style="opacity: 0; transition: opacity 0.3s;">
+                                                        <span class="fs-6 text-white">See Product</span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                
+                                            <!-- Product Info -->
+                                            <div class="product-details mt-3">
+                                                <a href="#" class="text-dark text-decoration-none">
+                                                    <h6 class="fw-bold product-name text-truncate">{{ product['product_name'] }}</h6>
+                                                    <p class="mb-1">₱{{ "{:,.2f}".format(product['min_price']) }} - ₱{{ "{:,.2f}".format(product['max_price']) }}</p>
+                                                    <small class="text-muted">{{ product['variant_count'] }} Variants | {{ product['color_count'] }} Colors</small>
+                                                </a>
+
+                                                <div class="d-flex align-items-center justify-content-between w-100 mt-2">
+                                                    <!-- Product Rating -->
+                                                    <div class="product-rating d-flex align-items-center flex-row">
+                                                        {% set rating = product['Average_Rating'] %}
+                                                        <div class="stars text-primary">
+                                                            {% for j in range(5) %}
+                                                                <i class="fa{{ 's' if j < rating|round(0) else 'r' }} fa-star"></i>
+                                                            {% endfor %}
+                                                        </div>
+                                                        <span class="ms-2 small">{{ "{:.1f}".format(rating) }}</span>
+                                                    </div>
+
+                                                    <!-- Product Stats -->
+                                                    <div class="product-stats header-text">
+                                                        <small class="text-muted">
+                                                            {{ product.get('total_ratings', 0) }} Reviews
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                     
+                                                <!-- Add to Cart Button -->
+                                                <div class="product-actions d-flex align-items-center flex-row w-100 gap-2 mt-3">
+                                                    <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}" 
+                                                        class="btn btn-primary text-white w-100 py-2 d-flex align-items-center justify-content-center gap-2 btn-md">
+                                                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                                                    </a>
+                                                    
+                                                    <!-- Like/Unlike Button -->
+                                                    <form method="POST" action="{{ url_for('buyer_categories.toggle_like_product', product_info_id=product['product_info_id']) }}">
+                                                        <button type="submit" class="btn-outline-primary border-0" style="background-color: transparent;">
+                                                            {% if product.liked %}
+                                                                <i class="bi bi-heart-fill text-primary" style="font-size: 1.5rem;"></i>
+                                                            {% else %}
+                                                                <i class="bi bi-heart text-primary" style="font-size: 1.5rem;"></i>
+                                                            {% endif %}
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if highest_rated|length > 4 %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#highestRatedCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#highestRatedCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </section>
+                {% endif %}
+
+                <!-- MOST REVIEWED SECTION -->
+                {% if most_reviewed %}
+                <section class="" style="margin-bottom: 150px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h3 class="fw-bold">Most Reviewed</h3>
+                    </div>
+                    
+                    <div id="mostReviewedCarousel" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for i in range(0, most_reviewed|length, 4) %}
+                            <div class="carousel-item {% if loop.first %}active{% endif %}">
+                                <div class="row row-cols-2 row-cols-md-4 g-3">
+                                    {% for product in most_reviewed[i:i+4] %}
+                                    <div class="col">
+                                        <div class="product-item h-100">
+                                            <div class="product-image-container position-relative">
+                                                <!-- Product Image -->
+                                                <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}">
+                                                    {% if product['product_main_pic'] %}
+                                                        <img src="{{ url_for('buyer_homepage.serve_product_main_pic', filename=product['product_main_pic']) }}" 
+                                                            alt="{{ product['product_name'] }}" 
+                                                            class="product-image img-fluid w-100" style="height: 200px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="product-image img-fluid w-100 d-flex align-items-center justify-content-center bg-light" style="height: 200px;">
+                                                            <span class="text-muted">No Image</span>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div class="hover-overlay position-absolute w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-50" style="opacity: 0; transition: opacity 0.3s;">
+                                                        <span class="fs-6 text-white">See Product</span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                
+                                            <!-- Product Info -->
+                                            <div class="product-details mt-3">
+                                                <a href="#" class="text-dark text-decoration-none">
+                                                    <h6 class="fw-bold product-name text-truncate">{{ product['product_name'] }}</h6>
+                                                    <p class="mb-1">₱{{ "{:,.2f}".format(product['min_price']) }} - ₱{{ "{:,.2f}".format(product['max_price']) }}</p>
+                                                    <small class="text-muted">{{ product['variant_count'] }} Variants | {{ product['color_count'] }} Colors</small>
+                                                </a>
+
+                                                <div class="d-flex align-items-center justify-content-between w-100 mt-2">
+                                                    <!-- Product Rating -->
+                                                    <div class="product-rating d-flex align-items-center flex-row">
+                                                        {% set rating = product['Average_Rating'] %}
+                                                        <div class="stars text-primary">
+                                                            {% for j in range(5) %}
+                                                                <i class="fa{{ 's' if j < rating|round(0) else 'r' }} fa-star"></i>
+                                                            {% endfor %}
+                                                        </div>
+                                                        <span class="ms-2 small">{{ "{:.1f}".format(rating) }}</span>
+                                                    </div>
+
+                                                    <!-- Product Stats -->
+                                                    <div class="product-stats header-text">
+                                                        <small class="text-muted">
+                                                            {{ product.get('total_feedback', 0) }} Reviews
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                     
+                                                <!-- Add to Cart Button -->
+                                                <div class="product-actions d-flex align-items-center flex-row w-100 gap-2 mt-3">
+                                                    <a href="{{ url_for('buyer_product.product_page', product_info_id=product['product_info_id']) }}" 
+                                                        class="btn btn-primary text-white w-100 py-2 d-flex align-items-center justify-content-center gap-2 btn-md">
+                                                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                                                    </a>
+                                                    
+                                                    <!-- Like/Unlike Button -->
+                                                    <form method="POST" action="{{ url_for('buyer_categories.toggle_like_product', product_info_id=product['product_info_id']) }}">
+                                                        <button type="submit" class="btn-outline-primary border-0" style="background-color: transparent;">
+                                                            {% if product.liked %}
+                                                                <i class="bi bi-heart-fill text-primary" style="font-size: 1.5rem;"></i>
+                                                            {% else %}
+                                                                <i class="bi bi-heart text-primary" style="font-size: 1.5rem;"></i>
+                                                            {% endif %}
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if most_reviewed|length > 4 %}
+                        <button class="carousel-control-prev" type="button" data-bs-target="#mostReviewedCarousel" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#mostReviewedCarousel" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </section>
+                {% endif %}
+
+            </div>
+            <!-- PRODUCT SECTIONS END -->
+
+            <!-- SPACER BEFORE FOOTER -->
+            <div class="mb-5"></div>
+        {% endblock %}
+
+    </main>
+    <!-- MAIN END -->
+
+    <!-- FOOTER -->
+    <footer class="">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Logo Section -->
+                <div class="col-md-3 mb-4">
+                    <a href="#" class="navbar-brand">
+                        <img src="{{ url_for('static', filename='img/logo/logo_white.svg') }}" alt="Fenamaz Logo">
+                    </a>
+                </div>
+                
+                <!-- About Section -->
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold">ABOUT</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Profile</a></li>
+                        <li><a href="#" class="text-white">Careers</a></li>
+                        <li><a href="#" class="text-white">Blogs</a></li>
+                        <li><a href="#" class="text-white">Privacy Policy</a></li>
+                        <li><a href="#" class="text-white">Terms & Condition</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Manual Section -->
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold">MANUAL</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Registeration</a></li>
+                        <li><a href="#" class="text-white">Buyers</a></li>
+                        <li><a href="#" class="text-white">Sellers</a></li>
+                        <li><a href="#" class="text-white">Courier</a></li>
+                        <li><a href="#" class="text-white">Admin</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Contact Section -->
+                <div class="col-md-2 mb-4">
+                    <h6 class="fw-bold">CONTACT</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white d-flex align-items-center">Facebook</a></li>
+                        <li><a href="#" class="text-white d-flex align-items-center">Twitter</a></li>
+                        <li><a href="#" class="text-white d-flex align-items-center">Instagram</a></li>
+                        <li><a href="#" class="text-white d-flex align-items-center">TikTok</a></li>
+                        <li><a href="#" class="text-white d-flex align-items-center">LinkedIn</a></li>
+                    </ul>
+                </div>
+
+                <!-- FAQ's Section -->
+                <div class="col-md-3 mb-4">
+                    <h6 class="fw-bold">FAQ's</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">How to register an account?</a></li>
+                        <li><a href="#" class="text-white">How to sell a product?</a></li>
+                        <li><a href="#" class="text-white">How to order a product?</a></li>
+                        <li><a href="#" class="text-white">How can I recover my account?</a></li>
+                        <li><a href="#" class="text-white"><strong>See More</strong></a></li>
+                    </ul>
+                </div>
+                          
+            </div>
+
+            <hr class="bg-white">
+        
+            <!-- Footer Bottom -->
+            <div class="row text-center pt-3">
+                <div class="col">
+                    <p class="header-text">&copy; 2024 Fenamaz. All Rights Reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- FOOTER END -->
+
+    <!-- Notification Badge Script -->
+    <script>
+        function updateNotificationBadge() {
+            fetch('/buyer/notifications/count')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('notificationBadge');
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error fetching notification count:', error));
+        }
+
+        // Update badge on page load
+        document.addEventListener('DOMContentLoaded', updateNotificationBadge);
+
+        // Update badge every 30 seconds
+        setInterval(updateNotificationBadge, 30000);
+    </script>
+</body>
+</html>

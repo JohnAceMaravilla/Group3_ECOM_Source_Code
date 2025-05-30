@@ -1,0 +1,226 @@
+{% extends "admin_dashboard.html" %}
+
+{% block title %}Buyer Management{% endblock %}
+
+<!-- Main -->
+{% block admin_content %}
+<div class="main">
+
+   <!-- Top Bar -->
+   <nav class="navbar navbar-expand d-flex align-items-center justify-content-between w-100">
+      <div class="d-flex align-items-center">
+         <button class="toggler-btn" type="button">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/menu.png') }}" style="width: 25px; height: 20px;">
+         </button>
+         <a class="navbar-brand ms-3" href="#">
+            <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+        </a>
+      </div>
+
+      <!-- Search Bar for Desktop -->
+      <form class="d-flex justify-content-end d-none d-md-flex" role="search">
+         <input class="form-control me-2" type="search" placeholder="Search products" aria-label="Search">
+         <button class="btn btn-primary" type="submit">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+         </button>
+      </form>
+
+      <!-- Mobile Search Button (Trigger for Offcanvas) -->
+      <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+         <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+      </button>
+   </nav>
+
+   <!-- Offcanvas Search for Mobile -->
+   <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+      <div class="offcanvas-header">
+         <h5 id="offcanvasTopLabel" class="text-center mt-2">Search</h5>
+         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+         <form class="d-flex justify-content-between" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search products" aria-label="Search">
+            <button class="btn btn-primary" type="submit">
+               <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+            </button>
+         </form>
+      </div>
+   </div>
+
+   <main class="content">
+      
+      <!-- Title Section Bar -->
+      <div class="container-fluid title-container d-flex flex-lg-row flex-column align-items-center justify-content-between">
+         
+         <!-- Title Bar -->
+         <div class="title align-self-start">
+            <h4>Buyer Management</h4>
+            <p class="text-muted">Here's current active buyers.</p>
+         </div>
+         
+         <!-- Buttons -->
+         <div class="btn-container d-flex flex-wrap gap-2">          
+            <!-- Desktop Buttons -->
+            <div class="d-none d-md-flex gap-2">
+               <div class="dropdown">
+                  <button class="btn btn-outline-dark border-dark dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                     Sort By
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                     <li><a class="dropdown-item active">Recent</a></li>
+                     <li><a class="dropdown-item">Oldest</a></li>
+                     <li><a class="dropdown-item">Name (A-Z)</a></li>
+                     <li><a class="dropdown-item">Name (Z-A)</a></li>
+                     <li><a class="dropdown-item">Age (1-9)</a></li>
+                     <li><a class="dropdown-item">Age (9-1)</a></li>
+                     <li><a class="dropdown-item">Address (A-Z)</a></li>
+                     <li><a class="dropdown-item">Address (Z-A)</a></li>
+                  </ul>
+               </div>
+               <div class="dropdown">
+                  <button class="btn btn-outline-dark border-dark dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                     Filter By Status
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                     <li><a class="dropdown-item active">Approved</a></li>
+                     <li><a class="dropdown-item">Archived</a></li>
+                     <li><a class="dropdown-item">Banned</a></li>
+                     <li><a class="dropdown-item">Suspend</a></li>
+                     <li><a class="dropdown-item">All</a></li>
+                  </ul>
+               </div>
+               <button class="btn btn-primary gap-2 d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/archive.png') }}" alt="Archive User Icon" class="me-1" style="width: 1rem;">
+                  Archive User
+               </button>
+               <button class="btn text-white btn-warning gap-2 d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/suspend.png') }}" alt="Suspend User Icon" class="me-1" style="width: 1rem;">
+                  Suspend User
+               </button>
+               <button class="btn btn-danger gap-2 d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/banned.png') }}" alt="Ban User Icon" class="me-1" style="width: 1rem;">
+                  Ban User
+               </button>
+            </div>
+
+            <!-- Mobile Buttons -->
+            <div class="d-flex d-md-none flex-row gap-2">
+               <div class="dropdown d-flex flex-row gap-2">
+                  <button class="btn btn-outline-dark border-secondary" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-filter"></i>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                     <li><a class="dropdown-item active">Recent</a></li>
+                     <li><a class="dropdown-item">Oldest</a></li>
+                     <li><a class="dropdown-item">Name (A-Z)</a></li>
+                     <li><a class="dropdown-item">Name (Z-A)</a></li>
+                     <li><a class="dropdown-item">Age (1-9)</a></li>
+                     <li><a class="dropdown-item">Age (9-1)</a></li>
+                     <li><a class="dropdown-item">Address (A-Z)</a></li>
+                     <li><a class="dropdown-item">Address (Z-A)</a></li>
+                  </ul>        
+                  <button class="btn btn-outline-dark border-secondary" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                     <i class="bi bi-funnel"></i>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                     <li><a class="dropdown-item active">Approved</a></li>
+                     <li><a class="dropdown-item">Archived</a></li>
+                     <li><a class="dropdown-item">Banned</a></li>
+                     <li><a class="dropdown-item">Suspend</a></li>
+                     <li><a class="dropdown-item">All</a></li>
+                  </ul>                       
+               </div>
+               
+               <!-- Archive Button -->
+               <button class="btn btn-primary d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/archive.png') }}" alt="Archive User Icon" style="width: 1rem;">
+               </button>
+
+               <!-- Suspend Button -->
+               <button class="btn btn-warning d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/suspend.png') }}" alt="Suspend User Icon" style="width: 1rem;">
+               </button>
+
+               <!-- Banned Button -->
+               <button class="btn btn-danger d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/banned.png') }}" alt="Ban User Icon" style="width: 1rem;">
+               </button>
+
+            </div>
+
+         </div>
+
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+         <div class="table-responsive">
+            <table class="table table-striped">
+               <!-- Table Head-->
+               <thead class="bg-primary table-head">
+                  <tr>
+                     <td><input type="checkbox" id="selectAll" class="form-check-input"></td>
+                     <th scope="col">No</th>
+                     <th scope="col" class="name-header">Fullname</th>
+                     <th scope="col">Sex</th>
+                     <th scope="col">Age</th>
+                     <th scope="col" class="address-header">Address</th>
+                     <th scope="col" >Email</th>
+                     <th scope="col">Details</th>
+                     <th scope="col">Actions</th>
+                  </tr>
+               </thead>
+
+               <!-- Table Body-->
+               <tbody>
+                  <tr>
+                     <td><input type="checkbox" class="form-check-input"></td> 
+                     <th scope="row">1</th>
+                     <td>Mark Williams</td>
+                     <td>Male</td>
+                     <td>21</td>
+                     <td>Santa Cruz, Laguna</td>
+                     <td>markwilliams@gmail.com</td>
+                     <td><a href="#">View Details</a></td>
+                     <td class="d-flex flex-row align-items-center justify-content-start gap-2 h-100" >
+                        <!-- Archive Button -->
+                        <button class="btn btn-primary d-flex align-items-center justify-content-center">
+                           <img src="{{ url_for('static', filename='img/icons/archive.png') }}" alt="Archive User Icon" style="width: 1rem;">
+                        </button>
+
+                        <!-- Suspend Button -->
+                        <button class="btn btn-warning d-flex align-items-center justify-content-center">
+                           <img src="{{ url_for('static', filename='img/icons/suspend.png') }}" alt="Suspend User Icon" style="width: 1rem;">
+                        </button>
+
+                        <!-- Banned Button -->
+                        <button class="btn btn-danger d-flex align-items-center justify-content-center">
+                           <img src="{{ url_for('static', filename='img/icons/banned.png') }}" alt="Ban User Icon" style="width: 1rem;">
+                        </button>
+                     </td>
+                  </tr>
+               </tbody>
+               
+            </table>
+         </div>
+      </div>
+
+
+      
+
+  </main>
+  
+</div>
+
+<script>
+   // Select All
+   document.getElementById('selectAll').addEventListener('change', function() {
+      let checkboxes = document.querySelectorAll('.form-check-input');
+      checkboxes.forEach(function(checkbox) {
+         checkbox.checked = document.getElementById('selectAll').checked;
+      });
+   });
+</script>
+
+{% endblock %}
+<!-- Main End-->

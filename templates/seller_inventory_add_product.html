@@ -1,0 +1,288 @@
+{% block add_product %}
+
+<!-- ADD PRODUCT MODAL -->
+<div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form id="addProductForm" action="{{ url_for('seller_inventory.add_product') }}" method="POST" enctype="multipart/form-data">
+
+                <!-- Modal Header -->
+                <div class="modal-header bg-primary text-white">
+                    <h6 class="modal-title fw-normal" id="addProductModalLabel">Add New Product</h6>
+                    <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <div class="accordion" id="productAccordion">
+
+                        <!-- Message Box -->
+                        {% with messages = get_flashed_messages(with_categories=True) %}
+                            {% if messages %}
+                                <div class="alert-container px-3">
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                    </div>
+                                {% endfor %}
+                                </div>
+                            {% endif %}
+                        {% endwith %} 
+
+                        <!-- Step 1: Product Info -->
+                        <div class="accordion-item ">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                                    Product Information
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show">
+                                <div class="accordion-body">
+                                    <p class="text-muted">Enter your product details, including its name, category, and description.</p>
+                                    <div class="mb-3">
+                                        <label class="form-label">Product Category *</label>
+                                        <select class="form-control" name="category" required>
+                                            <option value="" disabled selected>Select a Category</option>
+                                            <option value="Mobile Phones">Mobile Phones</option>
+                                            <option value="Laptop">Laptop</option>
+                                            <option value="Desktop">Desktop</option>
+                                            <option value="Audio Equipment">Audio Equipment</option>
+                                            <option value="Video Equipment">Video Equipment</option>
+                                            <option value="Smart Home Devices">Smart Home Devices</option>
+                                            <option value="Photography">Photography</option>
+                                            <option value="Wearable Technology">Wearable Technology</option>
+                                            <option value="Digital Accessories">Digital Accessories</option>
+                                            <option value="Others">Others</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Product Name *</label>
+                                        <input type="text" class="form-control" name="product_name" placeholder="Example: Acer Nitro V" required>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Product Description *</label>
+                                        <textarea class="form-control" name="description" rows="3" placeholder="Provide a short description of the product, including key features." required></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Shipping Fee *</label>
+                                        <input type="number" class="form-control" name="shipping_fee" placeholder="0.00" min="0" step="0.01" required>
+                                        <small class="text-muted">This shipping fee applies to all variants of this product.</small>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Upload Product Main Picture *</label>
+                                        <input type="file" class="form-control" name="productMainPicture" accept="image/*" required id="mainPictureInput">
+                                        <div class="mt-2" id="mainPicturePreview" style="display: none;">
+                                            <img id="mainPictureImg" src="" alt="Main Picture Preview" class="img-thumbnail" style="max-height: 200px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Variants, Colors, and Stocks -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                                    Product Variants, Colors & Stocks
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    <p class="text-muted">Add different variants of your product with pricing details. Put "Default" if none.</p>
+                                    <div id="variantsContainer"></div>
+                                    <button type="button" class="btn btn-dark mt-2" id="addVariant">Add Variant</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Specifications -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                                    Product Specifications
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    <p class="text-muted">Provide detailed technical specifications of your product.</p>
+                                    <div id="specsContainer"></div>
+                                    <button type="button" class="btn btn-dark mt-2" id="addSpec">Add Specification</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Product Images -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour">
+                                    Product Images
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse">
+                                <div class="accordion-body">
+                                    <p class="text-muted">Upload high-quality images of your product. Multiple images are allowed but maximum of 20 images.</p>
+                                    <div class="mb-3">
+                                        <label class="form-label">Upload Images *</label>
+                                        <input type="file" class="form-control" name="productImages[]" multiple accept="image/*" required id="productImagesInput">
+                                        <div class="mt-2" id="productImagesPreview">
+                                            <!-- Image previews will be displayed here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary d-flex align-items-center">
+                        Add Product
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<!-- ADD PRODUCT MODAL END -->
+
+
+<!-- JS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Add Variants
+        document.getElementById("addVariant").addEventListener("click", () => {
+            const variantsContainer = document.getElementById("variantsContainer");
+            const variantDiv = document.createElement("div");
+            variantDiv.classList.add("variant", "mb-3", "border", "p-3");
+            variantDiv.innerHTML = `
+                <label class="form-label">Variant Name *</label>
+                <input type="text" class="form-control" name="variant[]" placeholder="Example: 16GB RAM / 512GB SSD" required>
+                <div class="colorsContainer mt-2"></div>
+                <button type="button" class="btn btn-dark addColor">Add Color</button>
+                <button type="button" class="btn btn-danger removeVariant ms-2">Remove Variant</button>
+            `;
+            variantsContainer.appendChild(variantDiv);
+        });
+
+        // Add Color, Stock & Price to a Variant
+        document.addEventListener("click", function (e) {
+            
+            if (e.target.classList.contains("addColor")) {
+                const colorContainer = e.target.previousElementSibling;
+                const colorDiv = document.createElement("div");
+                colorDiv.classList.add("color-stock", "d-flex", "align-items-center", "mb-2");
+                colorDiv.innerHTML = `
+                    <input type="text" class="form-control" name="color[]" placeholder="Color" required>
+                    <input type="number" class="form-control ms-2" name="price[]" placeholder="Price" min="1" step="0.01" required>
+                    <input type="number" class="form-control ms-2" name="stock[]" placeholder="Qty" min="0" value="" required>
+                    <button type="button" class="btn btn-danger ms-2 remove-color">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                `;
+                colorContainer.appendChild(colorDiv);
+            }
+
+            // Remove Color, Stock & Price
+            if (e.target.classList.contains("remove-color")) {
+                e.target.closest(".color-stock").remove();
+            }
+
+            // Remove Variant
+            if (e.target.classList.contains("removeVariant")) {
+                e.target.closest(".variant").remove();
+            }
+        });
+
+
+        // Add Specification
+        document.getElementById("addSpec").addEventListener("click", () => {
+            const specsContainer = document.getElementById("specsContainer");
+            const specDiv = document.createElement("div");
+            specDiv.classList.add("mb-3", "d-flex" );
+            specDiv.innerHTML = `
+                <input type="text" class="form-control" name="specs_type[]" placeholder="Example: Processor" required>
+                <input type="text" class="form-control ms-2" name="specs_content[]" placeholder="Example: Intel Core i7" required>
+                <button type="button" class="btn btn-danger ms-2 remove-spec">
+                    <i class="bi bi-trash"></i>
+                </button>
+            `;
+            specsContainer.appendChild(specDiv);
+        });
+
+        // Remove Specification
+        document.addEventListener("click", function (e) {
+            if (e.target.classList.contains("remove-spec")) {
+                e.target.closest(".d-flex").remove();
+            }
+        });
+
+        // Image Preview for Main Picture
+        document.getElementById("mainPictureInput").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById("mainPicturePreview");
+            const img = document.getElementById("mainPictureImg");
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img.src = e.target.result;
+                    preview.style.display = "block";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = "none";
+            }
+        });
+
+        // Image Preview for Product Images
+        document.getElementById("productImagesInput").addEventListener("change", function(e) {
+            const files = e.target.files;
+            const previewContainer = document.getElementById("productImagesPreview");
+            
+            // Clear previous previews
+            previewContainer.innerHTML = "";
+            
+            if (files.length > 0) {
+                const row = document.createElement("div");
+                row.classList.add("row", "g-2");
+                
+                Array.from(files).forEach((file, index) => {
+                    if (file.type.startsWith('image/')) {
+                        const col = document.createElement("div");
+                        col.classList.add("col-6", "col-md-3");
+                        
+                        const img = document.createElement("img");
+                        img.classList.add("img-thumbnail");
+                        img.style.height = "100px";
+                        img.style.objectFit = "cover";
+                        img.style.width = "100%";
+                        
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            img.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                        
+                        col.appendChild(img);
+                        row.appendChild(col);
+                    }
+                });
+                
+                previewContainer.appendChild(row);
+            }
+        });
+
+    });
+</script>
+
+{% endblock %}

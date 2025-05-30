@@ -1,0 +1,111 @@
+{% extends "admin_dashboard.html" %}
+
+{% block title %}Messages{% endblock %}
+
+<!-- Main -->
+{% block admin_content %}
+<div class="main">
+   <nav class="navbar navbar-expand d-flex align-items-center justify-content-between w-100">
+      <div class="d-flex align-items-center">
+         <button class="toggler-btn" type="button">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/menu.png') }}" style="width: 25px; height: 20px;">
+         </button>
+         <a class="navbar-brand ms-3" href="#">
+            <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+        </a>
+      </div>
+
+      <!-- Search Bar for Desktop -->
+      <form class="d-flex justify-content-end d-none d-md-flex" role="search">
+         <input class="form-control me-2" type="search" placeholder="Search products" aria-label="Search">
+         <button class="btn btn-primary" type="submit">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+         </button>
+      </form>
+
+      <!-- Mobile Search Button (Trigger for Offcanvas) -->
+      <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+         <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+      </button>
+   </nav>
+
+   <!-- Offcanvas Search for Mobile -->
+   <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+      <div class="offcanvas-header">
+         <h5 id="offcanvasTopLabel" class="text-center mt-2">Search</h5>
+         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+         <form class="d-flex justify-content-between" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search products" aria-label="Search">
+            <button class="btn btn-primary" type="submit">
+               <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+            </button>
+         </form>
+      </div>
+   </div>
+
+   <main class="content">
+      <div class="container-fluid title-container d-flex flex-lg-row flex-column align-items-center justify-content-between">
+         <div class="title align-self-start">
+            <h4>Messages</h4>
+            <p class="text-muted">Here's your current listings.</p>
+         </div>
+  
+          <div class="btn-container d-flex flex-wrap gap-2">          
+              <!-- Desktop Buttons -->
+              <div class="d-none d-md-flex gap-2">
+                  <div class="dropdown">
+                     <button class="btn btn-outline-primary border-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sort By
+                     </button>
+                     <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                        <li><a class="dropdown-item">Recent</a></li>
+                        <li><a class="dropdown-item">Oldest</a></li>
+                        <li><a class="dropdown-item">Nearly Out of Stock</a></li>
+                        <li><a class="dropdown-item">Out of Stock</a></li>
+                     </ul>
+                  </div>
+                  <button class="btn btn-primary gap-2 d-flex align-items-center justify-content-center">
+                     <img src="{{ url_for('static', filename='img/icons/archive.png') }}" alt="Show Archive Icon" class="me-1" style="width: 1rem;">
+                     Show Archive
+                  </button>
+                  <button class="btn btn-dark gap-2 d-flex align-items-center justify-content-center">
+                     <img src="{{ url_for('static', filename='img/icons/active.png') }}" alt="Add Product Icon" class="me-1" style="width: 1rem;">
+                     Add Product
+                  </button>
+               </div>
+  
+               <!-- Mobile Buttons -->
+               <div class="d-flex d-md-none flex-row gap-2">
+                  <div class="dropdown">
+                     <button class="btn btn-outline-dark border-secondary" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                         <i class="bi bi-funnel"></i>
+                     </button>
+                     <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                         <li><a class="dropdown-item" href="#">Recent</a></li>
+                         <li><a class="dropdown-item" href="#">Oldest</a></li>
+                         <li><a class="dropdown-item" href="#">Nearly Out of Stock</a></li>
+                         <li><a class="dropdown-item" href="#">Out of Stock</a></li>
+                     </ul>                             
+                 </div>
+                  
+                  <!-- Show Archive Button -->
+                  <button class="btn btn-primary d-flex align-items-center justify-content-center">
+                     <img src="{{ url_for('static', filename='img/icons/archive.png') }}" alt="Show Archive Icon"  style="width: 1rem;">
+                  </button>
+                  
+                  <!-- Add Product Button -->
+                  <button class="btn btn-dark d-flex align-items-center justify-content-center">
+                     <img src="{{ url_for('static', filename='img/icons/active.png') }}" alt="Add Product Icon"  style="width: 1rem;">
+                  </button>
+               </div>
+
+          </div>
+      </div>
+  </main>
+  
+</div>
+
+{% endblock %}
+<!-- Main End-->

@@ -1,0 +1,648 @@
+{% extends "admin_dashboard.html" %}
+
+{% block title %}Commission{% endblock %}
+
+<!-- Main -->
+{% block admin_content %}
+<div class="main">
+   <!-- Top Bar -->
+   <nav class="navbar navbar-expand d-flex align-items-center justify-content-between w-100">
+      
+      <!-- Logo -->
+      <div class="d-flex align-items-center">
+         <button class="toggler-btn" type="button">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/menu.png') }}" style="width: 25px; height: 20px;">
+         </button>
+         <a class="navbar-brand ms-3" href="#">
+            <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+        </a>
+      </div>
+
+      <!-- Search Bar for Desktop -->
+      <form class="d-flex justify-content-end d-none d-md-flex" role="search" method="GET" action="{{ url_for('admin_commission.commission') }}">
+         <input class="form-control me-2" type="search" name="search" placeholder="Search commission records" aria-label="Search" value="{{ search_query }}">
+         <input type="hidden" name="user_type" value="{{ user_type_filter }}"> 
+         <input type="hidden" name="date_filter" value="{{ date_filter }}"> 
+         <input type="hidden" name="sort_by" value="{{ sort_by }}"> 
+         <input type="hidden" name="order" value="{{ order }}"> 
+         <input type="hidden" name="custom_date" value="{{ custom_date }}"> 
+         <button class="btn btn-primary" type="submit">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+         </button>
+      </form>
+
+      <!-- Mobile Search Button -->
+      <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+         <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+      </button>
+
+   </nav>
+   <!-- Top Bar End-->
+
+   <!-- Search for Mobile -->
+   <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+      <div class="offcanvas-header">
+         <h5 id="offcanvasTopLabel" class="text-center mt-2">Search</h5>
+         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+         <form class="d-flex justify-content-between" role="search" method="GET" action="{{ url_for('admin_commission.commission') }}">
+            <input class="form-control me-2" type="search" name="search" placeholder="Search commission records" aria-label="Search" value="{{ search_query }}">
+            <input type="hidden" name="user_type" value="{{ user_type_filter }}"> 
+            <input type="hidden" name="date_filter" value="{{ date_filter }}"> 
+            <input type="hidden" name="sort_by" value="{{ sort_by }}"> 
+            <input type="hidden" name="order" value="{{ order }}"> 
+            <input type="hidden" name="custom_date" value="{{ custom_date }}"> 
+            <button class="btn btn-primary" type="submit">
+               <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+            </button>
+         </form>
+      </div>
+   </div>
+   <!-- Search for Mobile End-->
+
+   <!-- MAIN CONTENT -->
+   <main class="content">
+
+      <!-- Title Bar -->
+      <div class="container-fluid title-container d-flex flex-lg-row flex-column align-items-center justify-content-between">
+         
+         <!-- Title -->
+         <div class="title align-self-start">
+            <h4>{{ page_title }}</h4>
+            <p class="text-muted">{{ page_description }}</p>
+         </div>
+         
+         <!-- Buttons -->
+         <div class="btn-container d-flex flex-wrap gap-2">     
+
+            <!-- Desktop Buttons -->
+            <div class="d-none d-md-flex gap-2">
+
+               <!-- User Type Filter Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-primary border-primary dropdown-toggle" type="button" id="userTypeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                     User Type
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="userTypeDropdown">
+                     <li>
+                        <a class="dropdown-item {% if user_type_filter == 'All' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', user_type='All', date_filter=date_filter, sort_by=sort_by, order=order, search=search_query, custom_date=custom_date) }}">
+                           All Users
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if user_type_filter == 'Seller' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', user_type='Seller', date_filter=date_filter, sort_by=sort_by, order=order, search=search_query, custom_date=custom_date) }}">
+                           Sellers
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if user_type_filter == 'Courier' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', user_type='Courier', date_filter=date_filter, sort_by=sort_by, order=order, search=search_query, custom_date=custom_date) }}">
+                           Couriers
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+
+               <!-- Sort By Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-primary border-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                     Sort By
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_generated' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', sort_by='date_generated', order='desc', user_type=user_type_filter, date_filter=date_filter, search=search_query, custom_date=custom_date) }}">
+                           Recent
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_generated' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', sort_by='date_generated', order='asc', user_type=user_type_filter, date_filter=date_filter, search=search_query, custom_date=custom_date) }}">
+                           Oldest
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'commission_amount' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', sort_by='commission_amount', order='desc', user_type=user_type_filter, date_filter=date_filter, search=search_query, custom_date=custom_date) }}">
+                           Highest Commission
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'commission_amount' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', sort_by='commission_amount', order='asc', user_type=user_type_filter, date_filter=date_filter, search=search_query, custom_date=custom_date) }}">
+                           Lowest Commission
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'user_type' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', sort_by='user_type', order='asc', user_type=user_type_filter, date_filter=date_filter, search=search_query, custom_date=custom_date) }}">
+                           User Type
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'user_name' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', sort_by='user_name', order='asc', user_type=user_type_filter, date_filter=date_filter, search=search_query, custom_date=custom_date) }}">
+                           User Name (A-Z)
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+         
+               <!-- Date Filter Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-primary border-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                     Date Filter
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                     <li>
+                        <a class="dropdown-item {% if date_filter == 'today' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', date_filter='today', user_type=user_type_filter, sort_by=sort_by, order=order, search=search_query) }}">
+                           Today
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if date_filter == 'last_3_days' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', date_filter='last_3_days', user_type=user_type_filter, sort_by=sort_by, order=order, search=search_query) }}">
+                           Last 3 Days
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if date_filter == 'last_7_days' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', date_filter='last_7_days', user_type=user_type_filter, sort_by=sort_by, order=order, search=search_query) }}">
+                           Last 7 Days
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if date_filter == 'last_month' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', date_filter='last_month', user_type=user_type_filter, sort_by=sort_by, order=order, search=search_query) }}">
+                           Last Month
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+
+               <!-- Custom Date Picker -->
+               <form method="GET" action="{{ url_for('admin_commission.commission') }}" class="d-flex align-items-center">
+                  <input type="hidden" name="user_type" value="{{ user_type_filter }}">
+                  <input type="hidden" name="sort_by" value="{{ sort_by }}">
+                  <input type="hidden" name="order" value="{{ order }}">
+                  <input type="hidden" name="search" value="{{ search_query }}">
+                  <input type="date" name="custom_date" class="form-control me-2 border-primary" value="{{ custom_date }}" style="width: 150px;">
+                  <button type="submit" class="btn btn-primary">
+                     <i class="bi bi-calendar-check"></i>
+                  </button>
+               </form>
+
+               <!-- Reset Button -->
+               <a href="{{ url_for('admin_commission.commission')}}" type="button" class="btn btn-secondary d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" style="width: 1.2rem;">
+               </a>
+
+            </div>
+
+            <!-- Mobile Buttons -->
+            <div class="d-flex d-md-none flex-row gap-2">
+               <!-- User Type Filter Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="userTypeDropdownMobile" data-bs-toggle="dropdown" aria-expanded="false">
+                     <i class="bi bi-people"></i> 
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="userTypeDropdownMobile">
+                     <li>
+                        <a class="dropdown-item {% if user_type_filter == 'All' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', user_type='All', date_filter=date_filter, sort_by=sort_by, order=order, search=search_query, custom_date=custom_date) }}">
+                           All Users
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if user_type_filter == 'Seller' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', user_type='Seller', date_filter=date_filter, sort_by=sort_by, order=order, search=search_query, custom_date=custom_date) }}">
+                           Sellers
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if user_type_filter == 'Courier' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', user_type='Courier', date_filter=date_filter, sort_by=sort_by, order=order, search=search_query, custom_date=custom_date) }}">
+                           Couriers
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+
+               <!-- Sort By Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="sortDropdownMobile" data-bs-toggle="dropdown" aria-expanded="false">
+                     <i class="bi bi-sort-down"></i> 
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="sortDropdownMobile">
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_generated' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', sort_by='date_generated', order='desc', user_type=user_type_filter, date_filter=date_filter, search=search_query, custom_date=custom_date) }}">
+                           Recent
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'commission_amount' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', sort_by='commission_amount', order='desc', user_type=user_type_filter, date_filter=date_filter, search=search_query, custom_date=custom_date) }}">
+                           Highest Commission
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+
+               <!-- Date Filter Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="filterDropdownMobile" data-bs-toggle="dropdown" aria-expanded="false">
+                     <i class="bi bi-funnel"></i>
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="filterDropdownMobile">
+                     <li>
+                        <a class="dropdown-item {% if date_filter == 'today' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', date_filter='today', user_type=user_type_filter, sort_by=sort_by, order=order, search=search_query) }}">
+                           Today
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if date_filter == 'last_7_days' %}active{% endif %}" 
+                           href="{{ url_for('admin_commission.commission', date_filter='last_7_days', user_type=user_type_filter, sort_by=sort_by, order=order, search=search_query) }}">
+                           Last 7 Days
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+                  
+               <!-- Reset Button -->
+               <a href="{{ url_for('admin_commission.commission')}}" type="button" class="btn btn-dark d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" style="width: 1.2rem;">
+               </a>
+            </div>
+
+         </div>     
+
+      </div>
+      <!-- Title Bar End-->
+
+      <!-- Message Box -->
+      {% with messages = get_flashed_messages(with_categories=True) %}
+         {% if messages %}
+            <div class="alert-container px-3">
+            {% for category, message in messages %}
+               <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+               {{ message }}
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+               </div>
+            {% endfor %}
+            </div>
+         {% endif %}
+      {% endwith %} 
+       <!-- Message Box End -->
+
+      <!-- Commission Statistics -->
+      <div class="row mt-3 d-none d-md-flex px-3">
+         <!-- Total Commissions -->
+         <div class="col-md-3">
+            <div class="card bg-primary text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Total Commissions</span>
+                  <span class="bg-white text-primary px-3 py-1 rounded fw-bold shadow-sm">
+                     {{ stats.total_commissions or 0 }}
+                  </span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Total Earnings -->
+         <div class="col-md-3">
+            <div class="card bg-success text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Total Earnings</span>
+                  <span class="bg-white text-success px-3 py-1 rounded fw-bold shadow-sm">
+                     ₱{{ "{:,.2f}".format(stats.total_earnings or 0) }}
+                  </span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Average Commission -->
+         <div class="col-md-3">
+            <div class="card bg-warning text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Average Commission</span>
+                  <span class="bg-white text-warning px-3 py-1 rounded fw-bold shadow-sm">
+                     ₱{{ "{:,.2f}".format(stats.average_commission or 0) }}
+                  </span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Highest Commission -->
+         <div class="col-md-3">
+            <div class="card bg-info text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Highest Commission</span>
+                  <span class="bg-white text-info px-3 py-1 rounded fw-bold shadow-sm">
+                     ₱{{ "{:,.2f}".format(stats.max_commission or 0) }}
+                  </span>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-container">
+         <div class="table-responsive">
+            <table class="table">
+
+               <!-- Table Head -->
+               <thead class="bg-primary table-head">
+                  <tr>
+                     <th scope="col" class="d-none">No</th>
+                     <th scope="col">Order ID</th>
+                     <th scope="col">Product Picture</th>
+                     <th scope="col" class="name-header">Product Name</th>                     
+                     <th scope="col">User Type</th>
+                     <th scope="col">User</th>
+                     <th scope="col">Buyer</th>
+                     <th scope="col">Commission</th>
+                     <th scope="col">Date</th>
+                     <th scope="col">View Details</th>
+                  </tr>
+               </thead>
+
+               <!-- Table Body -->
+               <tbody>
+                  {% for sale in sales %}
+                  <tr>
+                     <th scope="row" class="fw-normal d-none">{{ loop.index }}</th>
+                     <td class="fw-bold">#{{ sale.order_id }}</td>
+                     <td class="product-picture">
+                        {% if sale.product_main_pic %}
+                           <img src="{{ url_for('admin_commission.serve_product_main_pic', filename=sale.product_main_pic) }}" 
+                              alt="Product Image" class="img-fluid rounded border" style="width: 100px; height: 60px; object-fit: cover;">
+                        {% else %}
+                           <img src="{{ url_for('static', filename='img/placeholder/product_placeholder.png') }}" 
+                              alt="No Product Image" class="img-fluid rounded border" style="width: 100px; height: 60px; object-fit: cover;">
+                        {% endif %}
+                     </td>
+                     <td>{{ sale.product_name }}</td>
+                     
+                     <td>
+                        <span class="badge {% if sale.user_type == 'Seller' %}bg-primary{% else %}bg-info{% endif %}">
+                           {{ sale.user_type }}
+                        </span>
+                     </td>
+                     <td>{{ sale.user_firstname }} {{ sale.user_lastname }}</td>
+                     <td>{{ sale.buyer_firstname }} {{ sale.buyer_lastname }}</td>
+                     <td class="fw-bold text-success">+ ₱{{ "{:,.2f}".format(sale.commission_amount) }}</td>
+                     <td>{{ sale.date_generated.strftime('%b %d, %Y') }}</td>
+                     <td>
+                        <!-- View Details Button -->
+                        <button type="button" class="border-0 text-primary" style="background-color: transparent" 
+                           data-bs-toggle="modal" data-bs-target="#commissionModal{{ sale.sales_id }}">
+                           View Details
+                        </button>
+                     </td>
+                  </tr>
+
+                  <!-- Commission Details Modal -->
+                  <div class="modal fade" id="commissionModal{{ sale.sales_id }}" tabindex="-1" aria-labelledby="commissionModalLabel{{ sale.sales_id }}" aria-hidden="true">
+                     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"> 
+                        <div class="modal-content">
+
+                           <!-- Modal Header -->
+                           <div class="modal-header bg-primary text-white">
+                              <h6 class="modal-title fw-normal" id="commissionModalLabel{{ sale.sales_id }}">
+                                 Commission Details - <strong class="fw-semibold">Order #{{ sale.order_id }} ({{ sale.product_name }})</strong>
+                              </h6>
+                              <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                                 <i class="bi bi-x-lg"></i>
+                              </button>
+                           </div>
+
+                           <!-- Modal Body -->
+                           <div class="modal-body product-modal">
+
+                              <!-- Row 1: Product Image & Basic Info -->
+                              <div class="row mb-4">
+                                 <!-- Left Side: Product Image -->
+                                 <div class="col-md-6">
+                                    <div class="product-img-container w-100 h-100 d-flex align-items-center justify-content-center">
+                                       {% if sale.product_main_pic %}
+                                          <img src="{{ url_for('admin_commission.serve_product_main_pic', filename=sale.product_main_pic) }}" 
+                                             alt="Product Image" class="img-fluid rounded border w-100" style="height: 300px; object-fit: cover;">
+                                       {% else %}
+                                          <img src="{{ url_for('static', filename='img/placeholder/product_placeholder.png') }}"
+                                             alt="Default Product Image" class="img-fluid rounded border w-100" style="height: 300px; object-fit: cover;">
+                                       {% endif %}
+                                    </div>
+                                 </div>
+                                 
+                                 <!-- Right Side: Commission Information -->
+                                 <div class="col-md-6 mt-3">
+                                    <span class="badge {% if sale.user_type == 'Seller' %}bg-primary{% else %}bg-info{% endif %}">{{ sale.user_type }} Commission</span>
+                                    <p class="mt-3 fw-semibold fs-3 header-text">{{ sale.product_name }}</p>
+                                    <p class="fs-4">₱{{ "{:,.2f}".format(sale.price) }}</p>
+                                    <p class="fs-6 text-muted">Shipping: ₱{{ "{:,.2f}".format(sale.shipping_fee) }}</p>
+                                    <p>
+                                       <small class="text-muted d-block header-text">Variant</small>
+                                       {{ sale.variant }}
+                                    </p>
+                                    <span>
+                                       <small class="text-muted d-block header-text">Color</small>
+                                       {{ sale.color }} - 
+                                    </span>
+                                    <span class="text-muted">Qty: {{ sale.quantity }}</span>
+                                 </div>
+                              </div>
+
+                              <!-- Row 2: Commission Information -->
+                              <div class="card mb-3">
+                                 <div class="card-header bg-primary text-white header-text">Commission Information</div>
+                                 <div class="card-body">
+                                    <div class="row">
+                                       <div class="col-md-6">
+                                          <p><span class="header-text">Commission ID:</span> <span class="body-text">#{{ sale.sales_id }}</span></p>
+                                          <p><span class="header-text">Order ID:</span> <span class="body-text">#{{ sale.order_id }}</span></p>
+                                          <p><span class="header-text">User Type:</span> 
+                                             <span class="badge {% if sale.user_type == 'Seller' %}bg-primary{% else %}bg-info{% endif %}">{{ sale.user_type }}</span>
+                                          </p>
+                                          <p><span class="header-text">Quantity:</span> <span class="body-text">{{ sale.quantity }}</span></p>
+                                          <p><span class="header-text">Unit Price:</span> <span class="body-text">₱{{ "{:,.2f}".format(sale.price) }}</span></p>
+                                       </div>
+                                       <div class="col-md-6">
+                                          <p><span class="header-text">Your Commission:</span> 
+                                             <span class="fw-bold text-success fs-5">₱{{ "{:,.2f}".format(sale.commission_amount) }}</span>
+                                          </p>
+                                          <p><span class="header-text">Total Order Amount:</span> <span class="body-text">₱{{ "{:,.2f}".format(sale.total_amount) }}</span></p>
+                                          <p><span class="header-text">Payment Status:</span> 
+                                             <span class="badge {% if sale.payment_status == 'Paid' %}bg-success{% else %}bg-warning{% endif %}">
+                                                {{ sale.payment_status }}
+                                             </span>
+                                          </p>
+                                          <p><span class="header-text">Payment Method:</span> <span class="body-text">{{ sale.payment_method }}</span></p>
+                                          <p><span class="header-text">Commission Date:</span> <span class="body-text">{{ sale.date_generated.strftime('%B %d, %Y at %I:%M %p') }}</span></p>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+
+                              <!-- Row 3: User Information -->
+                              <div class="card mb-3">
+                                 <div class="card-header bg-primary text-white header-text">{{ sale.user_type }} Information</div>
+                                 <div class="card-body">
+                                    <div class="row">
+                                       <div class="col-md-6">
+                                          <p><span class="header-text">{{ sale.user_type }}:</span> <span class="body-text">{{ sale.user_firstname }} {{ sale.user_lastname }}</span></p>
+                                          <p><span class="header-text">Email:</span> <span class="body-text">{{ sale.user_email }}</span></p>
+                                          <p><span class="header-text">Phone:</span> <span class="body-text">{{ sale.user_phone }}</span></p>
+                                       </div>
+                                       <div class="col-md-6">
+                                          <p><span class="header-text">Buyer:</span> <span class="body-text">{{ sale.buyer_firstname }} {{ sale.buyer_lastname }}</span></p>
+                                          <p><span class="header-text">Buyer Email:</span> <span class="body-text">{{ sale.buyer_email }}</span></p>
+                                          <p><span class="header-text">Delivery Address:</span> <span class="body-text">{{ sale.delivery_address }}</span></p>
+                                       </div>
+                                    </div>
+                                 </div>
+                              </div>
+
+                           </div>
+
+                           <!-- Modal Footer -->
+                           <div class="modal-footer">
+                              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                           </div>
+
+                        </div>
+                     </div>
+                  </div>  
+
+                  {% endfor %}
+               </tbody>
+
+            </table>
+         </div>
+      </div>
+      <!-- Table End -->
+
+      <!-- No Commissions Message -->
+      {% if not sales %}
+      <div class="text-center py-5">
+         <i class="bi bi-currency-dollar display-1 text-muted"></i>
+         <h5 class="text-muted mt-3">No commission records found</h5>
+         <p class="text-muted">Commission earnings will appear here once orders are completed.</p>
+      </div>
+      {% endif %}
+
+      <!-- Pagination -->
+      <div id="pagination-container" class="d-flex justify-content-center">
+         <ul class="pagination d-flex align-items-center flex-row gap-2">
+            <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+            <li class="page-item pagination-numbers-container d-flex flex-row"></li> 
+            <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+         </ul>
+      </div>
+
+   </main>
+   <!-- MAIN CONTENT END -->
+   
+</div>
+<!-- MAIN END -->
+
+<!-- JS -->
+<script>
+   // Pagination
+   document.addEventListener("DOMContentLoaded", function () {
+      const rowsPerPage = 7; 
+      const tableBody = document.querySelector("tbody");
+      const rows = tableBody.querySelectorAll("tr");
+      const paginationContainer = document.querySelector(".pagination-numbers-container");
+      const prevPageBtn = document.getElementById("prevPage");
+      const nextPageBtn = document.getElementById("nextPage");
+
+      let currentPage = 1;
+      let totalPages = Math.ceil(rows.length / rowsPerPage);
+
+      function showPage(page) {
+         const start = (page - 1) * rowsPerPage;
+         const end = start + rowsPerPage;
+
+         rows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? "table-row" : "none";
+         });
+
+         currentPage = page;
+         updatePagination();
+      }
+
+      function updatePagination() {
+         paginationContainer.innerHTML = "";
+         totalPages = Math.ceil(rows.length / rowsPerPage);
+
+         // Previous Button State
+         prevPageBtn.parentElement.classList.toggle("disabled", currentPage === 1);
+         nextPageBtn.parentElement.classList.toggle("disabled", currentPage === totalPages);
+
+         // Generate page numbers
+         for (let i = 1; i <= totalPages; i++) {
+            const li = document.createElement("li");
+            li.classList.add("page-item");
+
+            if (i === currentPage) {
+               li.classList.add("active");
+            }
+
+            const a = document.createElement("a");
+            a.classList.add("page-link");
+            a.href = "#";
+            a.textContent = i;
+
+            a.addEventListener("click", function (e) {
+               e.preventDefault();
+               showPage(i);
+            });
+
+            li.appendChild(a);
+            paginationContainer.appendChild(li);
+         }
+      }
+
+      // Previous Page
+      prevPageBtn.addEventListener("click", function (e) {
+         e.preventDefault();
+         if (currentPage > 1) {
+            showPage(currentPage - 1);
+         }
+      });
+
+      // Next Page
+      nextPageBtn.addEventListener("click", function (e) {
+         e.preventDefault();
+         if (currentPage < totalPages) {
+            showPage(currentPage + 1);
+         }
+      });
+
+      // Initialize Pagination
+      showPage(1);
+
+   });
+
+   // Select Table Rows
+   document.addEventListener("DOMContentLoaded", function () {
+      let rows = document.querySelectorAll("tbody tr");
+
+      rows.forEach(row => {
+          row.addEventListener("click", function () {
+              rows.forEach(r => r.classList.remove("selected-row"));
+
+              this.classList.add("selected-row");
+          });
+      });
+  });
+</script>
+
+{% endblock %}
+<!-- Admin Content End -->

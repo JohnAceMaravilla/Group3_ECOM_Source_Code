@@ -1,0 +1,589 @@
+{% extends "admin_dashboard.html" %}
+
+<!-- Webpage Title -->
+{% block title %}Courier Management{% endblock %}
+
+<!-- Admin Content -->
+{% block admin_content %}
+
+<!-- JS -->
+<script src="{{ url_for('static', filename='js/user_mgmt.js') }}"></script>
+
+<!-- MAIN -->
+<div class="main">
+
+   <!-- Top Bar -->
+   <nav class="navbar navbar-expand d-flex align-items-center justify-content-between w-100">
+      <div class="d-flex align-items-center">
+         <button class="toggler-btn" type="button">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/menu.png') }}" style="width: 25px; height: 20px;">
+         </button>
+         <a class="navbar-brand ms-3" href="#">
+            <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+        </a>
+      </div>
+
+      <!-- Search Bar for Desktop -->
+      <form class="d-flex justify-content-end d-none d-md-flex" role="search" method="GET" action="{{ url_for('admin_user_mgmt.courier_mgmt') }}">
+         <input type="hidden" name="status" value="{{ selected_status }}"> 
+         <input type="hidden" name="sort_by" value="{{ sort_by }}"> 
+         <input type="hidden" name="order" value="{{ order }}"> 
+         <input class="form-control me-2" type="search" name="search" value="{{ search }}" placeholder="Search users..." aria-label="Search">
+         <button class="btn btn-primary" type="submit">
+             <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+         </button>
+      </form>
+
+      <!-- Mobile Search Button -->
+      <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+         <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+      </button>
+   </nav>
+   <!-- Top Bar End -->
+
+   <!-- Search for Mobile -->
+   <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+      <div class="offcanvas-header">
+         <h5 id="offcanvasTopLabel" class="text-center mt-2">Search</h5>
+         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+         <form class="d-flex justify-content-between" role="search" method="GET" action="{{ url_for('admin_user_mgmt.courier_mgmt') }}">
+            <input type="hidden" name="status" value="{{ selected_status }}">  
+            <input type="hidden" name="sort_by" value="{{ sort_by }}"> 
+            <input type="hidden" name="order" value="{{ order }}"> 
+            <input class="form-control me-2" type="search" name="search" value="{{ search }}" placeholder="Search users..." aria-label="Search">  
+            <button class="btn btn-primary" type="submit">
+               <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+            </button>
+         </form>
+      </div>
+   </div>
+   <!-- Search for Mobile End -->
+
+   <!-- MAIN CONTENT -->
+   <main class="content">
+      
+      <!-- Title Section Bar -->
+      <div class="container-fluid title-container d-flex flex-lg-row flex-column align-items-center justify-content-between">
+         
+         <!-- Title Bar -->
+         <div class="title align-self-start">
+            {% if selected_status == "Approved" %}
+               <h4>Courier Management</h4>
+               <p class="text-muted">Here's the list of currently active courier.</p>
+            {% elif selected_status == "Pending" %}
+               <h4>Pending Courier</h4>
+               <p class="text-muted">Here's the list of currently pending courier.</p>
+            {% elif selected_status == "Archived" %}
+               <h4>Archive Courier</h4>
+               <p class="text-muted">Here's the list of currently archived courier.</p>
+            {% elif selected_status == "Banned" %}
+               <h4>Banned Courier</h4>
+               <p class="text-muted">Here's the list of currently banned courier.</p>
+            {% elif selected_status == "Suspended" %}
+               <h4>Suspended Courier</h4>
+               <p class="text-muted">Here's the list of currently suspended courier.</p>
+            {% else %}
+               <h4>Courier Management</h4>
+               <p class="text-muted">Here's the list of currently active courier.</p>
+            {% endif %}
+         </div>
+         
+         <!-- Buttons -->
+         <div class="btn-container d-flex flex-wrap gap-2">  
+
+            <!-- Desktop Buttons -->
+            <div class="d-none d-md-flex gap-2">
+
+               <!-- Sort By Buttons -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                     Sort By
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_created' and order == 'DESC' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='date_created', order='DESC', status=selected_status, search=search) }}">
+                           Recent
+                        </a>
+                     </li>                  
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_created' and order == 'ASC' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='date_created', order='ASC', status=selected_status, search=search) }}">
+                           Oldest
+                        </a>
+                     </li>                 
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'firstname' and order == 'ASC' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='firstname', order='ASC', status=selected_status, search=search) }}">
+                           Name (A-Z)
+                        </a>
+                     </li>                 
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'firstname' and order == 'DESC' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='firstname', order='DESC', status=selected_status, search=search) }}">
+                           Name (Z-A)
+                        </a>
+                     </li>                 
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'age' and order == 'ASC' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='age', order='ASC', status=selected_status, search=search) }}">
+                           Age (1-9)
+                        </a>
+                     </li>                 
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'age' and order == 'DESC' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='age', order='DESC', status=selected_status, search=search) }}">
+                           Age (9-1)
+                        </a>
+                     </li>                
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'city' and order == 'ASC' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='city', order='ASC', status=selected_status, search=search) }}">
+                           Address (A-Z)
+                        </a>
+                     </li>               
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'city' and order == 'DESC' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='city', order='DESC', status=selected_status, search=search) }}">
+                           Address (Z-A)
+                        </a>
+                     </li>
+                  </ul>                 
+                  
+               </div>
+
+               <!-- Filter By Buttons -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                     Filter By Status
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                     <li>
+                        <a class="dropdown-item {% if selected_status == 'Approved' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Approved', sort_by=sort_by, order=order, search=search) }}">
+                           Approved
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if selected_status == 'Pending' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Pending', sort_by=sort_by, order=order, search=search) }}">
+                           Pending
+                        </a>
+                     </li>                                      
+                     <li>
+                        <a class="dropdown-item {% if selected_status == 'Archived' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Archived', sort_by=sort_by, order=order, search=search) }}">
+                           Archived
+                        </a>
+                     </li>              
+                     <li>
+                        <a class="dropdown-item {% if selected_status == 'Banned' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Banned', sort_by=sort_by, order=order, search=search) }}">
+                           Banned
+                        </a>
+                     </li>                 
+                     <li>
+                        <a class="dropdown-item {% if selected_status == 'Suspended' %}active{% endif %}" 
+                           href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Suspended', sort_by=sort_by, order=order, search=search) }}">
+                           Suspended
+                        </a>
+                     </li>
+                  </ul>
+                  
+               </div>        
+
+               <!-- Reset Table Button -->
+               <a href="{{ url_for('admin_user_mgmt.courier_mgmt')}}" type="button" class="btn btn-dark d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" class="" style="width: 1.2rem;">
+               </a>    
+
+            </div>
+
+            <!-- Mobile Buttons -->
+            <div class="d-flex d-md-none flex-row gap-2">
+               <div class="d-flex flex-row gap-2">
+
+                  <!-- Sort By Buttons (Mobile) -->
+                  <div class="dropdown">                     
+                     <button class="btn btn-outline-dark border-secondary" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                           <i class="bi bi-filter"></i>
+                     </button>
+                     <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'date_created' and order == 'DESC' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='date_created', order='DESC', status=selected_status, search=search) }}">
+                              Recent
+                           </a>
+                        </li>                  
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'date_created' and order == 'ASC' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='date_created', order='ASC', status=selected_status, search=search) }}">
+                              Oldest
+                           </a>
+                        </li>                 
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'firstname' and order == 'ASC' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='firstname', order='ASC', status=selected_status, search=search) }}">
+                              Name (A-Z)
+                           </a>
+                        </li>                 
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'firstname' and order == 'DESC' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='firstname', order='DESC', status=selected_status, search=search) }}">
+                              Name (Z-A)
+                           </a>
+                        </li>                 
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'age' and order == 'ASC' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='age', order='ASC', status=selected_status, search=search) }}">
+                              Age (1-9)
+                           </a>
+                        </li>                 
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'age' and order == 'DESC' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='age', order='DESC', status=selected_status, search=search) }}">
+                              Age (9-1)
+                           </a>
+                        </li>                
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'city' and order == 'ASC' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='city', order='ASC', status=selected_status, search=search) }}">
+                              Address (A-Z)
+                           </a>
+                        </li>               
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'city' and order == 'DESC' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', sort_by='city', order='DESC', status=selected_status, search=search) }}">
+                              Address (Z-A)
+                           </a>
+                        </li>
+                     </ul>   
+                  </div>   
+
+                  <!-- Filter By Buttons (Mobile) -->
+                  <div class="dropdown">
+                     <button class="btn btn-outline-dark border-secondary" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-funnel"></i>
+                     </button>
+                     <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                        <li>
+                           <a class="dropdown-item {% if selected_status == 'Approved' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Approved', sort_by=sort_by, order=order, search=search) }}">
+                              Approved
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if selected_status == 'Pending' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Pending', sort_by=sort_by, order=order, search=search) }}">
+                              Pending
+                           </a>
+                        </li>                                      
+                        <li>
+                           <a class="dropdown-item {% if selected_status == 'Archived' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Archived', sort_by=sort_by, order=order, search=search) }}">
+                              Archived
+                           </a>
+                        </li>              
+                        <li>
+                           <a class="dropdown-item {% if selected_status == 'Banned' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Banned', sort_by=sort_by, order=order, search=search) }}">
+                              Banned
+                           </a>
+                        </li>                 
+                        <li>
+                           <a class="dropdown-item {% if selected_status == 'Suspended' %}active{% endif %}" 
+                              href="{{ url_for('admin_user_mgmt.courier_mgmt', status='Suspended', sort_by=sort_by, order=order, search=search) }}">
+                              Suspended
+                           </a>
+                        </li>
+                     </ul>
+                  </div>
+
+                  <!-- Reset Table Button -->
+                  <a href="{{ url_for('admin_user_mgmt.courier_mgmt')}}" type="button" class="btn btn-dark d-flex align-items-center justify-content-center">
+                     <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" class="" style="width: 1.2rem;">
+                  </a>
+                                      
+               </div>
+            </div>
+
+         </div>
+         <!-- Buttons End-->
+
+      </div>
+      <!-- Title Section Bar End -->
+
+      <!-- Message Box -->
+      {% with messages = get_flashed_messages(with_categories=True) %}
+         {% if messages %}
+            <div class="alert-container px-3">
+            {% for category, message in messages %}
+               <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+               {{ message }}
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+               </div>
+            {% endfor %}
+            </div>
+         {% endif %}
+      {% endwith %} 
+
+      <!-- Table -->
+      <form action="{{ url_for('admin_user_mgmt.update_courier_status') }}" method="POST" id="bulk-action-form">         
+         <div class="table-container">
+            <div class="table-responsive">
+               <table class="table">
+                  <!-- Table Head-->
+                  <thead class="bg-primary table-head">
+                     <tr>
+                        <td><input type="checkbox" id="selectAll" class="form-check-input"></td>
+                        <th scope="col">No</th>
+                        <th scope="col" class="name-header">Fullname</th>
+                        <th scope="col">Sex</th>
+                        <th scope="col" class="d-none">Age</th>
+                        <th scope="col" class="address-header">Address</th>
+                        <th scope="col" >Date Registered</th>
+                        <th scope="col">Details</th>
+                        <th scope="col" >Status</th>
+                        <th scope="col">Actions</th>
+                     </tr>
+                  </thead>
+                  <!-- Table Head End -->
+
+                  <!-- Table Body-->
+                  <tbody>
+                     {% if couriers %}
+                        {% for courier in couriers %}
+                        <tr>
+                           <td><input type="checkbox" name="user_ids" value="{{ courier['user_id'] }}" class="form-check-input" id="user-checkbox"></td> 
+                           <th scope="row" class="fw-normal">{{ loop.index }}</th>
+                           <td>{{ courier['firstname'] }} {{ courier['lastname'] }}</td> 
+                           <td>{{ courier['sex'] }}</td> 
+                           <td class="d-none">{{ courier['age'] }}</td>  
+                           <td>{{ courier['city'] }}, {{ courier['province'] }}</td> 
+                           <td>{{ courier['date_created'].strftime('%B %d, %Y') }}</td>                          
+                           <td>
+                              <!-- View Details Button (Triggers Modal) -->
+                              <button type="button" class="border-0 text-primary" style="background-color: transparent" data-bs-toggle="modal" data-bs-target="#userModal{{ courier['user_id'] }}">
+                                 View Details
+                              </button>
+                           </td>
+                           <td>
+                              <span class="badge 
+                                 {% if courier['status'] == 'Approved' %} bg-success 
+                                 {% elif courier['status'] == 'Archived' %} bg-primary 
+                                 {% elif courier['status'] == 'Banned' %} bg-danger 
+                                 {% elif courier['status'] == 'Suspended' %} bg-warning 
+                                 {% else %} bg-dark {% endif %}">
+                                 {{ courier['status'] }}
+                              </span>
+                           </td>
+                           <!-- Action Buttons -->
+                           <td>
+                              <div class="d-flex flex-row align-items-center justify-content-start gap-2">                       
+                                 {% if courier['status'] == 'Approved' %}
+                                    <!-- Archive Button -->
+                                    <button type="button" class="btn btn-primary d-flex align-items-center justify-content-center action-btn"
+                                       data-bs-toggle="modal" data-bs-target="#confirmActionModal"
+                                       data-status="Archived" data-user-id="{{ courier['user_id'] }}">
+                                       <img src="{{ url_for('static', filename='img/icons/archive.png') }}" alt="Archive User Icon" style="width: 1rem;">
+                                    </button>
+
+                                    <!-- Suspend Button -->
+                                    <button type="button" class="btn btn-warning d-flex align-items-center justify-content-center action-btn"
+                                       data-bs-toggle="modal" data-bs-target="#confirmActionModal"
+                                       data-status="Suspended" data-user-id="{{ courier['user_id'] }}">
+                                       <img src="{{ url_for('static', filename='img/icons/suspend.png') }}" alt="Suspend User Icon" style="width: 1rem;">
+                                    </button>
+
+                                    <!-- Ban Button -->
+                                    <button type="button" class="btn btn-danger d-flex align-items-center justify-content-center action-btn"
+                                       data-bs-toggle="modal" data-bs-target="#confirmActionModal"
+                                       data-status="Banned" data-user-id="{{ courier['user_id'] }}">
+                                       <img src="{{ url_for('static', filename='img/icons/banned.png') }}" alt="Ban User Icon" style="width: 1rem;">
+                                    </button>
+
+                                 {% elif courier['status'] == 'Pending' %}
+                                    <button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center action-btn"
+                                       data-bs-toggle="modal" data-bs-target="#confirmActionModal"
+                                       data-status="Approved" data-user-id="{{ courier['user_id'] }}">
+                                       Approve
+                                    </button>
+
+                                 {% elif courier['status'] == 'Archived' %}
+                                    <!-- Unarchive Button -->
+                                    <button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center action-btn"
+                                       data-bs-toggle="modal" data-bs-target="#confirmActionModal"
+                                       data-status="Approved" data-user-id="{{ courier['user_id'] }}">
+                                       Unarchive
+                                    </button>
+
+                                 {% elif courier['status'] == 'Suspended' %}
+                                    <!-- Unsuspend Button -->
+                                    <button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center action-btn"
+                                       data-bs-toggle="modal" data-bs-target="#confirmActionModal"
+                                       data-status="Approved" data-user-id="{{ courier['user_id'] }}">
+                                       Unsuspend
+                                    </button>
+
+                                 {% elif courier['status'] == 'Banned' %}
+                                    <!-- Unban Button -->
+                                    <button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center action-btn"
+                                       data-bs-toggle="modal" data-bs-target="#confirmActionModal"
+                                       data-status="Approved" data-user-id="{{ courier['user_id'] }}">
+                                       Unban
+                                    </button>
+                                 {% endif %}
+                              </div>
+                           </td>   
+                        </tr>
+                  
+                        <!-- Modal for User Details -->
+                        <div class="modal fade" id="userModal{{ courier['user_id'] }}" tabindex="-1" aria-labelledby="userModalLabel{{ courier['user_id'] }}" aria-hidden="true">
+                           <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"> 
+                              <div class="modal-content">
+
+                                 <!-- Modal Header -->
+                                 <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title fw-normal" id="userModalLabel{{ courier['user_id'] }}">
+                                       Full Details - <strong class="fw-semibold">{{ courier['firstname'] }} {{ courier['lastname'] }}</strong>
+                                    </h5>
+                                    <button type="button" class="border-0" style="background-color: transparent;" data-bs-dismiss="modal" aria-label="Close">
+                                       <i class="bi bi-x fs-3 text-white"></i>
+                                    </button>
+                                 </div>
+
+                                 <!-- Modal Body -->
+                                 <div class="modal-body">
+
+                                    <!-- Row 1: Personal Information -->
+                                    <div class="row mb-4">
+                                       <!-- Left Side: Profile Picture -->
+                                       <div class="col-md-4 d-flex justify-content-center align-items-center">
+                                          <div class="profile-img-container">
+                                             {% if courier['profile_pic'] %}
+                                                <img src="{{ url_for('static', filename='uploads/courier/profile_pic/' + courier['profile_pic']) }}" 
+                                                   alt="Profile Picture" class="img-fluid rounded border w-100">
+                                             {% else %}
+                                                <img src="{{ url_for('static', filename='img/profile/default_profile.png') }}"
+                                                      alt="Default Profile Picture" class="img-fluid rounded border w-100">
+                                             {% endif %}
+                                          </div>
+                                       </div>
+                                       
+                                       <!-- Right Side: Personal Information -->
+                                       <div class="col-md-8 mt-3">
+                                          <span class="badge mb-3
+                                             {% if courier['status'] == 'Approved' %} bg-success 
+                                             {% elif courier['status'] == 'Archived' %} bg-primary 
+                                             {% elif courier['status'] == 'Banned' %} bg-danger 
+                                             {% elif courier['status'] == 'Suspended' %} bg-warning 
+                                             {% else %} bg-dark {% endif %}">
+                                             {{ courier['status'] }}
+                                          </span>
+                                          <p><strong>Full Name:</strong> {{ courier['firstname'] }} {{ courier['lastname'] }}</p>
+                                          <p><strong>Age:</strong> {{ courier['age'] }} years old</p>
+                                          <p><strong>Sex:</strong> {{ courier['sex'] }}</p>
+                                          <p><strong>Birthdate:</strong> {{ courier['birthdate'].strftime('%B %d, %Y') }}</p>
+                                       </div>
+                                    </div>
+
+                                    <!-- Row 2: Contact Information -->
+                                    <div class="card mb-3">
+                                       <div class="card-header bg-primary text-white">Contact Information</div>
+                                       <div class="card-body">
+                                          <p><strong>Address:</strong> {{ courier['house_no'] }}, {{ courier['street'] }}, Brgy. {{ courier['barangay'] }}, {{ courier['city'] }}, {{ courier['province'] }}</p>
+                                          <p><strong>Email:</strong> {{ courier['email'] }}</p>
+                                          <p><strong>Phone:</strong> {{ courier['phone'] }}</p>
+                                       </div>
+                                    </div>
+
+                                    <!-- Row 3: Valid ID -->
+                                    <div class="card">
+                                       <div class="card-header bg-primary text-white">Valid ID</div>
+                                       <div class="card-body">
+                                          <p><strong>ID Type:</strong> {{ courier['id_type'] }}</p>
+                                          <p><strong>ID No:</strong> {{ courier['id_no'] }}</p>
+
+                                          <!-- ID Picture -->
+                                          {% if courier['id_pic'] %}
+                                             <img src="{{ url_for('admin_user_mgmt.serve_courier_id_pic', filename=courier['id_pic']) }}" 
+                                                alt="ID Picture" class="img-fluid rounded border w-100">
+                                          {% else %}
+                                             <img src="{{ url_for('static', filename='img/placeholder/id_placeholder.png') }}" 
+                                                alt="No ID Picture Available" class="img-fluid rounded border w-100">
+                                          {% endif %}
+                                       </div>
+                                    </div>
+
+                                 </div>
+                              </div>
+                           </div>
+                        </div>    
+                        <!-- Modal for User Details End -->
+
+                        {% endfor %}
+                     {% else %}
+                        <tr>
+                           <td colspan="11" class="text-center py-4">
+                              No couriers data available at the moment.
+                           </td>
+                        </tr>
+                     {% endif %}
+                                       
+                  </tbody>      
+                  <!-- Table Body End -->  
+               </table>
+            </div>
+         </div>
+      </form> 
+
+      <!-- Pagination -->
+      <div id="pagination-container" class="d-flex justify-content-center">
+         <ul class="pagination d-flex align-items-center flex-row gap-2">
+            <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+            <li class="page-item pagination-numbers-container d-flex flex-row"></li> 
+            <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+         </ul>
+      </div>
+      
+   </main>
+   <!-- MAIN CONTENT END -->
+  
+</div>
+<!-- MAIN END -->
+
+<!-- Archive Confirmation Modal -->
+<div class="modal fade" id="confirmActionModal" tabindex="-1" aria-labelledby="confirmActionModalLabel" aria-hidden="true">
+   <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+         <!-- Header -->
+         <div class="modal-header bg-primary">
+               <h6 class="modal-title text-white fw-semibold" id="confirmActionModalLabel">Confirm Action</h6>
+               <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                  <i class="bi bi-x-lg"></i>
+               </button>
+         </div>
+
+         <!-- Body -->
+         <div class="modal-body d-flex align-items-center">
+            <p id="modalMessage" class="mb-0">Are you sure you want to proceed with this action?</p>
+         </div>
+
+         <!-- Footer -->
+         <div class="modal-footer border-0">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <form action="{{ url_for('admin_user_mgmt.update_courier_status') }}" method="POST" id="confirmActionForm">
+               <div id="hiddenUserIds"></div>
+               <input type="hidden" name="status" id="modalStatus" value="">
+               <button type="submit" class="btn btn-primary">Yes, Proceed</button>
+            </form>
+         </div>
+      </div>
+   </div>
+</div>
+
+
+{% endblock %}
+<!-- Admin Content End -->

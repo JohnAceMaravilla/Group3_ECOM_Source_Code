@@ -1,0 +1,97 @@
+{% extends "base_form.html" %}
+
+{% block title %}Reset Password{% endblock %}
+
+{% block content %}
+<div class="full-screen-container">
+    <div class="form-container login-container">
+        <div class="d-flex justify-content-between mb-4">
+            <h2 class="fs-3" style="font-weight: 600;">Reset Your Password</h2>
+            <a href="{{ url_for('login.verify_otp') }}" class="exit-icon text-dark">
+                <i class="bi bi-arrow-left fs-4 px-2"></i>
+            </a>
+        </div>
+
+        <form action="{{ url_for('login.reset_password') }}" method="POST">
+            <div class="mb-3">
+                <label for="new_password" class="form-label">New Password</label>
+                <input type="password" class="form-control" id="new_password" name="new_password" placeholder="Enter new password" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="Confirm new password" required>
+
+                </div>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="showPassword">
+                <label class="form-check-label" for="showPassword">Show Password</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">Reset Password</button>
+        </form>
+
+        <div class="mt-4 text-center d-flex justify-content-between">
+            <p>Remember your password?</p>
+            <a href="{{ url_for('login.login') }}" class="text-primary">Login Now!</a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newPassword = document.getElementById('new_password');
+    const confirmPassword = document.getElementById('confirm_password');
+    const showPassword = document.getElementById('showPassword');
+    const toggleNewPassword = document.getElementById('toggleNewPassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+    // Function to toggle password visibility
+    function togglePasswordVisibility(inputField, toggleIcon) {
+        if (inputField.type === 'password') {
+            inputField.type = 'text';
+            toggleIcon.classList.remove('bi-eye-slash');
+            toggleIcon.classList.add('bi-eye');
+        } else {
+            inputField.type = 'password';
+            toggleIcon.classList.remove('bi-eye');
+            toggleIcon.classList.add('bi-eye-slash');
+        }
+    }
+
+    // Checkbox event listener
+    showPassword.addEventListener('change', function() {
+        const type = this.checked ? 'text' : 'password';
+        newPassword.type = type;
+        confirmPassword.type = type;
+        
+        // Update both toggle icons
+        if (this.checked) {
+            toggleNewPassword.classList.remove('bi-eye-slash');
+            toggleNewPassword.classList.add('bi-eye');
+            toggleConfirmPassword.classList.remove('bi-eye-slash');
+            toggleConfirmPassword.classList.add('bi-eye');
+        } else {
+            toggleNewPassword.classList.remove('bi-eye');
+            toggleNewPassword.classList.add('bi-eye-slash');
+            toggleConfirmPassword.classList.remove('bi-eye');
+            toggleConfirmPassword.classList.add('bi-eye-slash');
+        }
+    });
+
+    // Individual toggle icons event listeners
+    toggleNewPassword.addEventListener('click', function() {
+        togglePasswordVisibility(newPassword, this);
+        showPassword.checked = newPassword.type === 'text';
+    });
+
+    toggleConfirmPassword.addEventListener('click', function() {
+        togglePasswordVisibility(confirmPassword, this);
+        showPassword.checked = confirmPassword.type === 'text';
+    });
+});
+</script>
+{% endblock %}

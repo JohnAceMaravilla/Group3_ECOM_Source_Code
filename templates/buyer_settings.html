@@ -1,0 +1,589 @@
+{% extends "buyer_homepage.html" %}
+
+{% block title %}Settings - Fenamaz{% endblock %}
+
+{% block search_keyword %}
+<meta name="keywords" content="Account Settings, Profile Settings, Fenamaz Settings">
+<meta name="description" content="Manage your account information and preferences on Fenamaz.">
+{% endblock %}
+
+<!-- Override the main content area -->
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ url_for('static', filename='js/address_selector.js') }}"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/product_show.css') }}">
+
+<!-- MAIN -->
+<div class="container-fluid cart-container">
+
+   <!-- Breadcrumb -->
+   <nav class="p-0 m-0 mt-3" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{ url_for('buyer_homepage.show_buyer_homepage')}}">Home</a></li>
+          <li class="breadcrumb-item active header-text" aria-current="page">Account Settings</li>
+      </ol>
+  </nav>
+
+   <!-- Title Bar -->
+   <div class="title-container d-flex flex-lg-row flex-column align-items-center justify-content-between mb-4">
+      <!-- Title -->
+      <div class="title">
+         <h2 class="fw-bold">Account Settings</h2>
+         <p class="text-muted">Manage your account information and preferences.</p>
+      </div>
+   </div>
+   <!-- Title Bar End -->
+
+   <!-- Alert Container -->
+   <div id="alertContainer" class="mb-3"></div>
+
+   <!-- Profile Picture Section -->
+   <div class="card mb-4">
+      <div class="card-header">
+         <h5 class="card-title mb-0">Profile Picture</h5>
+      </div>
+      <div class="card-body">
+         <div class="row align-items-center">
+            <div class="col-auto">
+               <div class="profile-pic-container position-relative">
+                  {% if session.get('profile_pic') %}
+                     <img id="currentProfilePic" src="{{ url_for('buyer_settings.serve_profile_pic', filename=session['profile_pic']) }}" alt="Profile Picture" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                  {% else %}
+                     <img id="currentProfilePic" src="{{ url_for('static', filename='img/profile/default_profile.png') }}" alt="Default Profile" class="rounded-circle border" style="width: 100px; height: 100px; object-fit: cover;">
+                  {% endif %}
+               </div>
+            </div>
+            <div class="col">
+               <form id="profilePicForm" enctype="multipart/form-data">
+                  <div class="mb-3">
+                     <label for="profile_pic" class="form-label">Choose new profile picture</label>
+                     <input type="file" class="form-control" id="profile_pic" name="profile_pic" accept="image/*">
+                     <div class="form-text">Supported formats: PNG, JPG, JPEG. Max size: 5MB</div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update Profile Picture</button>
+               </form>
+            </div>
+         </div>
+      </div>
+   </div>
+
+   <!-- Settings Tabs -->
+   <div class="card">
+      <div class="card-header">
+         <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+               <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="true">Personal Info</button>
+            </li>
+            <li class="nav-item" role="presentation">
+               <button class="nav-link" id="address-tab" data-bs-toggle="tab" data-bs-target="#address" type="button" role="tab" aria-controls="address" aria-selected="false">Address</button>
+            </li>
+            <li class="nav-item" role="presentation">
+               <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab" aria-controls="contact" aria-selected="false">Contact</button>
+            </li>
+            <li class="nav-item" role="presentation">
+               <button class="nav-link" id="valid-id-tab" data-bs-toggle="tab" data-bs-target="#valid-id" type="button" role="tab" aria-controls="valid-id" aria-selected="false">Valid ID</button>
+            </li>
+            <li class="nav-item" role="presentation">
+               <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button" role="tab" aria-controls="password" aria-selected="false">Password</button>
+            </li>
+         </ul>
+      </div>
+      <div class="card-body">
+         <div class="tab-content" id="settingsTabContent">
+            
+            <!-- Personal Information Tab -->
+            <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
+               <form id="personalForm">
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="firstname" class="form-label">First Name *</label>
+                           <input type="text" class="form-control" id="firstname" name="firstname" value="{{ personal_info.firstname if personal_info else '' }}" required>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="lastname" class="form-label">Last Name *</label>
+                           <input type="text" class="form-control" id="lastname" name="lastname" value="{{ personal_info.lastname if personal_info else '' }}" required>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="sex" class="form-label">Sex *</label>
+                           <select class="form-select" id="sex" name="sex" required>
+                              <option value="">Select Sex</option>
+                              <option value="Male" {{ 'selected' if personal_info and personal_info.sex == 'Male' else '' }}>Male</option>
+                              <option value="Female" {{ 'selected' if personal_info and personal_info.sex == 'Female' else '' }}>Female</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="birthdate" class="form-label">Birth Date *</label>
+                           <input type="date" class="form-control" id="birthdate" name="birthdate" value="{% if personal_info and personal_info.birthdate %}{% if personal_info.birthdate is string %}{{ personal_info.birthdate }}{% else %}{{ personal_info.birthdate.strftime('%Y-%m-%d') }}{% endif %}{% endif %}" required>
+                        </div>
+                     </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update Personal Information</button>
+               </form>
+            </div>
+
+            <!-- Address Information Tab -->
+            <div class="tab-pane fade" id="address" role="tabpanel" aria-labelledby="address-tab">
+               <form id="addressForm">
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label class="form-label">Region *</label>
+                           <select name="region" class="form-control" id="region" required>
+                              <option value="">Select Region</option>
+                           </select>
+                           <input type="hidden" class="form-control" name="region_text" id="region-text" value="{{ address_info.region if address_info else '' }}" required>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label class="form-label">Province *</label>
+                           <select name="province" class="form-control" id="province" required>
+                              <option value="">Select Province</option>
+                           </select>
+                           <input type="hidden" class="form-control" name="province_text" id="province-text" value="{{ address_info.province if address_info else '' }}" required>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label class="form-label">City / Municipality *</label>
+                           <select name="city" class="form-control" id="city" required>
+                              <option value="">Select City</option>
+                           </select>
+                           <input type="hidden" class="form-control" name="city_text" id="city-text" value="{{ address_info.city if address_info else '' }}" required>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label class="form-label">Barangay *</label>
+                           <select name="barangay" class="form-control" id="barangay" required>
+                              <option value="">Select Barangay</option>
+                           </select>
+                           <input type="hidden" class="form-control" name="barangay_text" id="barangay-text" value="{{ address_info.barangay if address_info else '' }}" required>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="street-text" class="form-label">Street (Optional)</label>
+                           <input type="text" class="form-control" name="street_text" placeholder="Enter your street" id="street-text" value="{{ address_info.street if address_info else '' }}">
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="house_no" class="form-label">House No. *</label>
+                           <input type="text" class="form-control" id="house_no" name="house_no" placeholder="Enter your house number" value="{{ address_info.house_no if address_info else '' }}" required>
+                        </div>
+                     </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update Address Information</button>
+               </form>
+            </div>
+
+            <!-- Contact Information Tab -->
+            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+               <form id="contactForm">
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="email" class="form-label">Email Address</label>
+                           <input type="email" class="form-control" id="email" name="email" value="{{ contact_info.email if contact_info else '' }}" required>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="phone" class="form-label">Phone Number</label>
+                           <input type="tel" class="form-control" id="phone" name="phone" value="{{ contact_info.phone if contact_info else '' }}" required>
+                        </div>
+                     </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Update Contact Information</button>
+               </form>
+            </div>
+
+            <!-- Valid ID Information Tab -->
+            <div class="tab-pane fade" id="valid-id" role="tabpanel" aria-labelledby="valid-id-tab">
+               <form id="validIdForm" enctype="multipart/form-data">
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="id_type" class="form-label">ID Type</label>
+                           <select class="form-select" id="id_type" name="id_type" required>
+                              <option value="">Select ID Type</option>
+                              <option value="Driver's License" {{ 'selected' if valid_info and valid_info.id_type == "Driver's License" else '' }}>Driver's License</option>
+                              <option value="SSS ID" {{ 'selected' if valid_info and valid_info.id_type == 'SSS ID' else '' }}>SSS ID</option>
+                              <option value="PhilHealth ID" {{ 'selected' if valid_info and valid_info.id_type == 'PhilHealth ID' else '' }}>PhilHealth ID</option>
+                              <option value="TIN ID" {{ 'selected' if valid_info and valid_info.id_type == 'TIN ID' else '' }}>TIN ID</option>
+                              <option value="Postal ID" {{ 'selected' if valid_info and valid_info.id_type == 'Postal ID' else '' }}>Postal ID</option>
+                              <option value="Voter's ID" {{ 'selected' if valid_info and valid_info.id_type == "Voter's ID" else '' }}>Voter's ID</option>
+                              <option value="Passport" {{ 'selected' if valid_info and valid_info.id_type == 'Passport' else '' }}>Passport</option>
+                              <option value="UMID" {{ 'selected' if valid_info and valid_info.id_type == 'UMID' else '' }}>UMID</option>
+                           </select>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="id_no" class="form-label">ID Number</label>
+                           <input type="text" class="form-control" id="id_no" name="id_no" value="{{ valid_info.id_no if valid_info else '' }}" required>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="mb-3">
+                     <label for="id_pic" class="form-label">ID Picture (Optional - Upload new to replace current)</label>
+                     <input type="file" class="form-control" id="id_pic" name="id_pic" accept="image/*">
+                     <div class="form-text">Supported formats: PNG, JPG, JPEG. Max size: 5MB</div>
+                  </div>
+                  
+                  {% if valid_info and valid_info.id_pic %}
+                  <div class="mb-3">
+                     <label class="form-label">Current ID Picture:</label>
+                     <div>
+                        <img src="{{ url_for('buyer_settings.serve_valid_id', filename=valid_info.id_pic) }}" alt="Current ID" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                     </div>
+                  </div>
+                  {% endif %}
+                  <button type="submit" class="btn btn-primary">Update Valid ID Information</button>
+               </form>
+            </div>
+
+            <!-- Password Change Tab -->
+            <div class="tab-pane fade" id="password" role="tabpanel" aria-labelledby="password-tab">
+               <form id="passwordForm">
+                  <div class="row">
+                     <div class="col-md-12">
+                        <div class="mb-3">
+                           <label for="current_password" class="form-label">Current Password</label>
+                           <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="row">
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="new_password" class="form-label">New Password</label>
+                           <input type="password" class="form-control" id="new_password" name="new_password" required minlength="8">
+                           <div class="form-text">Password must be at least 8 characters long.</div>
+                        </div>
+                     </div>
+                     <div class="col-md-6">
+                        <div class="mb-3">
+                           <label for="confirm_password" class="form-label">Confirm New Password</label>
+                           <input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="8">
+                        </div>
+                     </div>
+                  </div>
+                  <div class="mb-3">
+                     <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="showPasswords">
+                        <label class="form-check-label" for="showPasswords">
+                           Show passwords
+                        </label>
+                     </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Change Password</button>
+               </form>
+            </div>
+
+         </div>
+      </div>
+   </div>
+
+</div>
+<!-- MAIN END -->
+
+<script>
+// Function to show alerts
+function showAlert(message, type = 'info') {
+    const alertContainer = document.getElementById('alertContainer');
+    const alertElement = document.createElement('div');
+    alertElement.className = `alert alert-${type} alert-dismissible fade show`;
+    alertElement.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    `;
+    alertContainer.appendChild(alertElement);
+    
+    // Auto-remove alert after 5 seconds
+    setTimeout(() => {
+        if (alertElement.parentNode) {
+            alertElement.remove();
+        }
+    }, 5000);
+}
+
+// Profile Picture Form Handler
+document.getElementById('profilePicForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{{ url_for("buyer_settings.update_profile_pic") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            // Update the profile picture preview - reload page to get new filename
+            location.reload();
+        } else {
+            showAlert(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred while updating profile picture.', 'danger');
+    });
+});
+
+// Personal Information Form Handler
+document.getElementById('personalForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{{ url_for("buyer_settings.update_personal_info") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+        } else {
+            showAlert(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred while updating personal information.', 'danger');
+    });
+});
+
+// Address Information Form Handler
+document.getElementById('addressForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{{ url_for("buyer_settings.update_address_info") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+        } else {
+            showAlert(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred while updating address information.', 'danger');
+    });
+});
+
+// Contact Information Form Handler
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{{ url_for("buyer_settings.update_contact_info") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+        } else {
+            showAlert(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred while updating contact information.', 'danger');
+    });
+});
+
+// Valid ID Information Form Handler
+document.getElementById('validIdForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{{ url_for("buyer_settings.update_valid_id") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            // Reload page to show new ID picture if uploaded
+            location.reload();
+        } else {
+            showAlert(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred while updating valid ID information.', 'danger');
+    });
+});
+
+// Password Change Form Handler
+document.getElementById('passwordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const newPassword = document.getElementById('new_password').value;
+    const confirmPassword = document.getElementById('confirm_password').value;
+    
+    if (newPassword !== confirmPassword) {
+        showAlert('New passwords do not match!', 'danger');
+        return;
+    }
+    
+    const formData = new FormData(this);
+    
+    fetch('{{ url_for("buyer_settings.change_password") }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert(data.message, 'success');
+            this.reset(); // Clear the form
+        } else {
+            showAlert(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        showAlert('An error occurred while changing password.', 'danger');
+    });
+});
+
+// Password confirmation validation
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const newPassword = document.getElementById('new_password').value;
+    const confirmPassword = this.value;
+    
+    if (confirmPassword && newPassword !== confirmPassword) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+
+// Function to initialize address dropdowns with current values
+function initializeAddressSelectors() {
+    const currentRegion = '{{ address_info.region if address_info else "" }}';
+    const currentProvince = '{{ address_info.province if address_info else "" }}';
+    const currentCity = '{{ address_info.city if address_info else "" }}';
+    const currentBarangay = '{{ address_info.barangay if address_info else "" }}';
+    
+    // Set hidden field values
+    if (currentRegion) {
+        document.getElementById('region-text').value = currentRegion;
+    }
+    if (currentProvince) {
+        document.getElementById('province-text').value = currentProvince;
+    }
+    if (currentCity) {
+        document.getElementById('city-text').value = currentCity;
+    }
+    if (currentBarangay) {
+        document.getElementById('barangay-text').value = currentBarangay;
+    }
+    
+    // Try to set dropdown selections if they match
+    setTimeout(function() {
+        // Set region dropdown
+        if (currentRegion) {
+            $('#region option').each(function() {
+                if ($(this).text() === currentRegion) {
+                    $(this).prop('selected', true);
+                    $('#region').trigger('change');
+                    
+                    // Set province after region loads
+                    setTimeout(function() {
+                        if (currentProvince) {
+                            $('#province option').each(function() {
+                                if ($(this).text() === currentProvince) {
+                                    $(this).prop('selected', true);
+                                    $('#province').trigger('change');
+                                    
+                                    // Set city after province loads
+                                    setTimeout(function() {
+                                        if (currentCity) {
+                                            $('#city option').each(function() {
+                                                if ($(this).text() === currentCity) {
+                                                    $(this).prop('selected', true);
+                                                    $('#city').trigger('change');
+                                                    
+                                                    // Set barangay after city loads
+                                                    setTimeout(function() {
+                                                        if (currentBarangay) {
+                                                            $('#barangay option').each(function() {
+                                                                if ($(this).text() === currentBarangay) {
+                                                                    $(this).prop('selected', true);
+                                                                    $('#barangay').trigger('change');
+                                                                }
+                                                            });
+                                                        }
+                                                    }, 500);
+                                                }
+                                            });
+                                        }
+                                    }, 500);
+                                }
+                            });
+                        }
+                    }, 500);
+                }
+            });
+        }
+    }, 1000); // Wait for initial region loading
+}
+
+// Initialize address selector when address tab is shown
+document.getElementById('address-tab').addEventListener('shown.bs.tab', function (e) {
+    initializeAddressSelectors();
+});
+
+// Initialize address selector on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initializeAddressSelectors();
+    
+    // Show passwords checkbox
+    document.getElementById('showPasswords').addEventListener('change', function() {
+        const currentPassword = document.getElementById('current_password');
+        const newPassword = document.getElementById('new_password');
+        const confirmPassword = document.getElementById('confirm_password');
+        
+        if (this.checked) {
+            // Show all passwords
+            currentPassword.type = 'text';
+            newPassword.type = 'text';
+            confirmPassword.type = 'text';
+        } else {
+            // Hide all passwords
+            currentPassword.type = 'password';
+            newPassword.type = 'password';
+            confirmPassword.type = 'password';
+        }
+    });
+});
+</script>
+
+{% endblock %}

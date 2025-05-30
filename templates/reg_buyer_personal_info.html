@@ -1,0 +1,83 @@
+{% extends "base_form.html" %}
+
+{% block title %}Register - Personal Information{% endblock %}
+
+{% block content %}
+<div class="full-screen-container">
+    <div class="form-container registration-container">         
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fs-3" style="font-weight: 600;">Register</h2>
+            <a href="{{ url_for('login.user_choose') }}" class="exit-icon text-dark">
+                <i class="bi bi-arrow-left fs-4 px-2"></i>
+            </a>
+        </div>
+
+        <p class="mb-4">
+            <strong class="text-primary">Step 1: </strong>
+            Please enter your personal information.
+        </p>
+
+        <!-- Message Box -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %} 
+
+        <form action="{{ url_for('buyer_registration.get_personal_info') }}" method="POST">
+            <div class="mb-3">
+                <label for="firstname" class="form-label">First Name*</label>
+                <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Enter your first name" 
+                       required oninput="letters_only(this)"
+                       value="{{ session.get('personal_info', {}).get('firstname', '') }}">
+            </div>
+            
+            <div class="mb-3">
+                <label for="lastname" class="form-label">Last Name*</label>
+                <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Enter your last name" 
+                       required oninput="letters_only(this)"
+                       value="{{ session.get('personal_info', {}).get('lastname', '') }}">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="sex" class="form-label">Sex*</label>
+                    <select class="form-control" id="sex" name="sex" required>
+                        <option value="">Select</option>
+                        <option value="Male" {% if session.get('personal_info', {}).get('sex') == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if session.get('personal_info', {}).get('sex') == 'Female' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="birthdate" class="form-label">Birthdate*</label>
+                    <input type="date" class="form-control" id="birthdate" name="birthdate" required
+                           value="{{ session.get('personal_info', {}).get('birthdate', '') }}">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var yyyy = today.getFullYear();
+        today = yyyy + '-' + mm + '-' + dd;
+
+        document.getElementById('birthdate').setAttribute('max', today);
+    });
+
+</script>
+
+{% endblock %}

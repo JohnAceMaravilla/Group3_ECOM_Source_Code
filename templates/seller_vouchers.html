@@ -1,0 +1,899 @@
+{% extends "seller_dashboard.html" %}
+
+{% block title %}Vouchers{% endblock %}
+
+{% block seller_content %}
+
+<!-- MAIN END -->
+<div class="main">
+
+   <!-- Top Bar -->
+   <nav class="navbar navbar-expand d-flex align-items-center justify-content-between w-100">
+      
+      <!-- Logo -->
+      <div class="d-flex align-items-center">
+         <button class="toggler-btn" type="button">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/menu.png') }}" style="width: 25px; height: 20px;">
+         </button>
+         <a class="navbar-brand ms-3" href="#">
+            <img src="{{ url_for('static', filename='img/logo/logo_dark.svg') }}" alt="Fenamaz Logo" width="150">
+         </a>
+      </div>
+
+      <!-- Search Bar for Desktop -->
+      <form class="d-flex justify-content-end d-none d-md-flex" role="search" method="GET" action="{{ url_for('seller_vouchers.vouchers') }}">
+         <input class="form-control me-2" type="search" name="search" placeholder="Search vouchers.." aria-label="Search" value="{{ search_query }}">
+         <input type="hidden" name="status" value="{{ status_filter }}"> 
+         <input type="hidden" name="sort_by" value="{{ sort_by }}"> 
+         <input type="hidden" name="order" value="{{ order }}"> 
+         <button class="btn btn-primary" type="submit">
+            <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+         </button>
+      </form>
+
+      <!-- Mobile Search Button -->
+      <button class="btn btn-primary d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasTop" aria-controls="offcanvasTop">
+         <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+      </button>
+
+   </nav>
+   <!-- Top Bar End-->
+
+   <!-- Search for Mobile -->
+   <div class="offcanvas offcanvas-top" tabindex="-1" id="offcanvasTop" aria-labelledby="offcanvasTopLabel">
+      <div class="offcanvas-header">
+         <h5 id="offcanvasTopLabel" class="text-center mt-2">Search</h5>
+         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body">
+         <form class="d-flex justify-content-between" role="search" method="GET" action="{{ url_for('seller_vouchers.vouchers') }}">
+            <input class="form-control me-2" type="search" name="search" placeholder="Search vouchers.." aria-label="Search" value="{{ search_query }}">
+            <button class="btn btn-primary" type="submit">
+               <img class="d-flex justify-content-center align-items-center" src="{{ url_for('static', filename='img/icons/search.png') }}" alt="Search Icon" width="20">
+            </button>
+         </form>
+      </div>
+   </div>
+   <!-- Search for Mobile End -->
+
+
+   <!-- MAIN CONTENT -->
+   <main class="content">
+
+      <!-- Title Bar -->
+      <div class="container-fluid title-container d-flex flex-lg-row flex-column align-items-center justify-content-between">
+         <!-- Title -->
+         <div class="title align-self-start">
+            <h4>Vouchers</h4>
+            <p class="text-muted">Manage your available vouchers.</p>
+            
+         </div>
+      
+         <!-- Buttons -->
+         <div class="btn-container d-flex flex-wrap gap-2">     
+            <!-- Desktop Buttons -->
+            <div class="d-none d-md-flex gap-2">
+               <!-- Sort By Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-primary border-primary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+                     Sort By
+                  </button>
+                  <ul class="dropdown-menu">
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_added' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', sort_by='date_added', order='desc', status=status_filter, search=search_query) }}">
+                           Recent
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'date_added' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', sort_by='date_added', order='asc', status=status_filter, search=search_query) }}">
+                           Oldest
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'voucher_type' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', sort_by='voucher_type', order='asc', status=status_filter, search=search_query) }}">
+                           Voucher Type (A-Z)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'voucher_type' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', sort_by='voucher_type', order='desc', status=status_filter, search=search_query) }}">
+                           Voucher Type (Z-A)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'voucher_name' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', sort_by='voucher_name', order='asc', status=status_filter, search=search_query) }}">
+                           Voucher Name (A-Z)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'voucher_name' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', sort_by='voucher_name', order='desc', status=status_filter, search=search_query) }}">
+                           Voucher Name (Z-A)
+                        </a>
+                     </li> 
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'min_spend' and order == 'asc' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', sort_by='min_spend', order='asc', status=status_filter, search=search_query) }}">
+                           Min. Spend (Low - High)
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if sort_by == 'min_spend' and order == 'desc' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', sort_by='min_spend', order='desc', status=status_filter, search=search_query) }}">
+                           Min. Spend (High - Low)
+                        </a>
+                     </li>                
+                  </ul>
+               </div>
+      
+               <!-- Filter By Dropdown -->
+               <div class="dropdown">
+                  <button class="btn btn-outline-primary border-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown">
+                     Filter By Status
+                  </button>
+                  <ul class="dropdown-menu">
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'All' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', status='All', sort_by=sort_by, order=order, search=search_query) }}">
+                           All
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Active' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', status='Active', sort_by=sort_by, order=order, search=search_query) }}">
+                           Active
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Pending' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', status='Pending', sort_by=sort_by, order=order, search=search_query) }}">
+                           Pending
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Expired' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', status='Expired', sort_by=sort_by, order=order, search=search_query) }}">
+                           Expired
+                        </a>
+                     </li>
+                     <li>
+                        <a class="dropdown-item {% if status_filter == 'Archived' %}active{% endif %}" 
+                           href="{{ url_for('seller_vouchers.vouchers', status='Archived', sort_by=sort_by, order=order, search=search_query) }}">
+                           Archived
+                        </a>
+                     </li>
+                  </ul>
+               </div>
+      
+               <!-- Add Voucher Button -->
+               <button class="btn btn-primary d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#addVoucherModal">
+                  <img src="{{ url_for('static', filename='img/icons/add.png') }}" alt="Add Voucher Icon" class="me-1" style="width: 0.8rem;">
+                  Add Voucher
+               </button>
+      
+               <!-- Reset Table Button -->
+               <a href="{{ url_for('seller_vouchers.vouchers')}}" type="button" class="btn btn-secondary d-flex align-items-center justify-content-center">
+                  <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" class="" style="width: 1.2rem;">
+               </a>
+            </div>
+      
+            <!-- Mobile Buttons -->
+            <div class="d-flex d-md-none flex-row gap-2">
+               <div class="d-flex flex-row gap-2">
+
+                  <!-- Sort By Dropdown -->
+                  <div class="dropdown">
+                     <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="sortDropdownMobile" data-bs-toggle="dropdown">
+                        <i class="bi bi-filter"></i> 
+                     </button>
+                     <ul class="dropdown-menu">
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'date_added' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', sort_by='date_added', order='desc', status=status_filter, search=search_query) }}">
+                              Recent
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'date_added' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', sort_by='date_added', order='asc', status=status_filter, search=search_query) }}">
+                              Oldest
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'voucher_type' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', sort_by='voucher_type', order='asc', status=status_filter, search=search_query) }}">
+                              Voucher Type (A-Z)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'voucher_type' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', sort_by='voucher_type', order='desc', status=status_filter, search=search_query) }}">
+                              Voucher Type (Z-A)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'voucher_name' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', sort_by='voucher_name', order='asc', status=status_filter, search=search_query) }}">
+                              Voucher Name (A-Z)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'voucher_name' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', sort_by='voucher_name', order='desc', status=status_filter, search=search_query) }}">
+                              Voucher Name (Z-A)
+                           </a>
+                        </li> 
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'min_spend' and order == 'asc' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', sort_by='min_spend', order='asc', status=status_filter, search=search_query) }}">
+                              Min. Spend (Low - High)
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if sort_by == 'min_spend' and order == 'desc' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', sort_by='min_spend', order='desc', status=status_filter, search=search_query) }}">
+                              Min. Spend (High - Low)
+                           </a>
+                        </li>                
+                     </ul>
+                  </div>
+         
+                  <!-- Filter By Dropdown -->
+                  <div class="dropdown">
+                     <button class="btn btn-outline-dark border-secondary dropdown-toggle" type="button" id="filterDropdownMobile" data-bs-toggle="dropdown">
+                        <i class="bi bi-funnel"></i>
+                     </button>
+                     <ul class="dropdown-menu">
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'All' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', status='All', sort_by=sort_by, order=order, search=search_query) }}">
+                              All
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'Active' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', status='Active', sort_by=sort_by, order=order, search=search_query) }}">
+                              Active
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'Pending' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', status='Pending', sort_by=sort_by, order=order, search=search_query) }}">
+                              Pending
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'Expired' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', status='Expired', sort_by=sort_by, order=order, search=search_query) }}">
+                              Expired
+                           </a>
+                        </li>
+                        <li>
+                           <a class="dropdown-item {% if status_filter == 'Archived' %}active{% endif %}" 
+                              href="{{ url_for('seller_vouchers.vouchers', status='Archived', sort_by=sort_by, order=order, search=search_query) }}">
+                              Archived
+                           </a>
+                        </li>
+                     </ul>
+                  </div>
+         
+                  <!-- Add Voucher Button -->
+                  <button class="btn btn-primary d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#addVoucherModal">
+                     <img src="{{ url_for('static', filename='img/icons/add.png') }}" alt="Add Voucher Icon" style="width: 1rem;">
+                  </button>
+         
+                  <!-- Reset Table Button -->
+                  <a href="{{ url_for('seller_vouchers.vouchers')}}" type="button" class="btn btn-dark d-flex align-items-center justify-content-center">
+                     <img src="{{ url_for('static', filename='img/icons/reset.png') }}" alt="Reset Table Icon" style="width: 1.2rem;">
+                  </a>
+
+               </div>
+            </div>
+         </div>
+      </div>
+      <!-- Title Bar End -->
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=True) %}
+         {% if messages %}
+            <div class="alert-container px-3">
+            {% for category, message in messages %}
+               <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+               {{ message }}
+               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+               </div>
+            {% endfor %}
+            </div>
+         {% endif %}
+      {% endwith %}
+
+      <!-- Voucher Statistics -->
+      <div class="row mt-3 d-none d-md-flex px-3">
+
+         <!-- Active Vouchers -->
+         <div class="col-md-3">
+            <div class="card bg-success text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Active</span>
+                  <span class="bg-white text-success px-3 py-1 rounded fw-bold shadow-sm">
+                     {{ stats.active_vouchers or 0 }}
+                  </span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Pending Vouchers -->
+         <div class="col-md-3">
+            <div class="card bg-warning text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Pending</span>
+                  <span class="bg-white text-warning px-3 py-1 rounded fw-bold shadow-sm">
+                     {{ stats.pending_vouchers or 0 }}
+                  </span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Expired Vouchers -->
+         <div class="col-md-3">
+            <div class="card bg-danger text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Expired</span>
+                  <span class="bg-white text-danger px-3 py-1 rounded fw-bold shadow-sm">
+                     {{ stats.expired_vouchers or 0 }}
+                  </span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Archived Vouchers -->
+         <div class="col-md-3">
+            <div class="card bg-secondary text-white border-0">
+               <div class="card-body d-flex justify-content-between align-items-center py-2 px-3">
+                  <span class="fw-semibold small">Archived</span>
+                  <span class="bg-white text-secondary px-3 py-1 rounded fw-bold shadow-sm">
+                     {{ stats.archived_vouchers or 0 }}
+                  </span>
+               </div>
+            </div>
+         </div>
+      </div>
+  
+
+      <!-- Table -->
+      <div class="table-container">
+         <div class="table-responsive">
+            <table class="table">
+
+               <!-- Table Head -->
+               <thead class="bg-primary table-head text-white">
+                  <tr>
+                     <td><input type="checkbox" id="selectAll" class="form-check-input"></td>
+                     <th scope="col">No</th>
+                     <th scope="col">Voucher Name</th>
+                     <th scope="col">Type</th>
+                     <th scope="col">Value</th>
+                     <th scope="col">Description</th>
+                     <th scope="col">Min Spend</th>
+                     <th scope="col">Start Date</th>
+                     <th scope="col">End Date</th>
+                     <th scope="col">Status</th>
+                     <th scope="col">Actions</th>
+                  </tr>
+               </thead>
+
+               <!-- Table Body -->
+               <tbody>
+                  {% if vouchers %}
+                     {% for voucher in vouchers %}
+                     <tr>
+                        <td><input type="checkbox" name="voucher_ids[]" value="{{ voucher.voucher_id }}" class="form-check-input voucher-checkbox"></td>
+                        <th scope="row" class="fw-normal">{{ loop.index }}</th>
+                        <td>{{ voucher.voucher_name }}</td>
+                        <td>{{ voucher.voucher_type }}</td>
+                        <td>
+                           {% if voucher.voucher_type == 'Discount' %}
+                              {{ voucher.voucher_value or 0 }}%
+                           {% elif voucher.voucher_type == 'Free Shipping' %}
+                              ₱{{ "{:,.2f}".format(voucher.voucher_value or 0) }}
+                           {% else %}
+                              {{ voucher.voucher_value or 'N/A' }}
+                           {% endif %}
+                        </td>
+                        <td>{{ voucher.voucher_description or 'N/A' }}</td>
+                        <td>₱{{ "{:,.2f}".format(voucher.voucher_min_spend) }}</td>
+                        <td>{{ voucher.voucher_start_date.strftime('%B %d, %Y') }}</td>
+                        <td>{{ voucher.voucher_end_date.strftime('%B %d, %Y') }}</td>
+                        <td>
+                           <span class="badge 
+                           {% if voucher.status == 'Active' %}bg-success
+                           {% elif voucher.status == 'Pending' %}bg-warning
+                           {% elif voucher.status == 'Archived' %}bg-primary
+                           {% else %}bg-danger{% endif %}">
+                              {{ voucher.status }}
+                           </span>
+                        </td>
+                        <td class="">
+                           <div class="d-flex flex-row align-items-center justify-content-start gap-2">
+                        
+                              {% if status_filter == 'Archived' %}
+                                 <!-- Unarchive Button -->
+                                 <button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center action-btn"
+                                    onclick="selectVoucherForUnarchive({{ voucher.voucher_id }})"
+                                    data-bs-toggle="modal" data-bs-target="#confirmBulkUnarchiveModal">
+                                    <span class="d-none d-md-inline">Restore</span>
+                                 </button>
+
+                              {% elif status_filter == 'Expired' %}
+                                 <span class="text-muted small">
+                                    Expired on {{ voucher.voucher_end_date.strftime('%b %d, %Y') }}
+                                 </span>
+                              {% else %}
+                                 <!-- Archive Button -->
+                                 <button type="button" class="btn btn-sm btn-primary d-flex align-items-center justify-content-center action-btn"
+                                    onclick="selectVoucherForArchive({{ voucher.voucher_id }})"
+                                    data-bs-toggle="modal" data-bs-target="#confirmBulkActionModal">
+                                    Archive
+                                 </button>
+
+                                 <!-- Edit Button -->
+                                 <button type="button" class="btn btn-sm text-white btn-warning d-flex align-items-center justify-content-center action-btn"
+                                    data-bs-toggle="modal" data-bs-target="#editVoucherModal{{ voucher.voucher_id }}">
+                                    Edit
+                                 </button>
+                              {% endif %}                                                  
+                           </div>
+                        </td>                        
+                     </tr>
+                     {% endfor %}
+                  {% else %}
+                     <tr>
+                        <td colspan="11" class="text-center py-4">
+                           No vouchers data available at the moment.
+                        </td>
+                     </tr>
+                  {% endif %}  
+               </tbody>
+            </table>
+         </div>
+      </div>
+      <!-- Table End -->
+
+      <!-- Add Voucher Modal -->
+      <div class="modal fade" id="addVoucherModal" tabindex="-1" aria-labelledby="addVoucherModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+               <!-- Modal Header -->
+               <div class="modal-header bg-primary text-white">
+                  <h6 class="modal-title" id="addVoucherModalLabel">Add New Voucher</h6>
+                  <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                     <i class="bi bi-x-lg"></i>
+                  </button>
+               </div>
+
+               <!-- Modal Body -->
+               <form method="POST" action="{{ url_for('seller_vouchers.add_voucher') }}">
+                  <div class="modal-body">
+                     <div class="mb-3">
+                        <label class="form-label">Voucher Type *</label>
+                        <select class="form-select" name="voucher_type" id="voucherType" required onchange="updateVoucherValueLabel()">
+                           <option value="" disabled selected>Select a Voucher Type</option>
+                           <option value="Free Shipping">Free Shipping</option>
+                           <option value="Discount">Discount</option>
+                        </select>
+                     </div>
+                     <div class="mb-3">
+                        <label class="form-label">Voucher Name *</label>
+                        <input type="text" class="form-control" name="voucher_name" placeholder="Enter voucher name" maxlength="255" required>
+                     </div>
+                     
+                     <div class="mb-3">
+                        <label class="form-label" id="voucherValueLabel">Voucher Value *</label>
+                        <input type="number" class="form-control" name="voucher_value" id="voucherValue" min="0" step="0.01" placeholder="0.00" required>
+                     </div>
+                     
+                     <div class="mb-3">
+                        <label class="form-label">Description *</label>
+                        <textarea class="form-control" name="voucher_description" placeholder="Enter voucher description (optional)" maxlength="500" rows="3"></textarea>
+                     </div>
+                     <div class="mb-3">
+                        <label class="form-label">Minimum Spend *</label>
+                        <input type="number" class="form-control" name="voucher_min_spend" min="0" max="999999.99" step="0.01" placeholder="0.00" required>
+                     </div>
+                     <div class="row">
+                        <div class="col-md-6 mb-3">
+                           <label class="form-label">Start Date *</label>
+                           <input type="date" class="form-control" name="voucher_start_date" id="startDate" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                           <label class="form-label">End Date *</label>
+                           <input type="date" class="form-control" name="voucher_end_date" id="endDate" required>
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Modal Footer -->
+                  <div class="modal-footer">
+                     <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center">
+                        Add Voucher
+                     </button>                 
+                   </div>
+               </form>
+
+            </div>
+         </div>
+      </div>
+
+      <!-- Edit Voucher Modal -->
+      {% for voucher in vouchers %}
+         <!-- Edit Voucher Modal -->
+         <div class="modal fade" id="editVoucherModal{{ voucher.voucher_id }}" tabindex="-1" aria-labelledby="editVoucherModalLabel{{ voucher.voucher_id }}" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+               <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header bg-primary text-white">
+                     <h6 class="modal-title" id="editVoucherModalLabel{{ voucher.voucher_id }}">Edit Voucher</h6>
+                     <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                     </button>
+                  </div>
+         
+                  <!-- Modal Body -->
+                  <form method="POST" action="{{ url_for('seller_vouchers.update_voucher') }}">
+                     <div class="modal-body">
+                        <input type="hidden" name="voucher_id" value="{{ voucher.voucher_id }}">
+         
+                        <div class="mb-3">
+                           <label class="form-label">Voucher Type *</label>
+                           <select class="form-select" name="voucher_type" id="editVoucherType{{ voucher.voucher_id }}" required onchange="updateEditVoucherValueLabel({{ voucher.voucher_id }})">
+                              <option value="Free Shipping" {% if voucher.voucher_type == 'Free Shipping' %}selected{% endif %}>Free Shipping</option>
+                              <option value="Discount" {% if voucher.voucher_type == 'Discount' %}selected{% endif %}>Discount</option>
+                           </select>
+                        </div>
+         
+                        <div class="mb-3">
+                           <label class="form-label">Voucher Name *</label>
+                           <input type="text" class="form-control" name="voucher_name" value="{{ voucher.voucher_name }}" maxlength="255" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                           <label class="form-label" id="editVoucherValueLabel{{ voucher.voucher_id }}">Voucher Value *</label>
+                           <input type="number" class="form-control" name="voucher_value" id="editVoucherValue{{ voucher.voucher_id }}" 
+                                  value="{{ voucher.voucher_value or 0 }}" min="0" step="0.01" required>
+                        </div>
+         
+                        <div class="mb-3">
+                           <label class="form-label">Description *</label>
+                           <textarea class="form-control" name="voucher_description" maxlength="500" rows="3">{{ voucher.voucher_description or '' }}</textarea>
+                        </div>
+         
+                        <div class="mb-3">
+                           <label class="form-label">Minimum Spend *</label>
+                           <input type="number" class="form-control" name="voucher_min_spend" min="0" max="999999.99" step="0.01" value="{{ voucher.voucher_min_spend }}" required>
+                        </div>
+         
+                        <div class="row">
+                           <div class="col-md-6 mb-3">
+                              <label class="form-label">Start Date *</label>
+                              <input type="date" class="form-control" name="voucher_start_date" value="{{ voucher.voucher_start_date }}" required>
+                           </div>
+                           
+                           <div class="col-md-6 mb-3">
+                              <label class="form-label">End Date *</label>
+                              <input type="date" class="form-control" name="voucher_end_date" value="{{ voucher.voucher_end_date }}" required>
+                           </div>
+                        </div>
+                     </div>
+         
+                     <!-- Modal Footer -->
+                     <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center">
+                           Save Changes
+                        </button>                 
+                     </div>
+                  </form>
+               </div>
+            </div>
+         </div>
+      {% endfor %}
+
+      <!-- Archive Voucher Modal -->
+      <div class="modal fade" id="confirmBulkActionModal" tabindex="-1" aria-labelledby="confirmBulkActionModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+               <!-- Modal Header -->
+               <div class="modal-header bg-primary">
+                  <h6 class="modal-title text-white fw-semibold" id="confirmBulkActionModalLabel">Confirm Bulk Archive</h6>
+                  <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                     <i class="bi bi-x-lg"></i>
+                  </button>
+               </div>
+
+               <!-- Modal Body -->
+               <div class="modal-body d-flex align-items-center">
+                  <p id="bulkModalMessage" class="mb-0">Are you sure you want to archive the selected vouchers?</p>
+               </div>
+
+               <!-- Modal Footer -->
+               <div class="modal-footer border-0">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <form action="{{ url_for('seller_vouchers.archive_multiple_vouchers') }}" method="POST" id="bulkArchiveForm">
+                     <input type="hidden" name="voucher_ids" id="bulkVoucherIds">
+                     <button type="submit" class="btn btn-primary">Yes, Archive</button>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Unarchive Voucher Modal -->
+      <div class="modal fade" id="confirmBulkUnarchiveModal" tabindex="-1" aria-labelledby="confirmBulkUnarchiveModalLabel" aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+               <!-- Modal Header -->
+               <div class="modal-header bg-primary">
+                  <h6 class="modal-title text-white fw-semibold" id="confirmBulkUnarchiveModalLabel">Confirm Bulk Unarchive</h6>
+                  <button type="button" class="border-0 bg-transparent text-white" data-bs-dismiss="modal" aria-label="Close">
+                     <i class="bi bi-x-lg"></i>
+                  </button>
+               </div>
+
+               <!-- Modal Body -->
+               <div class="modal-body d-flex align-items-center">
+                  <p id="bulkUnarchiveModalMessage" class="mb-0">Are you sure you want to restore the selected vouchers?</p>
+               </div>
+
+               <!-- Modal Footer -->
+               <div class="modal-footer border-0">
+                  <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <form action="{{ url_for('seller_vouchers.unarchive_multiple_vouchers') }}" method="POST" id="bulkUnarchiveForm">
+                     <input type="hidden" name="voucher_ids" id="bulkUnarchiveVoucherIds">
+                     <button type="submit" class="btn btn-primary">Yes, Restore</button>
+                  </form>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination-container" class="d-flex justify-content-center">
+         <ul class="pagination d-flex align-items-center flex-row gap-2">
+            <li class="page-item"><a class="page-link" href="#" id="prevPage">Previous</a></li>
+            <li class="page-item pagination-numbers-container d-flex flex-row"></li> 
+            <li class="page-item"><a class="page-link" href="#" id="nextPage">Next</a></li>
+         </ul>
+      </div>
+
+   </main>
+   <!-- MAIN CONTENT END -->
+
+</div>
+<!-- MAIN END -->
+
+
+<!-- JS -->
+<script>
+   // Select All
+   document.addEventListener("DOMContentLoaded", function () {
+      const selectAllCheckbox = document.getElementById("selectAll");
+      const checkboxes = document.querySelectorAll(".form-check-input.voucher-checkbox");
+      const rows = document.querySelectorAll("tbody tr");
+
+      // Select All Checkbox 
+      if (selectAllCheckbox) {
+         selectAllCheckbox.addEventListener("change", function () {
+            checkboxes.forEach(checkbox => {
+               checkbox.checked = this.checked;
+               checkbox.closest("tr").classList.toggle("selected-row", this.checked);
+            });
+         });
+      }
+
+      // Toggle Checkbox & Highlight
+      rows.forEach(row => {
+         row.addEventListener("click", function (event) {
+            if (event.target.type === "checkbox" || event.target.tagName === "BUTTON" || event.target.tagName === "A") {
+               return;
+            }
+
+            const checkbox = this.querySelector(".form-check-input.voucher-checkbox");
+            if (checkbox) {
+               checkbox.checked = !checkbox.checked;
+               this.classList.toggle("selected-row", checkbox.checked);
+
+               selectAllCheckbox.checked = [...checkboxes].every(cb => cb.checked);
+            }
+         });
+      });
+
+      // Toggle Background
+      checkboxes.forEach(checkbox => {
+         checkbox.addEventListener("change", function () {
+            this.closest("tr").classList.toggle("selected-row", this.checked);
+            selectAllCheckbox.checked = [...checkboxes].every(cb => cb.checked);
+         });
+      });
+   });
+
+   // Archive Button
+   document.querySelectorAll('#bulkArchiveBtn').forEach(button => {
+      button.addEventListener('click', function () {
+         let selectedVouchers = Array.from(document.querySelectorAll('.voucher-checkbox:checked'))
+                                     .map(cb => cb.value);
+
+         document.getElementById('bulkVoucherIds').value = selectedVouchers.join(',');
+      });
+   });
+
+   // Unarchive Button
+   document.querySelectorAll('#bulkUnarchiveBtn').forEach(button => {
+      button.addEventListener('click', function () {
+         let selectedVouchers = Array.from(document.querySelectorAll('.voucher-checkbox:checked'))
+                                     .map(cb => cb.value);
+
+         document.getElementById('bulkUnarchiveVoucherIds').value = selectedVouchers.join(',');
+      });
+   });
+
+   // Pagination
+   document.addEventListener("DOMContentLoaded", function () {
+      const rowsPerPage = 12; 
+      let tableRows = document.querySelectorAll("tbody tr"); 
+      let totalRows = tableRows.length;
+      let totalPages = Math.ceil(totalRows / rowsPerPage);
+      let currentPage = 1;
+
+      const paginationContainer = document.querySelector(".pagination-numbers-container");
+      const prevPageBtn = document.getElementById("prevPage");
+      const nextPageBtn = document.getElementById("nextPage");
+
+      function showPage(page) {
+         let start = (page - 1) * rowsPerPage;
+         let end = start + rowsPerPage;
+
+         tableRows.forEach((row, index) => {
+            row.style.display = index >= start && index < end ? "table-row" : "none";
+         });
+
+         currentPage = page;
+         updatePaginationButtons();
+      }
+
+      function updatePaginationButtons() {
+         paginationContainer.innerHTML = "";
+         
+         for (let i = 1; i <= totalPages; i++) {
+            let pageItem = document.createElement("li");
+            pageItem.classList.add("page-item");
+            if (i === currentPage) pageItem.classList.add("active");
+
+            let pageLink = document.createElement("a");
+            pageLink.classList.add("page-link");
+            pageLink.href = "#";
+            pageLink.textContent = i;
+            pageLink.addEventListener("click", function (event) {
+               event.preventDefault();
+               showPage(i);
+            });
+
+            pageItem.appendChild(pageLink);
+            paginationContainer.appendChild(pageItem);
+         }
+
+         prevPageBtn.parentElement.classList.toggle("disabled", currentPage === 1);
+         nextPageBtn.parentElement.classList.toggle("disabled", currentPage === totalPages);
+      }
+
+      prevPageBtn.addEventListener("click", function (event) {
+         event.preventDefault();
+         if (currentPage > 1) showPage(currentPage - 1);
+      });
+
+      nextPageBtn.addEventListener("click", function (event) {
+         event.preventDefault();
+         if (currentPage < totalPages) showPage(currentPage + 1);
+      });
+
+      if (totalRows > 0) showPage(1); 
+   });
+
+   function updateVoucherValueLabel() {
+      const voucherType = document.getElementById('voucherType').value;
+      const voucherValueLabel = document.getElementById('voucherValueLabel');
+      const voucherValue = document.getElementById('voucherValue');
+      const voucherValueHelp = document.getElementById('voucherValueHelp');
+
+      if (voucherType === 'Discount') {
+         voucherValueLabel.textContent = 'Discount Percentage *';
+         voucherValue.setAttribute('min', '0');
+         voucherValue.setAttribute('max', '100');
+         voucherValue.setAttribute('step', '0.01');
+         voucherValueHelp.textContent = 'Enter a percentage between 0% and 100%';
+      } else if (voucherType === 'Free Shipping') {
+         voucherValueLabel.textContent = 'Free Shipping Amount *';
+         voucherValue.setAttribute('min', '0');
+         voucherValue.setAttribute('step', '0.01');
+         voucherValueHelp.textContent = 'Enter a valid amount';
+      } else {
+         voucherValueLabel.textContent = 'Voucher Value *';
+         voucherValue.setAttribute('min', '0');
+         voucherValue.setAttribute('step', '0.01');
+         voucherValueHelp.textContent = 'Select voucher type first';
+      }
+   }
+
+   function updateEditVoucherValueLabel(voucherId) {
+      const voucherType = document.getElementById(`editVoucherType${voucherId}`).value;
+      const voucherValueLabel = document.getElementById(`editVoucherValueLabel${voucherId}`);
+      const voucherValue = document.getElementById(`editVoucherValue${voucherId}`);
+      const voucherValueHelp = document.getElementById(`editVoucherValueHelp${voucherId}`);
+
+      if (voucherType === 'Discount') {
+         voucherValueLabel.textContent = 'Discount Percentage *';
+         voucherValue.setAttribute('min', '0');
+         voucherValue.setAttribute('max', '100');
+         voucherValue.setAttribute('step', '0.01');
+         voucherValueHelp.textContent = 'Enter a percentage between 0% and 100%';
+      } else if (voucherType === 'Free Shipping') {
+         voucherValueLabel.textContent = 'Free Shipping Amount *';
+         voucherValue.setAttribute('min', '0');
+         voucherValue.setAttribute('step', '0.01');
+         voucherValueHelp.textContent = 'Enter a valid amount';
+      } else {
+         voucherValueLabel.textContent = 'Voucher Value *';
+         voucherValue.setAttribute('min', '0');
+         voucherValue.setAttribute('step', '0.01');
+         voucherValueHelp.textContent = 'Select voucher type first';
+      }
+   }
+
+   // Individual voucher selection for bulk actions
+   function selectVoucherForArchive(voucherId) {
+      document.getElementById('bulkVoucherIds').value = voucherId;
+   }
+
+   function selectVoucherForUnarchive(voucherId) {
+      document.getElementById('bulkUnarchiveVoucherIds').value = voucherId;
+   }
+
+   // Bulk action for selected checkboxes
+   function archiveSelectedVouchers() {
+      let selectedVouchers = Array.from(document.querySelectorAll('.voucher-checkbox:checked'))
+                                 .map(cb => cb.value);
+      
+      if (selectedVouchers.length === 0) {
+         alert('Please select at least one voucher to archive.');
+         return;
+      }
+      
+      document.getElementById('bulkVoucherIds').value = selectedVouchers.join(',');
+      document.getElementById('confirmBulkActionModal').modal('show');
+   }
+
+   function unarchiveSelectedVouchers() {
+      let selectedVouchers = Array.from(document.querySelectorAll('.voucher-checkbox:checked'))
+                                 .map(cb => cb.value);
+      
+      if (selectedVouchers.length === 0) {
+         alert('Please select at least one voucher to restore.');
+         return;
+      }
+      
+      document.getElementById('bulkUnarchiveVoucherIds').value = selectedVouchers.join(',');
+      document.getElementById('confirmBulkUnarchiveModal').modal('show');
+   }
+
+   // Initialize edit voucher value labels on page load
+   document.addEventListener('DOMContentLoaded', function() {
+      {% for voucher in vouchers %}
+         updateEditVoucherValueLabel({{ voucher.voucher_id }});
+      {% endfor %}
+   });
+</script>
+
+
+{% endblock %}

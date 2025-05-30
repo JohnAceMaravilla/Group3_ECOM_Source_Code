@@ -1,0 +1,51 @@
+{% extends "base_form.html" %}
+
+{% block title %}Register - Email Verification{% endblock %}
+
+{% block content %}
+
+<div class="full-screen-container">
+    <div class="form-container registration-container">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fs-3" style="font-weight: 600;">Register</h2>
+            <a href="{{ url_for('seller_registration.get_login_info') }}" class="exit-icon text-dark">
+                <i class="bi bi-arrow-left fs-4 px-2"></i>
+            </a>
+        </div>
+
+        <p class="mb-4">
+            <strong class="text-primary">Verification: </strong>
+            A One-Time-Password (OTP) has been sent to <strong>{{ session.get('contact_info')['email'] }}</strong>. Please check your inbox or spam/junk folder. You will need to enter it below to verify your account.
+        </p>
+
+        <!-- Message Box -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %} 
+
+        <form action="{{ url_for('seller_registration.get_verification') }}" method="POST" onsubmit="return validateOtp()">
+            <div class="mb-3">
+                <label for="otp" class="form-label">OTP Code *</label>
+                <input type="text" class="form-control" id="otp" name="otp" placeholder="Enter OTP" oninput="numbers_only_limit6(this)" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">Confirm</button>
+        </form>
+
+        <div class="mt-4 text-center d-flex justify-content-between">
+            <p>Didn't receive OTP?</p>
+            <a href="{{ url_for('seller_registration.resend_registration_otp') }}" class="text-primary">Resend OTP</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

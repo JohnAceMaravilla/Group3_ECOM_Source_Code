@@ -1,0 +1,49 @@
+{% extends "base_form.html" %}
+
+{% block title %}Forgot Password{% endblock %}
+
+{% block content %}
+<div class="full-screen-container">
+    <div class="form-container login-container">
+        <div class="d-flex justify-content-between mb-4">
+            <h2 class="fs-3" style="font-weight: 600;">Forgot Password</h2>
+            <a href="{{ url_for('login.login') }}" class="exit-icon text-dark">
+                <i class="bi bi-arrow-left fs-4 px-2"></i>
+            </a>
+        </div>
+
+        <p class="mb-4">
+            <strong>Note:</strong> Enter you email to reset your password. An otp will be sent to your email.
+        </p>
+
+        <!-- Message Box -->
+        {% with messages = get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+                <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %} 
+
+        <form action="{{ url_for('login.forgot_pass') }}" method="POST">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter registered email" required
+                >
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">Send OTP</button>
+        </form>
+
+        <div class="mt-4 text-center">
+            <p>Remember your password?</p>
+            <a href="{{ url_for('login.login') }}" class="text-primary fw-semibold">Login Now!</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

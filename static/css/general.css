@@ -1,0 +1,29 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    text-decoration: none !important;
+}
+
+li {
+    list-style: none;
+}
+
+.header-text {
+    font-family: 'Outfit' !important;
+}
+
+.body-text {
+    font-family: 'Inter' !important;
+}
+
+h1, h2, h3, h4, h5, span, a, button, label {
+    font-family: 'Outfit' !important;
+}
+p, input, select {
+    font-family: 'Inter' !important;
+}
+
